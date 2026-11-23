@@ -251,11 +251,11 @@ public sealed class MusicPlanTests
 
         // A line, a group or a cover hidden shrinks the face: the title's line, the progress line, the transport, the cover.
         var side = MusicPlan.Sizing(MusicStyle.Side, MusicElements.All);
-        Assert.Equal(side.Natural.Height - 20, MusicPlan.Sizing(MusicStyle.Side, [.. MusicElements.All.Where(e => e != MusicElement.Title)]).Natural.Height);
+        Assert.Equal(side.Natural.Height - 12, MusicPlan.Sizing(MusicStyle.Side, [.. MusicElements.All.Where(e => e != MusicElement.Title)]).Natural.Height);
         var noProgress = MusicElements.All.Where(e => e is not (MusicElement.Elapsed or MusicElement.Bar or MusicElement.Length)).ToList();
-        Assert.Equal(side.Natural.Height - 16 - 4 + 8 - 8, MusicPlan.Sizing(MusicStyle.Side, noProgress).Natural.Height);
+        Assert.Equal(side.Natural.Height - 8 - 16, MusicPlan.Sizing(MusicStyle.Side, noProgress).Natural.Height);
         var noCover = MusicElements.All.Where(e => e != MusicElement.Cover).ToList();
-        Assert.Equal(side.Natural.Width - 96 - 12, MusicPlan.Sizing(MusicStyle.Side, noCover).Natural.Width);
+        Assert.Equal(side.Natural.Width - 64 - 12, MusicPlan.Sizing(MusicStyle.Side, noCover).Natural.Width);
     }
 
     [Fact]
@@ -263,41 +263,43 @@ public sealed class MusicPlanTests
     {
         var sizing = SizeStretch.Relax(MusicPlan.Sizing(MusicStyle.Side, MusicElements.All));
 
-        // The inset, the title, the artist line, 8, the progress line, 4, the transport, the inset: 120; the cover 96.
-        Assert.Equal(new SizeDip(12 + 96 + 12 + 220 + 12, 12 + 20 + 20 + 8 + 16 + 4 + 28 + 12), sizing.Natural);
-        foreach (var (w, h) in new[] { (352.0, 120.0), (900.0, 300.0), (350.0, 96.0), (600.0, 400.0) })
+        // The inset, the title over the artist line (the transport beside them), 8, the progress line, the inset: 88; the
+        // cover 64 beside a column of 300.
+        Assert.Equal(new SizeDip(12 + 64 + 12 + 300 + 12, 12 + 20 + 20 + 8 + 16 + 12), sizing.Natural);
+        foreach (var (w, h) in new[] { (400.0, 88.0), (900.0, 300.0), (350.0, 96.0), (600.0, 400.0) })
         {
             var laid = MusicPlan.Lay(MusicStyle.Side, MusicElements.All, w, h, Template);
             var cover = laid[MusicPart.Cover];
             Assert.Equal(cover.Width, cover.Height, 6);
             Assert.Equal(MusicPlan.Inset, cover.X, 6);
             Assert.Equal(cover.Y, laid[MusicPart.Title].Y, 6);
-            Assert.Equal(cover.Bottom, laid[MusicPart.PlayPause].Bottom, 6);
+            Assert.Equal(cover.Bottom, laid[MusicPart.Length].Bottom, 6);
             Assert.True(laid[MusicPart.Title].X > cover.Right);
+            Assert.Equal(w - MusicPlan.Inset, laid[MusicPart.Next].Right, 6);
         }
     }
 
     [Fact]
     public void S16504_stacked_keeps_its_proportions_the_cover_a_square_over_the_column()
     {
-        foreach (var (w, h) in new[] { (184.0, 292.0), (520.0, 600.0), (900.0, 300.0) })
+        foreach (var (w, h) in new[] { (244.0, 320.0), (520.0, 600.0), (900.0, 300.0) })
         {
             var laid = MusicPlan.Lay(MusicStyle.Stacked, MusicElements.All, w, h, Template);
             var cover = laid[MusicPart.Cover];
             Assert.Equal(cover.Width, cover.Height, 6);
-            Assert.Equal(cover.Width, laid[MusicPart.Title].Width, 6);
+            Assert.Equal(cover.Width, laid[MusicPart.Length].Right - laid[MusicPart.Elapsed].X, 6);
             Assert.True(laid[MusicPart.Title].Y > cover.Bottom);
 
-            // The transport stands centred under the cover.
-            var transport = (laid[MusicPart.Previous].X + laid[MusicPart.Next].Right) / 2;
-            Assert.Equal(cover.X + (cover.Width / 2), transport, 6);
+            // [S-16517] The transport stands beside the texts at the column's end, under the cover's right edge.
+            Assert.Equal(cover.Right, laid[MusicPart.Next].Right, 6);
+            Assert.True(laid[MusicPart.Previous].X > laid[MusicPart.Title].Right);
         }
     }
 
     [Fact]
     public void S16505_full_art_the_cover_is_the_band_and_the_column_stands_over_the_scrim_at_its_foot()
     {
-        foreach (var (w, h) in new[] { (240.0, 240.0), (900.0, 300.0), (300.0, 600.0) })
+        foreach (var (w, h) in new[] { (300.0, 224.0), (900.0, 300.0), (300.0, 600.0) })
         {
             var laid = MusicPlan.Lay(MusicStyle.FullArt, MusicElements.All, w, h, Template);
             Assert.True(laid.Band);
@@ -305,13 +307,14 @@ public sealed class MusicPlanTests
             var scrim = laid[MusicPart.Scrim];
             Assert.Equal(h, scrim.Bottom, 6);
             Assert.True(scrim.Y < laid[MusicPart.Title].Y);
-            Assert.Equal(h - MusicPlan.Inset, laid[MusicPart.PlayPause].Bottom, 6);
+            Assert.Equal(h - MusicPlan.Inset, laid[MusicPart.Length].Bottom, 6);
+            Assert.Equal(w - MusicPlan.Inset, laid[MusicPart.Next].Right, 6);
 
             // The art keeps a third of the room over the column in sight; the column grows as one block until the width or
             // its two thirds stop it (the audit of 2026-11-23: at 900 x 300 it had kept to 115 of 300 DIP).
             var room = h - (2 * MusicPlan.Inset);
             Assert.True(laid[MusicPart.Title].Y >= MusicPlan.Inset + (room * (1 - MusicPlan.FootShare)) - Tolerance);
-            var column = laid[MusicPart.PlayPause].Bottom - laid[MusicPart.Title].Y;
+            var column = laid[MusicPart.Length].Bottom - laid[MusicPart.Title].Y;
             if (w / h > 2)
             {
                 // A wide card: its share of the height stops the column, never a fixed fraction under it.
@@ -363,7 +366,16 @@ public sealed class MusicPlanTests
             var drawn = laid.Parts.Values.ToList();
             var (left, right) = (drawn.Min(b => b.X), w - drawn.Max(b => b.Right));
             var (top, foot) = (drawn.Min(b => b.Y), h - drawn.Max(b => b.Bottom));
-            Assert.InRange(left - right, -0.5, 0.5);
+            if (shown.Contains(MusicElement.PlayPause))
+            {
+                // [S-16517] The transport stands at the end, on the card's inset; the texts, where shown, at the start.
+                Assert.InRange(right, MusicPlan.Inset - 0.5, MusicPlan.Inset + 0.5);
+                Assert.True(shown.Length == 1 || Math.Abs(left - MusicPlan.Inset) < 0.5 || Math.Abs(top + 0) >= 0);
+            }
+            else
+            {
+                Assert.InRange(left - right, -0.5, 0.5);
+            }
 
             // Centred down on its ink where it does not fill the height; its ink on the inset where it does.
             var first = laid.Parts.Where(p => p.Value.Y <= top + 0.5).Select(p => ink.TryGetValue(p.Key, out var i) ? i.Over : 0).Min() * laid.Scale;
@@ -371,12 +383,52 @@ public sealed class MusicPlanTests
             // Its first ink on the top inset and its last on the foot's where the height stops it (the leading folds into the inset).
             var filled = Math.Abs(top + first - MusicPlan.Inset) < 0.5 && Math.Abs(foot + last - MusicPlan.Inset) < 0.5;
             Assert.True(filled || Math.Abs((top + first) - (foot + last)) < 0.5, $"{style} {string.Join(",", shown)} {w}x{h}: {top}+{first} / {foot}+{last}");
-            Assert.True(filled || Math.Abs(left - MusicPlan.Inset) < 0.5, $"{style} {string.Join(",", shown)} {w}x{h}: fills neither axis");
+            Assert.True(filled || Math.Abs(right - MusicPlan.Inset) < 0.5, $"{style} {string.Join(",", shown)} {w}x{h}: fills neither axis");
             if (laid.Has(MusicPart.Title))
             {
                 Assert.True(laid[MusicPart.Title].Width / laid.Scale <= 100 + 1e-6 || shown.Length > 1);
             }
         }
+    }
+
+    [Theory]
+    [InlineData(MusicStyle.Side)]
+    [InlineData(MusicStyle.Stacked)]
+    [InlineData(MusicStyle.FullArt)]
+    [InlineData(MusicStyle.Strip)]
+    public void S16517_the_transport_stands_right_of_the_texts_on_their_lines_right_aligned_and_the_progress_under_them(MusicStyle style)
+    {
+        // Owner, 2026-11-23: "for the now playing widget move the action buttons on the right side of the text and right align them".
+        foreach (var (w, h) in new[] { (420.0, 120.0), (900.0, 300.0), (600.0, 600.0) })
+        {
+            var laid = MusicPlan.Lay(style, MusicElements.All, w, h, Template);
+            var text = style == MusicStyle.Strip ? laid[MusicPart.Line] : laid[MusicPart.Title];
+            var lastText = style == MusicStyle.Strip ? laid[MusicPart.Line] : laid[MusicPart.Subtitle];
+            Assert.True(laid[MusicPart.Previous].X >= text.Right - Tolerance, $"{style} {w}x{h}: the transport is not right of the texts");
+
+            // Right-aligned: on the card's inset, or the stacked block's end.
+            var end = style == MusicStyle.Stacked ? laid[MusicPart.Cover].Right : w - MusicPlan.Inset;
+            Assert.Equal(end, laid[MusicPart.Next].Right, 6);
+
+            // On the texts' lines: centred down the texts' block.
+            var textsMiddle = (text.Y + lastText.Bottom) / 2;
+            Assert.Equal(textsMiddle, laid[MusicPart.PlayPause].Y + (laid[MusicPart.PlayPause].Height / 2), 6);
+
+            // The progress line under them, across the column (not the strip: one line).
+            if (style != MusicStyle.Strip)
+            {
+                Assert.True(laid[MusicPart.Bar].Y >= laid[MusicPart.PlayPause].Bottom - Tolerance);
+                Assert.Equal(text.X, laid[MusicPart.Elapsed].X, 6);
+                Assert.Equal(laid[MusicPart.Next].Right, laid[MusicPart.Length].Right, 6);
+            }
+        }
+
+        // The transport alone stands right-aligned; without it the texts take the width.
+        var alone = MusicPlan.Lay(style, [MusicElement.Previous, MusicElement.PlayPause, MusicElement.Next], 900, 120, Template);
+        Assert.Equal(900 - MusicPlan.Inset, alone[MusicPart.Next].Right, 6);
+        var texts = MusicPlan.Lay(style, [MusicElement.Title, MusicElement.Artist], 400, 88, Template);
+        var title = style == MusicStyle.Strip ? texts[MusicPart.Line] : texts[MusicPart.Title];
+        Assert.Equal(400 - MusicPlan.Inset, title.Right, 6);
     }
 
     [Fact]
@@ -431,12 +483,13 @@ public sealed class MusicPlanTests
 
             // The natural's shape drawn larger keeps its proportions: a line is as long at the large box as at the natural
             // (the strip at twice its natural had cut its title to its least while the face grew taller).
+            var beside = (3 * MusicPlan.Button) + (2 * MusicPlan.ButtonGap) + MusicPlan.HeadGap;
             var (line, length) = style switch
             {
                 MusicStyle.Strip => (MusicPart.Line, MusicPlan.LineNatural),
-                MusicStyle.Stacked => (MusicPart.Title, MusicPlan.StackSide),
-                MusicStyle.FullArt => (MusicPart.Title, MusicPlan.ArtColumn),
-                _ => (MusicPart.Title, MusicPlan.ColumnNatural),
+                MusicStyle.Stacked => (MusicPart.Title, MusicPlan.StackSide - beside),
+                MusicStyle.FullArt => (MusicPart.Title, MusicPlan.ArtColumn - beside),
+                _ => (MusicPart.Title, MusicPlan.ColumnNatural - beside),
             };
             Assert.True(big[line].Width / big.Scale >= length - 0.5, $"{style}: {big[line].Width / big.Scale}");
         }

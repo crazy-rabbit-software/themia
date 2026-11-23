@@ -136,8 +136,9 @@ public sealed record MusicFit
 /// <item>[S-16506] Strip: one line, the title and artist, the progress, the transport; no cover.</item>
 /// <item>[S-16507] A cover alone (nothing else shown, or a style with nothing else to draw): the card's band.</item>
 /// </list>
-/// The column, top to bottom: the title, the artist and album, 8, the progress line (the elapsed time, 8, the bar, 8, the
-/// length; without the bar the two times with a "/"), 4, the transport (previous, play/pause, next: 28 buttons 8 apart).
+/// The column: its head, the title over the artist and album and, 12 right of them at the column's end, the transport
+/// (previous, play/pause, next: 28 buttons 8 apart) centred down them ([S-16517]); 8; the progress line across the column
+/// (the elapsed time, 8, the bar, 8, the length; without the bar the two times with a "/").
 /// </summary>
 public static class MusicPlan
 {
@@ -147,8 +148,11 @@ public static class MusicPlan
     /// <summary>From the texts to what stands under them (the progress line, or the transport without it).</summary>
     public const double TextGap = FamilySpace.S2;
 
-    /// <summary>From the progress line to the transport.</summary>
-    public const double BarGap = FamilySpace.S1;
+    /// <summary>
+    /// [S-16517] The texts to the transport beside them (owner, 2026-11-23: "for the now playing widget move the action buttons
+    /// on the right side of the text and right align them").
+    /// </summary>
+    public const double HeadGap = FamilySpace.ColumnGap;
 
     /// <summary>A time to the bar.</summary>
     public const double TimeGap = FamilySpace.S2;
@@ -159,17 +163,17 @@ public static class MusicPlan
     /// <summary>The cover to the column beside it, and the strip's groups to each other.</summary>
     public const double ColumnGap = FamilySpace.ColumnGap;
 
-    /// <summary>The least width the column's texts keep: about a dozen letters of a title.</summary>
-    public const double ColumnLeast = 120;
+    /// <summary>The least width the column's texts keep: about ten letters of a title.</summary>
+    public const double ColumnLeast = 80;
 
-    /// <summary>A new card's column: a title and its artist whole in most cases.</summary>
-    public const double ColumnNatural = 220;
+    /// <summary>A new card's column: a title and its artist whole in most cases, the transport beside them.</summary>
+    public const double ColumnNatural = 300;
 
     /// <summary>[S-16504] The stacked block's width: the cover's side and the column's.</summary>
-    public const double StackSide = 160;
+    public const double StackSide = 220;
 
     /// <summary>[S-16505] Full art's room for the art over the column on a new card, and its column there.</summary>
-    public const double ArtRoom = 120, ArtColumn = 216;
+    public const double ArtRoom = 136, ArtColumn = 276;
 
     /// <summary>
     /// [S-16505] The most of Full art's height its column takes: it grows as one block until the width or this share stops it,
@@ -261,19 +265,23 @@ public static class MusicPlan
     /// <summary>[S-16502] The column's height: its lines and the gaps between the groups shown.</summary>
     private static double ColumnHeight(Shown s)
     {
-        var h = (s.Title ? TitleLine : 0) + (s.Sub ? SubLine : 0);
+        var h = HeadHeight(s);
         if (s.Progress)
         {
-            h += (s.Text ? TextGap : 0) + TimeLine;
-        }
-
-        if (s.Transport)
-        {
-            h += (s.Progress ? BarGap : s.Text ? TextGap : 0) + Button;
+            h += (h > 0 ? TextGap : 0) + TimeLine;
         }
 
         return h;
     }
+
+    /// <summary>[S-16517] The texts' block: the title over the artist and album.</summary>
+    private static double TextsHeight(Shown s) => (s.Title ? TitleLine : 0) + (s.Sub ? SubLine : 0);
+
+    /// <summary>[S-16517] The head: the texts and the transport beside them, the taller of the two.</summary>
+    private static double HeadHeight(Shown s) => Math.Max(TextsHeight(s), s.Transport ? Button : 0);
+
+    /// <summary>[S-16517] The head's width beside the texts: the transport and its gap (none without texts or transport).</summary>
+    private static double Beside(Shown s) => s.Transport ? TransportWidth(s.Buttons) + (s.Text ? HeadGap : 0) : 0;
 
     /// <summary>The progress line's least width: the times and the bar at its least (or the "/" between the times).</summary>
     private static double ProgressLeast(Shown s, double time, double bar)
@@ -293,7 +301,7 @@ public static class MusicPlan
 
     /// <summary>[S-16502] The column's least width: its texts', its progress line's and its transport's.</summary>
     private static double ColumnLeastOf(Shown s, double time)
-        => Math.Max(Math.Max(s.Text ? ColumnLeast : 0, ProgressLeast(s, time, BarLeast)), TransportWidth(s.Buttons));
+        => Math.Max((s.Text ? ColumnLeast : 0) + Beside(s), ProgressLeast(s, time, BarLeast));
 
     /// <summary>
     /// [S-16502] The column on a new card where texts or a bar take width (else its least): the style's own (the side cover's
@@ -384,12 +392,13 @@ public static class MusicPlan
     /// </summary>
     private static double Content(Shown s, double room, MusicFit fit, double time)
     {
-        if (s.Bar)
+        // [S-16517] The transport stands at the column's end, on the card's inset: a column with one spans its room.
+        if (s.Bar || s.Transport)
         {
             return room;
         }
 
-        var widest = Math.Max(ProgressLeast(s, time, 0), TransportWidth(s.Buttons));
+        var widest = ProgressLeast(s, time, 0);
         if (s.Title)
         {
             widest = Math.Max(widest, fit.Title);
@@ -414,7 +423,7 @@ public static class MusicPlan
         // [S-16516] A column whose content is narrower than the style's natural or least is as wide as its content: the
         // block fills its card by its words, never by room after them.
         var least = ColumnLeastOf(s, time);
-        var cl = Math.Max(s.Bar ? least : Content(s, least, fit, time), TransportWidth(s.Buttons));
+        var cl = Math.Max(s.Bar || s.Transport ? least : Content(s, least, fit, time), Beside(s));
         var cn = Math.Max(Content(s, ColumnNaturalOf(s, time), fit, time), cl);
         if (s.Style == MusicStyle.Strip)
         {
@@ -524,7 +533,7 @@ public static class MusicPlan
         if (!s.Cover)
         {
             var column = Content(s, wide, fit, time);
-            Column(s, parts, Inset + ((room.Width - (column * scale)) / 2), Down(hc), column, scale, time, centred: false);
+            Column(s, parts, Inset + ((room.Width - (column * scale)) / 2), Down(hc), column, scale, time);
             return new MusicLayout(scale, parts, false);
         }
 
@@ -537,7 +546,7 @@ public static class MusicPlan
                 var x = Inset + ((room.Width - block.Width) / 2);
                 var y = Inset + ((room.Height - block.Height) / 2);
                 parts[MusicPart.Cover] = new(x, y, block.Width, StackSide * scale);
-                Column(s, parts, x, y + ((StackSide + ColumnGap) * scale), StackSide, scale, time, centred: true);
+                Column(s, parts, x, y + ((StackSide + ColumnGap) * scale), StackSide, scale, time);
                 return new MusicLayout(scale, parts, false);
             }
 
@@ -548,7 +557,7 @@ public static class MusicPlan
                 parts[MusicPart.Cover] = new(0, 0, width, height);
                 var scrim = Math.Max(0, top - (ScrimLead * scale));
                 parts[MusicPart.Scrim] = new(0, scrim, width, height - scrim);
-                Column(s, parts, Inset, top, wide, scale, time, centred: false);
+                Column(s, parts, Inset, top, wide, scale, time);
                 return new MusicLayout(scale, parts, true);
             }
 
@@ -561,7 +570,7 @@ public static class MusicPlan
                 var x = Inset + ((room.Width - (block * scale)) / 2);
                 var y = Down(hc);
                 parts[MusicPart.Cover] = new(x, y, hc * scale, hc * scale);
-                Column(s, parts, x + ((hc + ColumnGap) * scale), y, column, scale, time, centred: false);
+                Column(s, parts, x + ((hc + ColumnGap) * scale), y, column, scale, time);
                 return new MusicLayout(scale, parts, false);
             }
         }
@@ -582,35 +591,34 @@ public static class MusicPlan
 
     /// <summary>
     /// [S-16502] The column at (<paramref name="x"/>, <paramref name="y"/>), <paramref name="column"/> wide in its own units:
-    /// its texts, its progress line, its transport (centred in Stacked).
+    /// its head (the texts, the transport beside them at the column's end, each centred down the head, [S-16517]) and under
+    /// it its progress line across the column.
     /// </summary>
-    private static void Column(Shown s, Dictionary<MusicPart, MusicBox> parts, double x, double y, double column, double scale, double time, bool centred)
+    private static void Column(Shown s, Dictionary<MusicPart, MusicBox> parts, double x, double y, double column, double scale, double time)
     {
-        var at = 0.0;
+        var head = HeadHeight(s);
+        var texts = TextsHeight(s);
+        var line = Math.Max(0, column - Beside(s));
+        var at = (head - texts) / 2;
         if (s.Title)
         {
-            parts[MusicPart.Title] = At(x, y, column, TitleLine, scale);
+            parts[MusicPart.Title] = At(x, y + (at * scale), line, TitleLine, scale);
             at += TitleLine;
         }
 
         if (s.Sub)
         {
-            parts[MusicPart.Subtitle] = At(x, y + (at * scale), column, SubLine, scale);
-            at += SubLine;
-        }
-
-        if (s.Progress)
-        {
-            at += s.Text ? TextGap : 0;
-            Progress(s, parts, x, y + (at * scale), column, scale, time);
-            at += TimeLine;
+            parts[MusicPart.Subtitle] = At(x, y + (at * scale), line, SubLine, scale);
         }
 
         if (s.Transport)
         {
-            at += s.Progress ? BarGap : s.Text ? TextGap : 0;
-            var start = centred ? (column - TransportWidth(s.Buttons)) / 2 : 0;
-            Transport(s, parts, x + (start * scale), y + (at * scale), scale);
+            Transport(s, parts, x + ((column - TransportWidth(s.Buttons)) * scale), y + ((head - Button) / 2 * scale), scale);
+        }
+
+        if (s.Progress)
+        {
+            Progress(s, parts, x, y + ((head + (head > 0 ? TextGap : 0)) * scale), column, scale, time);
         }
     }
 
@@ -704,8 +712,10 @@ public static class MusicPlan
 
         if (s.Transport)
         {
-            Transport(s, parts, x + (at * scale), y + ((height - Button) / 2 * scale), scale);
-            at += TransportWidth(s.Buttons) + ColumnGap;
+            // [S-16517] At the row's end, on the card's inset, whatever room the line left: the row spans.
+            var start = Math.Max(at, row - TransportWidth(s.Buttons));
+            Transport(s, parts, x + (start * scale), y + ((height - Button) / 2 * scale), scale);
+            return row;
         }
 
         return Math.Max(0, at - ColumnGap);

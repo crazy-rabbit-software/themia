@@ -39,22 +39,30 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   the width at the block's natural proportions (a larger card of the natural's shape draws the same face larger, its lines
   as long), and only at the floor by its least width (the column of texts, the progress line and the transport never
   narrower than 120, or its widest part); the texts and the bar take the width that scale leaves, so the block reaches the inset at both ends of the
-  axis that stops it (WR-1..WR-3) and stands centred on the other ("Centred is fine"). The column, top to bottom: the
-  title (BodyStrong, primary) and the artist and album in one line (Body, secondary, whichever of the two shows), each cut
-  with its ellipsis; 8; the progress line (the elapsed time, 8, the seek bar, 8, the length; without the bar the two
-  times with a "/" between them); 4 (8 from the texts without a progress line); the transport (previous, play/pause as
-  the one main action in the accent, next: 28 icon buttons 8 apart, left to right in every language). **Nothing gives
+  axis that stops it (WR-1..WR-3) and stands centred on the other ("Centred is fine"). The column: its head, the
+  title (BodyStrong, primary) over the artist and album in one line (Body, secondary, whichever of the two shows), each cut
+  with its ellipsis, and 12 right of them the transport (previous, play/pause as the one main action in the accent, next:
+  28 icon buttons 8 apart, left to right in every language) at the column's end, centred down the texts ([S-16517]); 8;
+  the progress line across the column (the elapsed time, 8, the seek bar, 8, the length; without the bar the two times
+  with a "/" between them). **Nothing gives
   way** (WR-7, the audit of 2026-11-22: the transport had dropped out of a short card while the texts grew): every shown
   element is drawn at every size; the least card is the whole block at the legibility floor (a time's Caption at 9, the
   texts' Body at 9, a button's glyph at 12: 0.75 with times or buttons, WR-14), sized on the widest time there is (an
   hour-long track's "1:02:30") with a pixel to spare (the audit of 2026-11-23: an hour-long track at the least card and the
   strip at its least drew under the floors), the natural card the block at 1 with the
-  style's column (220 beside a cover, 160 stacked, 216 in Full art). **A hidden element closes its room**: its line, its
+  style's column (300 beside a cover, 220 stacked, 276 in Full art; its texts the column less the transport's 112). **A hidden element closes its room**: its line, its
   gap and its share of the least and natural boxes go with it (a cover hidden is the column alone in every style; the
   transport alone is 124 × 52). A hover or a press never changes a part's place or size (WR-12): the plan is asked by
   the box, the style, the set and the times' template only. Tests `MusicPlanTests.S16502_` (every style × all, each
   element hidden, and several sets, at the least, natural, large and off-proportion boxes: every shown element drawn,
   inside the inset, none over another, the block on the inset, the natural at 1 and the least at the floor).
+- **[S-16517]** **The transport stands right of the texts, right-aligned** (owner, 2026-11-23: "for the now playing
+  widget move the action buttons on the right side of the text and right align them"). In the side cover, Stacked and
+  Full art's foot the column's head holds the texts and, 12 right of them, the transport at the column's end, on the
+  card's inset (Stacked: under the cover's right edge), centred down the texts' block; the progress line stands under
+  them across the column. The strip keeps its transport at the line's end, on the inset, whatever room its line leaves.
+  Hidden elements close up: no texts, the transport alone at the end; no transport, the texts take the width. A column
+  with a transport spans its room ([S-16516] narrows only a column of texts alone). Tests `MusicPlanTests.S16517_`.
 - **[S-16516]** **A face with nothing to take the width is as wide as its words** (the audit of 2026-11-23, its gap check
   measuring the face's parts: a title alone or the texts over the transport left the room after a short title as a band, up
   to 490 DIP, WR-3; a centred block stood on its boxes, its ink 5 DIP off centre, WR-1/WR-4). The view measures its texts
@@ -65,20 +73,20 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   the top), alike over and under where the width does; each text's first ink stands at its box's start (`Ink.InkStart`,
   its bearing taken at the scale drawn). With a bar, the bar takes the width as before; Full art's column stays on its art. Tests
   `MusicPlanTests.S16516_`.
-- **[S-16503]** **Side cover**: the cover at the column's left as tall as the column (96 with every element shown, in the
-  one radius), 12 from it the column. A new card 352 × 120; its least 213 × 97. Tests `MusicPlanTests.S16503_`.
-- **[S-16504]** **Stacked**: the cover a square over the column, as wide as it (160), 12 over it; the transport centred
-  under the cover. The block keeps its proportions: centred across where the height stops it, down where the width does.
-  A new card 184 × 292. Tests `MusicPlanTests.S16504_`.
+- **[S-16503]** **Side cover**: the cover at the column's left as tall as the column (64 with every element shown, in the
+  one radius), 12 from it the column. A new card 400 × 88; its least 226 × 73. Tests `MusicPlanTests.S16503_`.
+- **[S-16504]** **Stacked**: the cover a square over the column, as wide as it (220), 12 over it; the transport at the
+  column's end under the cover's right edge, beside the texts. The block keeps its proportions: centred across where the
+  height stops it, down where the width does. A new card 244 × 320. Tests `MusicPlanTests.S16504_`.
 - **[S-16505]** **Full art**: the cover is the card's band, edge to edge (cropped to fill; the card's corners); the column
   stands on the foot's inset across the card, over a scrim: the card's ground (the Solid role, its theme's colour) fading
   in from clear 24 over the column to 0.85 under it, so the texts keep their roles and read in either theme. The column
   grows as one block until the width or two thirds of the card's height stop it (the audit of 2026-11-23: it had kept to
   a fixed 0.4 of the height, 115 of 300 DIP at 900 × 300, WR-7), the art in sight over it; without a picture the music
-  glyph stands in the art's room. A new card 240 × 240. Tests `MusicPlanTests.S16505_`.
+  glyph stands in the art's room. A new card 300 × 224 (the art's room 136 over the column). Tests `MusicPlanTests.S16505_`.
 - **[S-16506]** **Strip**: one line, no cover: the title and, after a dot, the artist and album (one Body line, the title
-  semibold), the progress line (its bar 96) and the transport, 12 apart, each centred down the line; the line of text
-  takes the width left (without one, the bar). A new card 506 × 52; its least 327 × 46. Tests `MusicPlanTests.S16506_`,
+  semibold), the progress line (its bar 96) and the transport, 12 apart, each centred down the line, the transport at the line's
+  end on the inset ([S-16517]); the line of text takes the width left (without one, the bar). A new card 506 × 52; its least 327 × 46. Tests `MusicPlanTests.S16506_`,
   `MusicMenuTests.S16506_`.
 - **[S-16507]** **A cover alone** (nothing else shown, in any style): the picture is the card, edge to edge (the owner's
   exemption for a picture filling the card), a new card a square of 160, down to the grid's least widget (32); what

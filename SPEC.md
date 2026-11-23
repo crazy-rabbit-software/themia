@@ -10793,7 +10793,7 @@ placement they will just be a collection of regular widgets like any others").
   to 2026-11-23, retired with the split, [S-16512]: Now playing is one widget again.)*
 - **[S-16512]** **Now playing** and **Now playing, large** are the one widget (owner, 2026-11-23: "now playing is still
   split into multiple widgets"; `music`, [S-16500]) under its header: Now playing in its side cover, every element shown
-  (352 × 120), Now playing, large stacked (184 × 292, `"style": "stacked"`). Tests `ReadyMadeGroupsTests` (the rules of
+  (400 × 88), Now playing, large stacked (244 × 320, `"style": "stacked"`). Tests `ReadyMadeGroupsTests` (the rules of
   [S-2472]).
 - **[S-11341]** **Sound**: the volume (300 × 136, its header on) over the mixer (300 wide, its four
   rows, its header hidden: the first atom carries the header).
