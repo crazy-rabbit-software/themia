@@ -134,6 +134,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         Visibility = Visibility.Collapsed,
     };
 
+    /// <summary>[S-17161] The well's scroll bar across, at its foot: shown while the sheet is wider than the well.</summary>
+    private readonly Microsoft.UI.Xaml.Controls.Primitives.ScrollBar _scrollBarX = new()
+    {
+        Orientation = Orientation.Horizontal,
+        IndicatorMode = Microsoft.UI.Xaml.Controls.Primitives.ScrollingIndicatorMode.MouseIndicator,
+        Visibility = Visibility.Collapsed,
+    };
+
     private readonly List<WidgetCard> _cards = [];
 
     /// <summary>[S-16721] [S-16725] The titles and headings of the sheet shown, each on its box of the sheet.</summary>
@@ -169,6 +177,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
     private GallerySheet? _laid;
     private int _scroll;
+
+    /// <summary>[S-17161] How far the sheet is scrolled across, in columns of cells (a curated tab wider than the well).</summary>
+    private int _scrollX;
     private ViewState _screen = Empty();
 
     /// <summary>[S-16407] The tile the keys stand on (the pick's), or null.</summary>
@@ -285,6 +296,13 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
                 ScrollTo((int)Math.Round(e.NewValue));
             }
         };
+        _scrollBarX.ValueChanged += (_, e) =>
+        {
+            if (!_settingBar)
+            {
+                ScrollAcross((int)Math.Round(e.NewValue));
+            }
+        };
 
         _stage.Children.Add(_window);
         _stage.Children.Add(_head);
@@ -297,6 +315,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _stage.Children.Add(_band);
         _stage.Children.Add(_wellRim);
         _stage.Children.Add(_scrollBar);
+        _stage.Children.Add(_scrollBarX);
         Children.Add(_stage);
 
         _input.PointerPressed += OnPressed;
@@ -352,6 +371,12 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     internal int Scrolled => _scroll;
 
     internal int MostScroll => _laid is { } sheet ? WidgetGallery.MaxScroll(sheet.Rows, _view.H) : 0;
+
+    /// <summary>[S-17161] How far the sheet is scrolled across, for a check.</summary>
+    internal int ScrolledAcross => _scrollX;
+
+    /// <summary>[S-17161] How far the sheet shown scrolls across: its width past the view's (a curated tab's columns wider than the well).</summary>
+    internal int MostScrollAcross => _laid is { Cols: > 0 } sheet ? WidgetGallery.MaxScroll(sheet.Cols, _view.W) : 0;
 
     /// <summary>The widgets of the sheet shown, on the cells they stand on now: what a drag picks up.</summary>
     internal ViewState Screen => _screen;
@@ -461,6 +486,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         ClipToWell(true);
         SetBox(_input, well);
         SetBox(_scrollBar, new DipRect(well.X + well.Width - G.ScrollBar - FamilyShape.Hairline, well.Y + G.WellPad, G.ScrollBar, Math.Max(0, well.Height - (2 * G.WellPad))));
+        SetBox(_scrollBarX, new DipRect(well.X + G.WellPad, well.Y + well.Height - G.ScrollBar - FamilyShape.Hairline, Math.Max(0, well.Width - (2 * G.WellPad) - G.ScrollBar), G.ScrollBar));
 
         if (same && frame.View == _view && _laid is not null)
         {
@@ -599,6 +625,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         _base = _categories[_at];
         _scroll = 0;
+        _scrollX = 0;
         LeaveUnplaced();
         Present(_base, Lay(_base));
     }
@@ -659,6 +686,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _input.Visibility = Visibility.Collapsed;
         _grid.Visibility = Visibility.Collapsed;
         _scrollBar.Visibility = Visibility.Collapsed;
+        _scrollBarX.Visibility = Visibility.Collapsed;
         foreach (PageTabButton tab in _tabs.Children)
         {
             tab.Chosen = ReferenceEquals(tab, _unplacedTab);
@@ -763,6 +791,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _searched = _search.Text;
         _base = WidgetGallery.Find(_page, _categories, _search.Text) ?? _categories[Math.Clamp(_at, 0, _categories.Count - 1)];
         _scroll = 0;
+        _scrollX = 0;
         LeaveUnplaced();
         Present(_base, Lay(_base));
     }
@@ -775,7 +804,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     {
         var clock = Stopwatch.StartNew();
         var sheet = CuratedOf(content) is { } layout
-            ? CuratedBento.Lay(content.Id, content.Title, layout, _view.W, Sizes.Curated, Sizes.TitleRows, Sizes.HeadingRows, Editing)
+            ? CuratedBento.Lay(content.Id, content.Title, layout, Sizes.Curated, Sizes.TitleRows, Sizes.HeadingRows, Editing)
             : WidgetGallery.Lay(content, _view.W, Size, Sizes.TitleRows, Sizes.HeadingRows);
         LastLay = clock.Elapsed;
         return sheet;
@@ -846,6 +875,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         var (cols, rows) = GridGeometry.GridDims(_metrics);
         _laid = sheet;
         _scroll = Math.Clamp(_scroll, 0, MostScroll);
+        _scrollX = Math.Clamp(_scrollX, 0, MostScrollAcross);
 
         var view = Empty();
         var made = new List<WidgetInstance>();
@@ -1035,7 +1065,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     private FracRect RectOf(CellBox box)
     {
         var (cols, rows) = GridGeometry.GridDims(_metrics);
-        return new FracRect((_view.X + box.X) / (double)cols, (_view.Y + box.Y - _scroll) / (double)rows, box.W / (double)cols, box.H / (double)rows);
+        return new FracRect((_view.X + box.X - _scrollX) / (double)cols, (_view.Y + box.Y - _scroll) / (double)rows, box.W / (double)cols, box.H / (double)rows);
     }
 
     // ---- [S-16406] the fade -------------------------------------------------------------------------------------------
@@ -1135,7 +1165,12 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// [S-14913] Scroll the sheet shown to <paramref name="rows"/> rows of cells from its top (held to its ends): every
     /// card moves by whole cells, so it stands on the desktop's cells wherever it is scrolled to.
     /// </summary>
-    public void ScrollTo(int rows)
+    public void ScrollTo(int rows) => ScrollTo(rows, _scrollX);
+
+    /// <summary>[S-17161] Scroll the sheet shown <paramref name="cols"/> columns of cells across from its left (held to its ends), by whole cells.</summary>
+    public void ScrollAcross(int cols) => ScrollTo(_scroll, cols);
+
+    private void ScrollTo(int rows, int cols)
     {
         if (_disposed || _laid is null || _following is not null)
         {
@@ -1143,13 +1178,15 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
 
         var to = WidgetGallery.Scroll(0, rows, MostScroll);
-        if (to == _scroll)
+        var across = WidgetGallery.Scroll(0, cols, MostScrollAcross);
+        if (to == _scroll && across == _scrollX)
         {
             return;
         }
 
         Settle();
         _scroll = to;
+        _scrollX = across;
         foreach (var card in _cards)
         {
             if (!_placed.TryGetValue(card.Model.Id, out var at))
@@ -1190,6 +1227,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             _scrollBar.SmallChange = WidgetGallery.Step;
             _scrollBar.LargeChange = WidgetGallery.PageRows(_view.H);
             _scrollBar.Value = _scroll;
+            var wide = MostScrollAcross;
+            _scrollBarX.Visibility = wide > 0 ? Visibility.Visible : Visibility.Collapsed;
+            _scrollBarX.Minimum = 0;
+            _scrollBarX.Maximum = wide;
+            _scrollBarX.ViewportSize = _view.W;
+            _scrollBarX.SmallChange = WidgetGallery.Step;
+            _scrollBarX.LargeChange = WidgetGallery.PageRows(_view.W);
+            _scrollBarX.Value = _scrollX;
         }
         finally
         {
@@ -1280,7 +1325,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         var to = WidgetGallery.Next(sheet, _cursor ?? CursorOfPick(), move);
         _cursor = to;
         _selection.Replace(ScreenViewId, _placed.Where(p => p.Value.Tile == to).Select(p => p.Key));
-        ScrollTo(WidgetGallery.Reveal(_scroll, sheet.Tiles[to].Box, _view.H, MostScroll));
+        ScrollTo(WidgetGallery.Reveal(_scroll, sheet.Tiles[to].Box, _view.H, MostScroll), WidgetGallery.RevealAcross(_scrollX, sheet.Tiles[to].Box, _view.W, MostScrollAcross));
         Sync();
         return true;
     }
@@ -1397,7 +1442,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     }
 
     /// <summary>[S-14916] Everything of the gallery but its cards: what steps aside while a drag off it is aimed.</summary>
-    private UIElement[] Chrome => [_window, _head, _wellBox, _wellRim, _grid, _markPlates, _scrollBar, _band, _unplacedRoom];
+    private UIElement[] Chrome => [_window, _head, _wellBox, _wellRim, _grid, _markPlates, _scrollBar, _scrollBarX, _band, _unplacedRoom];
 
     public void Dispose()
     {
@@ -1701,14 +1746,30 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _band.Visibility = Visibility.Collapsed;
     }
 
-    /// <summary>[S-14913] The wheel over the well scrolls the sheet shown, a step a notch; it never changes the category.</summary>
+    /// <summary>
+    /// [S-14913] [S-17161] The wheel over the well scrolls the sheet shown, a step a notch; it never changes the category. Tilted
+    /// (a horizontal wheel or a touchpad's swipe), with Shift, or over a sheet that only scrolls across, it scrolls across.
+    /// </summary>
     private void OnWheel(object sender, PointerRoutedEventArgs e)
     {
-        var delta = e.GetCurrentPoint(_stage).Properties.MouseWheelDelta;
+        var props = e.GetCurrentPoint(_stage).Properties;
+        var delta = props.MouseWheelDelta;
         if (delta != 0 && _following is null)
         {
-            var notches = Math.Max(1, (int)Math.Round(Math.Abs(delta) / 120.0));
-            ScrollTo(_scroll + (delta > 0 ? -notches : notches) * WidgetGallery.Step);
+            var notches = Math.Max(1, (int)Math.Round(Math.Abs(delta) / 120.0)) * WidgetGallery.Step;
+            if (props.IsHorizontalMouseWheel)
+            {
+                ScrollAcross(_scrollX + (delta > 0 ? notches : -notches));
+            }
+            else if (e.KeyModifiers.HasFlag(Windows.System.VirtualKeyModifiers.Shift) || (MostScroll == 0 && MostScrollAcross > 0))
+            {
+                ScrollAcross(_scrollX + (delta > 0 ? -notches : notches));
+            }
+            else
+            {
+                ScrollTo(_scroll + (delta > 0 ? -notches : notches));
+            }
+
             e.Handled = true;
         }
     }

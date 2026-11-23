@@ -2,13 +2,13 @@
   "titles": true,
   "columns": [
     {
-      "share": 0.2113,
+      "width": 29,
       "sections": [
         {
           "widgets": [
             {
               "pick": "weatherForecast",
-              "w": 30,
+              "w": 29,
               "h": 12
             }
           ]
@@ -16,13 +16,13 @@
       ]
     },
     {
-      "share": 0.2113,
+      "width": 29,
       "sections": [
         {
           "widgets": [
             {
               "pick": "rainNextHour",
-              "w": 30,
+              "w": 29,
               "h": 12
             }
           ]
@@ -30,13 +30,13 @@
       ]
     },
     {
-      "share": 0.1972,
+      "width": 27,
       "sections": [
         {
           "widgets": [
             {
               "pick": "sun",
-              "w": 28,
+              "w": 27,
               "h": 12
             }
           ]
@@ -44,13 +44,13 @@
       ]
     },
     {
-      "share": 0.1408,
+      "width": 19,
       "sections": [
         {
           "widgets": [
             {
               "pick": "airQuality",
-              "w": 20,
+              "w": 19,
               "h": 12
             }
           ]
@@ -58,13 +58,13 @@
       ]
     },
     {
-      "share": 0.1268,
+      "width": 17,
       "sections": [
         {
           "widgets": [
             {
               "pick": "weatherNow",
-              "w": 18,
+              "w": 17,
               "h": 12
             }
           ]
@@ -72,7 +72,7 @@
       ]
     },
     {
-      "share": 0.1127,
+      "width": 16,
       "sections": [
         {
           "widgets": [

@@ -141,7 +141,8 @@ public sealed class WidgetGalleryPlacementTests
     /// [S-16740]..[S-16746] Every tab of the build ships its curated layout, read clean (no widget the build lacks, nothing
     /// repaired), and laid on a 1920 by 1080 display and the small ones by the curated rules: every widget of the file once, in
     /// its column (no wider), on whole cells inside the view, one cell from every other, packed (none could stand a cell
-    /// higher in its section), its card under its title where the tab has titles; columns stacking on a narrow view, never cut.
+    /// higher in its section), its card under its title where the tab has titles; every column its own blocks wide, two
+    /// blocks apart on one line, inside the view at 1920 by 1080; on a narrow view the same (the sheet wider, scrolled across).
     /// </summary>
     [Theory]
     [InlineData(1920, 1080)]
@@ -167,20 +168,28 @@ public sealed class WidgetGalleryPlacementTests
 
             var widgets = layout.Columns.Sum(c => c.Sections.Sum(s => s.Widgets.Count));
             Assert.True(widgets > 0, $"{category.Id}: an empty tab");
-            var sheet = CuratedBento.Lay(category.Id, category.Title, layout, view, sizes.Curated, sizes.TitleRows, sizes.HeadingRows);
+            var sheet = CuratedBento.Lay(category.Id, category.Title, layout, sizes.Curated, sizes.TitleRows, sizes.HeadingRows);
             Assert.Equal(widgets, sheet.Tiles.Count);
+
+            // [S-17160] [S-17161] Every column exactly its blocks (never stretched, never narrowed), on one line two blocks
+            // from its neighbours, the sheet as wide as they are; at 1920 by 1080 every tab fits the view (no scrolling across).
+            Assert.Equal(layout.Columns.Select(c => c.Width), sheet.Columns.Select(c => c.W));
+            Assert.All(sheet.Columns, c => Assert.Equal(0, c.Y));
+            Assert.All(sheet.Columns.Skip(1).Zip(sheet.Columns), p => Assert.Equal(p.Second.Right + CuratedBento.ColumnGap, p.First.X));
+            Assert.Equal(sheet.Columns[^1].Right, sheet.Cols);
+            Assert.True(width < 1920 || sheet.Cols <= view, $"{category.Id}: {sheet.Cols} cells wide at {width} (view {view})");
             Assert.Equal(widgets, sheet.Tiles.Select(t => t.Slot).Distinct().Count());
             foreach (var tile in sheet.Tiles)
             {
                 var slot = tile.Slot!.Value;
                 var column = sheet.Columns[slot.Column];
-                Assert.True(column.Holds(tile.Box) && tile.Box.X >= 0 && tile.Box.Right <= view, $"{category.Id}: {tile.Piece.Key} at {tile.Box} outside its column {column} or the view {view}");
+                Assert.True(column.Holds(tile.Box) && tile.Box.X >= 0 && tile.Box.Right <= sheet.Cols, $"{category.Id}: {tile.Piece.Key} at {tile.Box} outside its column {column} or the sheet {sheet.Cols}");
                 Assert.True(tile.Box.Y >= sheet.Areas.Single(a => a.Slot == slot with { Widget = -1 }).Box.Y);
                 Assert.Equal(layout.Titles ? sizes.TitleRows : 0, sheet.CardOf(tile).Y - tile.Box.Y);
                 foreach (var other in sheet.Tiles.Where(o => !ReferenceEquals(o, tile)))
                 {
                     var apart = new CellBox(tile.Box.X - WidgetGallery.Gap, tile.Box.Y - WidgetGallery.Gap, tile.Box.W + (2 * WidgetGallery.Gap), tile.Box.H + (2 * WidgetGallery.Gap));
-                    Assert.False(apart.Overlaps(other.Box), $"{category.Id}: {tile.Piece.Key} and {other.Piece.Key} touch{Environment.NewLine}{Map(sheet, view)}");
+                    Assert.False(apart.Overlaps(other.Box), $"{category.Id}: {tile.Piece.Key} and {other.Piece.Key} touch{Environment.NewLine}{Map(sheet, Math.Max(view, sheet.Cols))}");
                 }
 
                 // Packed: a cell higher it would leave its section or touch another of its section.
@@ -189,7 +198,7 @@ public sealed class WidgetGalleryPlacementTests
                 var up = tile.Box with { Y = tile.Box.Y - 1 };
                 Assert.True(up.Y < top || sheet.Tiles.Any(o => !ReferenceEquals(o, tile) && o.Slot!.Value.Column == slot.Column && o.Slot.Value.Section == slot.Section
                     && new CellBox(o.Box.X - WidgetGallery.Gap, o.Box.Y - WidgetGallery.Gap, o.Box.W + (2 * WidgetGallery.Gap), o.Box.H + (2 * WidgetGallery.Gap)).Overlaps(up)),
-                    $"{category.Id}: {tile.Piece.Key} at {tile.Box} could stand a cell higher{Environment.NewLine}{Map(sheet, view)}");
+                    $"{category.Id}: {tile.Piece.Key} at {tile.Box} could stand a cell higher{Environment.NewLine}{Map(sheet, Math.Max(view, sheet.Cols))}");
             }
         }
     }

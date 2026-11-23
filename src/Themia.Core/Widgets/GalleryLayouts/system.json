@@ -2,7 +2,7 @@
   "titles": true,
   "columns": [
     {
-      "share": 0.5052,
+      "width": 73,
       "sections": [
         {
           "widgets": [
@@ -21,7 +21,7 @@
       ]
     },
     {
-      "share": 0.4948,
+      "width": 72,
       "sections": [
         {
           "widgets": [

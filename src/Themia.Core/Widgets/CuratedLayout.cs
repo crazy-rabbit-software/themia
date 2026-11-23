@@ -7,7 +7,7 @@ namespace Themia.Core.Widgets;
 /// [S-16740] One tab of the widget gallery as the owner laid it (owner, 2026-11-23: "there are columns of which i can change
 /// the size and then i can have sections in the columns that i can also name / give a title too. in a column the widgets are
 /// automatically aligned and i can change their height and width and then they are packed together as tightly as possible in
-/// direction of reading"): its columns left to right, each a share of the width. Shipped as one file per tab
+/// direction of reading"): its columns left to right, each a fixed number of the grid's blocks wide ([S-17160]). Shipped as one file per tab
 /// (<see cref="CuratedLayouts"/>), laid by <see cref="CuratedBento"/>.
 /// </summary>
 public sealed record CuratedLayout
@@ -18,10 +18,13 @@ public sealed record CuratedLayout
     public IReadOnlyList<CuratedColumn> Columns { get; init; } = [];
 }
 
-/// <summary>[S-16741] A column: its share of the gallery's width (shares are relative: any positive numbers) and its sections, top down.</summary>
+/// <summary>
+/// [S-16741] [S-17160] A column: its width in whole blocks (cells of the display's grid, about 10 DIPs: the same on every
+/// display, never stretched; 0, missing, is repaired where read) and its sections, top down.
+/// </summary>
 public sealed record CuratedColumn
 {
-    public double Share { get; init; } = 1;
+    public int Width { get; init; }
 
     public IReadOnlyList<CuratedSection> Sections { get; init; } = [];
 }

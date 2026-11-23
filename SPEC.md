@@ -3198,7 +3198,7 @@ band drawn on the page with the real pointer (Ctrl and Shift too), placing by a 
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
-#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16731], [S-16740]..[S-16747])
+#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16731], [S-16740]..[S-16747], [S-17160]..[S-17163])
 
 The owner (2026-11-21): *"the add widget menu should be reworked: -dont delete anything of the current settings view yet,
 build a second independent page. -on the independent page it should bascially be a dashboard that you show with the
@@ -3533,9 +3533,8 @@ auto for search"). Owning files: Core `Widgets/CuratedLayout.cs` (the model), `C
   nothing else (a widget no layout places does not show); a search's finds stay the automatic column bento ([S-16550]); a tab
   with no layout file yet is laid automatically until it is curated. Every tab of the build ships one (`CuratedLayouts.Shipped`),
   first made from the automatic bento at 1920 by 1080 (`CuratedLayouts.From`) for the owner to edit.
-- **[S-16741]** **Columns of shares.** A layout is columns left to right, each a share of the width (any positive numbers,
-  relative); the shares become whole cells filling the view, one cell between two columns, the cells left over to the largest
-  remainders, the left-most first (`CuratedBento.Widths`).
+- **[S-16741]** **Columns of blocks.** A layout is columns left to right, each a fixed width in whole blocks (cells of the
+  display's grid, [S-17160]); no column stretches to fill the view (shares, until 2026-11-23, did).
 - **[S-16742]** **Sections and widgets.** A column is sections top down, each with a title or none (a titled one has its
   heading over it, BodyStrong, `G.Heading` in rows; none, no heading), one cell apart; a section is widgets in reading order,
   each a pick (`clock`, `quickToggle/wifi`: a kind or its preset, [S-16685]), a style by its name, a config fragment over its
@@ -3545,15 +3544,13 @@ auto for search"). Owning files: Core `Widgets/CuratedLayout.cs` (the model), `C
   spot of its column that holds it, the left-most of those, one cell from every other; never wider than its column (made
   narrower), held to its sizing on the display (`GallerySizes.Curated`); a later widget may take the room an earlier one left
   beside a taller one. Laid, a tab is tiles that know their slot (column, section, place) and its sections' areas.
-- **[S-16744]** **Columns shrink, then stack**: on a narrower view every column narrows with its share down to its least
-  (`CuratedBento.LeastColumn`, 20 cells, or its widest widget's least); past that the rightmost columns leave the line one by one
-  (`Across`), the others share the width, and each that left stands whole, its sections intact, one cell under the column whose
-  foot is then highest (of those at least its least wide, else the widest).
+- **[S-16744]** **Columns scroll, never shrink or stack**: on a narrower view the columns stay on their line at their widths
+  and the well scrolls across ([S-17161]); the owner's "Columns shrink, then stack" of the first build was replaced 2026-11-23.
 - **[S-16745]** **The editor** (Debug builds only, `WidgetGalleryView.Editor.cs` compiled under `DEBUG` alone: the Store's
   Release app has no trace of it): the head's pencil, "Edit gallery", turns it on for the tab shown (a search is emptied and
   greyed, Not on view left; a tab with no file begins as its automatic bento), "Done editing" off. On: each column its dashed
-  outline and a band of tools (Add section, Remove column), the edge between two columns on one line a strip dragged to share
-  their width (whole cells, each at least the least, `CuratedEdits.Edge`); each section its heading line, titled or not: the title
+  outline and a band of tools (its width in blocks, Add section, Remove column, [S-17163]), its right edge a strip dragged to
+  set its width in whole blocks; each section its heading line, titled or not: the title
   box (Enter or leaving it renames; empty, no heading), up, down, Add widget (a menu: Not placed yet, the widgets no tab places,
   then every tab's own pieces, each kind, preset and style) and Remove section; an empty section stands `EmptyRows` tall to drop
   into. A widget is picked as before; dragged it moves in the gallery (never placed on the desktop while editing) and lands in
@@ -3565,9 +3562,9 @@ auto for search"). Owning files: Core `Widgets/CuratedLayout.cs` (the model), `C
   build.
 - **[S-16746]** **The files** (`CuratedLayouts`): one a tab, `src/Themia.Core/Widgets/GalleryLayouts/<tab>.json` (the tab's id in
   camelCase), embedded in Core and read where a gallery opens; checked where read: a pick the build lacks, a preset or style its
-  kind lacks dropped loudly (logged), a size outside 1..400 cells held to it, a share that is no positive number made 1; a file
-  that is no layout logged and the tab laid automatically. Written as the editor saves (two spaces, LF, a line end last, shares to
-  four places, nothing null written; `Write` round-trips `Read`), atomically (a temp file, then moved over), into the repo the
+  kind lacks dropped loudly (logged), a size outside 1..400 cells held to it, a column's width missing or outside 1..400 blocks
+  made its widest widget's ([S-17162]); a file that is no layout logged and the tab laid automatically. Written as the editor
+  saves (two spaces, LF, a line end last, nothing null written; `Write` round-trips `Read`), atomically (a temp file, then moved over), into the repo the
   Debug build was compiled from (its source path, `[CallerFilePath]`), for the owner to commit; with no source tree on the PC,
   nothing is written and the head says so. Section titles are the owner's words as written (not translated).
 - **[S-16747]** **The lasso draws as the desktop's** (owner, 2026-11-23: *"the lasso does not show up properly currently in the
@@ -3576,6 +3573,34 @@ auto for search"). Owning files: Core `Widgets/CuratedLayout.cs` (the model), `C
   (`SelectionChrome.PaintBand`) over the cards, its box cut to the well's (never over the head or the rim, scrolled or not), and
   it picks the cards it touches there. `--check gallery` draws a lasso over two cards (`<out>.lasso.png`): both picked, its
   rectangle inside the well.
+
+Fixed column widths (owner, 2026-11-23: *"the columns right now stretch to fil the space in the widget gallery, the columns
+should not stretch, they should have a fixed block width. between columns there should be a two block space. i should be
+able to set the width of a column in blocks exactly."*). Owning files as above; tests `CuratedBentoTests.S17160_`..`S17163_`
+(and the `S16745_`/`S16746_` ones), `WidgetGalleryPlacementTests.S16743_`.
+
+- **[S-17160]** **A column is its blocks wide.** Each column of a curated tab is exactly its stored width in whole blocks
+  (`CuratedColumn.Width`, `"width": 26` in its file; a block is a cell of the display's grid, about 10 DIPs on every display),
+  at every display and view: nothing stretches it to fill the well. The columns stand on one line from the view's left (the
+  well's own inset, as before), `CuratedBento.ColumnGap` (two blocks) apart; the room left over at the right stays empty. A
+  widget wider than its column is held to it (made narrower, [S-16743]).
+- **[S-17161]** **Wider than the well, it scrolls both ways** (owner, 2026-11-23: *"when the columns cant fit onto one screen
+  anymore scrolling in both directions should be possible. dont scale or stretch anything for it."*): the columns never
+  stack, narrow or scale for the view; the sheet is as wide as its columns and their gaps (`GallerySheet.Cols`) and, wider
+  than the view, the well scrolls across by whole cells as it scrolls down (`ScrollAcross`, `MostScrollAcross`): a horizontal
+  scroll bar at the well's foot while it does, the wheel tilted or with Shift (or the plain wheel where the sheet only scrolls
+  across) a step a notch, the arrows' pick brought into sight both ways as little as it takes (`WidgetGallery.RevealAcross`).
+  A search's bento and a tab laid automatically are as wide as the view and never scroll across. `--check gallery` scrolls
+  every tab wider than its view across to its end (whole cells, nothing narrowed).
+- **[S-17162]** **The files hold widths.** A column is written `"width"` (whole blocks) before its `"sections"`;
+  checked where read, a width missing or outside 1..400 is made its widest widget's stored width (`CuratedBento.NewColumn`,
+  20, where it has none), logged. The shipped tabs were converted once from their shares: each column the whole cells it had at
+  1920 by 1080 (a view of 147) less its part of the wider gaps, its widgets that filled it made as wide as it, so every tab
+  still stands on one line at 1920 by 1080.
+- **[S-17163]** **The editor sets a width exactly.** Each column's band of tools starts with its width: a minus, the number of
+  blocks (a box: typed, Enter or leaving it sets it) and a plus (`CuratedEdits.Width`, 1..400); its right edge is a strip two
+  blocks wide dragged to make it whole blocks wider or narrower, live, the width in blocks shown by the pointer as it goes; the
+  columns right of it move, none narrows; one undo step a drag. Add column adds one `NewColumn` blocks wide.
 
 Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays and
 the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the

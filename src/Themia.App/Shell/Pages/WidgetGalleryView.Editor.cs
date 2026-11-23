@@ -26,8 +26,8 @@ namespace Themia.App.Shell;
 /// [S-16745] The owner's editor of the gallery's tabs (owner, 2026-11-23: "for the widget gallery i want to have an editor ...
 /// this should only be for me to be able to edit the widget gallery"; asked where: "In the gallery"), in Debug builds alone:
 /// this file is compiled only there, so the Store's app has no trace of it. "Edit gallery" in the head turns it on for the
-/// tab shown: every column its outline and its tools (a section added, the column removed), the edge between two columns
-/// dragged to resize them (whole cells), every section its title box and its tools (up, down, a widget added from every
+/// tab shown: every column its outline and its tools (its width in blocks set exactly, a section added, the column removed),
+/// its right edge dragged to make it whole blocks wider or narrower ([S-17163]), every section its title box and its tools (up, down, a widget added from every
 /// kind and preset or the widgets not placed yet, removed), a widget dragged into another section or column (it lands in
 /// reading order where it is let go), resized by its corner in whole cells (its section packs again as it goes), removed by
 /// Delete or its ×. Ctrl+Z and Ctrl+Y step back and forth through the session's edits; Save writes the edited tabs' files
@@ -52,6 +52,10 @@ internal sealed partial class WidgetGalleryView
     private readonly Canvas _editPick = new();
     private readonly Canvas _editOver = new() { IsHitTestVisible = false };
     private readonly Rectangle _editDrop = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed, StrokeThickness = FamilyShape.Stroke };
+
+    /// <summary>[S-17163] The width in blocks shown by the pointer while a column's edge is dragged.</summary>
+    private readonly Border _editWidth = new() { IsHitTestVisible = false, Visibility = Visibility.Collapsed, Padding = new Thickness(Fluent.Space2, Fluent.Space1, Fluent.Space2, Fluent.Space1) };
+    private readonly TextBlock _editWidthText = Fluent.Text(FamilyType.BodyStrong, "TextOnAccentFillColorPrimaryBrush");
 
     private readonly StackPanel _editHead = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, VerticalAlignment = VerticalAlignment.Center };
     private readonly StackPanel _editTools = new() { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, Visibility = Visibility.Collapsed };
@@ -96,6 +100,10 @@ internal sealed partial class WidgetGalleryView
         _editDrop.Stroke = Family.Brush(ColourRole.Accent);
         _editDrop.Fill = HexBrush.Wash(ColourRole.Accent);
         _editOver.Children.Add(_editDrop);
+        _editWidth.Background = Family.Brush(ColourRole.Accent);
+        _editWidth.CornerRadius = new CornerRadius(FamilyShape.Radius);
+        _editWidth.Child = _editWidthText;
+        _editOver.Children.Add(_editWidth);
         _editLayer.Children.Add(_editChrome);
         _editLayer.Children.Add(_editPick);
         _editLayer.Children.Add(_editOver);
@@ -188,6 +196,7 @@ internal sealed partial class WidgetGalleryView
             Put(outline, dip);
 
             var tools = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space1, Height = band };
+            WidthTools(tools, column, layout.Columns[c].Width, band);
             tools.Children.Add(Tool(Glyphs.Add, Str.WidgetGallery_EditAddSection.Text(), () => Apply(l => CuratedEdits.AddSection(l, column)), band));
             if (layout.Columns.Count > 1)
             {
@@ -196,14 +205,11 @@ internal sealed partial class WidgetGalleryView
 
             Put(tools, dip with { Height = band }, size: false);
 
-            // [S-16744] The edge to the next column on the same line: dragged, the two share their width anew.
-            if (c + 1 < sheet.Columns.Count && sheet.Columns[c + 1] is { } next && next.Y == box.Y && next.X == box.Right + WidgetGallery.Gap)
-            {
-                var edge = new Border { Background = HexBrush.Wash(ColourRole.Accent), BorderBrush = Family.Brush(ColourRole.Accent), BorderThickness = new Thickness(FamilyShape.Hairline, 0, FamilyShape.Hairline, 0) };
-                ToolTipService.SetToolTip(edge, Str.WidgetGallery_EditColumnEdge.Text());
-                edge.PointerPressed += (_, e) => BeginEdge(column, box.W, next.W, e);
-                Put(edge, Dip(new CellBox(box.Right, box.Y, WidgetGallery.Gap, Math.Max(box.H, next.H))));
-            }
+            // [S-17163] Its right edge (the gap after it): dragged, the column is made whole blocks wider or narrower.
+            var edge = new Border { Background = HexBrush.Wash(ColourRole.Accent), BorderBrush = Family.Brush(ColourRole.Accent), BorderThickness = new Thickness(FamilyShape.Hairline, 0, FamilyShape.Hairline, 0) };
+            ToolTipService.SetToolTip(edge, Str.WidgetGallery_EditColumnEdge.Text());
+            edge.PointerPressed += (_, e) => BeginEdge(column, box.W, e);
+            Put(edge, Dip(new CellBox(box.Right, box.Y, CuratedBento.ColumnGap, box.H)));
         }
 
         foreach (var heading in sheet.Headings)
@@ -215,6 +221,53 @@ internal sealed partial class WidgetGalleryView
         }
 
         PlacePickGrip();
+    }
+
+    /// <summary>
+    /// [S-17163] A column's width in its band of tools: narrower by a block, the number of blocks (typed: Enter or leaving the
+    /// box sets it), wider by a block.
+    /// </summary>
+    private void WidthTools(StackPanel tools, int column, int width, double band)
+    {
+        var tip = Str.WidgetGallery_EditColumnWidth.Text();
+        tools.Children.Add(Tool(Glyphs.Minus, Str.WidgetGallery_EditNarrower.Text(), () => Apply(l => CuratedEdits.Width(l, column, width - 1)), band));
+        var box = new TextBox
+        {
+            Text = LocaleFormat.Integer(width),
+            MinWidth = 0,
+            MinHeight = 0,
+            Width = Fluent.IconSize * 3,
+            Height = band,
+            Padding = new Thickness(Fluent.Space1, 0, Fluent.Space1, 0),
+            VerticalContentAlignment = VerticalAlignment.Center,
+            TextAlignment = TextAlignment.Center,
+            InputScope = new InputScope { Names = { new InputScopeName(InputScopeNameValue.Number) } },
+        };
+        ToolTipService.SetToolTip(box, tip);
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(box, tip);
+        void Set()
+        {
+            if (int.TryParse((box.Text ?? string.Empty).Trim(), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var typed) && typed != width)
+            {
+                Apply(l => CuratedEdits.Width(l, column, typed));
+            }
+            else
+            {
+                box.Text = LocaleFormat.Integer(width);
+            }
+        }
+
+        box.LostFocus += (_, _) => Set();
+        box.KeyDown += (_, e) =>
+        {
+            if (e.Key == VirtualKey.Enter)
+            {
+                e.Handled = true;
+                Set();
+            }
+        };
+        tools.Children.Add(box);
+        tools.Children.Add(Tool(Glyphs.Add, Str.WidgetGallery_EditWider.Text(), () => Apply(l => CuratedEdits.Width(l, column, width + 1)), band));
     }
 
     /// <summary>A section's heading line while editing: its title box and its tools.</summary>
@@ -364,8 +417,11 @@ internal sealed partial class WidgetGalleryView
 
     // ---- gestures ----------------------------------------------------------------------------------------------------------
 
-    /// <summary>[S-16744] The edge after column <paramref name="column"/> pressed: dragged, the two columns share their cells anew (each at least <see cref="CuratedBento.LeastColumn"/>).</summary>
-    private void BeginEdge(int column, int left, int right, PointerRoutedEventArgs e)
+    /// <summary>
+    /// [S-17163] Column <paramref name="column"/>'s right edge pressed: dragged, it is made whole blocks wider or narrower
+    /// (1..<see cref="CuratedLayouts.MostCells"/>), live, its width in blocks shown by the pointer; the columns right of it move.
+    /// </summary>
+    private void BeginEdge(int column, int width, PointerRoutedEventArgs e)
     {
         if (_base is not { } shown || CuratedOf(shown) is not { } before)
         {
@@ -373,21 +429,34 @@ internal sealed partial class WidgetGalleryView
         }
 
         var start = e.GetCurrentPoint(_stage).Position.X;
-        var total = left + right;
-        var least = Math.Min(CuratedBento.LeastColumn, Math.Max(1, total / 2));
-        var last = left;
+        var last = width;
+        ShowWidth(width, e.GetCurrentPoint(_stage).Position);
         Begin(e, new EditGesture(
             at =>
             {
-                var now = Math.Clamp(left + (int)Math.Round((at.X - start) / Pitch.X), least, total - least);
+                var now = Math.Clamp(width + (int)Math.Round((at.X - start) / Pitch.X), 1, CuratedLayouts.MostCells);
+                ShowWidth(now, at);
                 if (now != last)
                 {
                     last = now;
                     _gesture!.Changed = true;
-                    Relay(shown.Id, CuratedEdits.Edge(before, column, now, total - now));
+                    Relay(shown.Id, CuratedEdits.Width(before, column, now));
                 }
             },
-            _ => Done(shown.Id, before)));
+            _ =>
+            {
+                _editWidth.Visibility = Visibility.Collapsed;
+                Done(shown.Id, before);
+            }));
+    }
+
+    /// <summary>[S-17163] The width in blocks by the pointer, while a column's edge is dragged.</summary>
+    private void ShowWidth(int width, Point at)
+    {
+        _editWidthText.Text = Str.WidgetGallery_EditBlocks.Plural(width);
+        _editWidth.Visibility = Visibility.Visible;
+        Canvas.SetLeft(_editWidth, at.X + Fluent.Space3);
+        Canvas.SetTop(_editWidth, at.Y + Fluent.Space3);
     }
 
     /// <summary>[S-16745] A widget's corner pressed: dragged, its card is made whole cells wide and tall (no wider than its column, within its sizing), its section packing as it goes.</summary>
@@ -527,6 +596,7 @@ internal sealed partial class WidgetGalleryView
         {
             _gesture = null;
             _editDrop.Visibility = Visibility.Collapsed;
+            _editWidth.Visibility = Visibility.Collapsed;
             if (_base is { } shown)
             {
                 Present(shown, Lay(shown));
@@ -710,6 +780,7 @@ internal sealed partial class WidgetGalleryView
 
         WidgetCard.Join(_cards, _metrics, _raster, editMode: false, _ => 0);
         _scroll = Math.Clamp(_scroll, 0, MostScroll);
+        _scrollX = Math.Clamp(_scrollX, 0, MostScrollAcross);
         ShowScroll();
         Sync();
         PlaceEditor();
@@ -777,7 +848,7 @@ internal sealed partial class WidgetGalleryView
     private (int X, int Y) CellAt(Point at)
     {
         var (cols, rows) = GridGeometry.GridDims(_metrics);
-        return ((int)Math.Floor(at.X / _metrics.Width * cols) - _view.X, (int)Math.Floor(at.Y / _metrics.Height * rows) - _view.Y + _scroll);
+        return ((int)Math.Floor(at.X / _metrics.Width * cols) - _view.X + _scrollX, (int)Math.Floor(at.Y / _metrics.Height * rows) - _view.Y + _scroll);
     }
 
     /// <summary>A box of the sheet on the surface (DIPs), as it stands scrolled.</summary>

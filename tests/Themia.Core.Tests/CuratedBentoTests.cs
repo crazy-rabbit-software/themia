@@ -8,8 +8,9 @@ using Xunit;
 namespace Themia.Core.Tests;
 
 /// <summary>
-/// [S-16740]..[S-16746] The gallery's curated tabs (owner, 2026-11-23): columns of shares, sections in them, widgets packed
-/// as tightly as they go in reading order; columns shrink, then stack; one file a tab, round-tripped.
+/// [S-16740]..[S-16746] [S-17160]..[S-17163] The gallery's curated tabs (owner, 2026-11-23): columns of fixed widths in
+/// blocks two blocks apart on one line (a sheet wider than the view scrolls across), sections in them, widgets packed as
+/// tightly as they go in reading order; one file a tab, round-tripped.
 /// </summary>
 public sealed class CuratedBentoTests
 {
@@ -19,12 +20,12 @@ public sealed class CuratedBentoTests
 
     private static CuratedLayout Layout(params CuratedColumn[] columns) => new() { Titles = false, Columns = columns };
 
-    private static CuratedColumn Col(double share, params CuratedSection[] sections) => new() { Share = share, Sections = sections };
+    private static CuratedColumn Col(int width, params CuratedSection[] sections) => new() { Width = width, Sections = sections };
 
     private static CuratedSection Sec(string? title, params CuratedWidget[] widgets) => new() { Title = title, Widgets = widgets };
 
-    private static GallerySheet Lay(CuratedLayout layout, int width, int title = 0, bool editing = false)
-        => CuratedBento.Lay(AddFolderId.Time, LocalText.Fixed("Time"), layout, width, CuratedFit.AsStored, title, 2, editing, Piece);
+    private static GallerySheet Lay(CuratedLayout layout, int title = 0, bool editing = false)
+        => CuratedBento.Lay(AddFolderId.Time, LocalText.Fixed("Time"), layout, CuratedFit.AsStored, title, 2, editing, Piece);
 
     /// <summary>
     /// [S-16743] "packed together as tightly as possible in direction of reading": each widget at the highest free spot of the
@@ -61,61 +62,57 @@ public sealed class CuratedBentoTests
         Assert.Equal(new CellBox(11, 0, 10, 2), hole[2]);
     }
 
-    /// <summary>[S-16744] Shares become whole cells filling the width, one cell between columns, the remainder to the largest parts.</summary>
+    /// <summary>
+    /// [S-17160] The owner's "the columns should not stretch, they should have a fixed block width. between columns there should
+    /// be a two block space": each column exactly its blocks from the sheet's left, two blocks between two, a widget wider than
+    /// its column held to it; the sheet as wide as its columns.
+    /// </summary>
     [Fact]
-    public void S16744_shares_become_whole_cells_that_fill_the_width()
+    public void S17160_columns_stand_at_their_blocks_two_apart_and_never_stretch()
     {
-        Assert.Equal([50, 49, 49], CuratedBento.Widths([1, 1, 1], 150));
-        Assert.Equal([30, 89], CuratedBento.Widths([0.25, 0.75], 120));
-        Assert.Equal([60, 59], CuratedBento.Widths([0, double.NaN], 120));
-        var widths = CuratedBento.Widths([0.3, 0.2, 0.5], 137);
-        Assert.Equal(137, widths.Sum() + 2);
+        var sheet = Lay(Layout(Col(30, Sec(null, W("a", 40, 6))), Col(20, Sec(null, W("b", 12, 6), W("c", 7, 6))), Col(25, Sec(null, W("d", 25, 6)))));
+
+        Assert.Equal([new CellBox(0, 0, 30, 6), new CellBox(32, 0, 20, 6), new CellBox(54, 0, 25, 6)], sheet.Columns);
+        Assert.Equal(new CellBox(0, 0, 30, 6), sheet.Tiles[0].Box);   // a widget wider than its column held to it
+        Assert.Equal(new CellBox(45, 0, 7, 6), sheet.Tiles[2].Box);
+        Assert.Equal(79, sheet.Cols);
+        Assert.Equal(6, sheet.Rows);
     }
 
     /// <summary>
-    /// [S-16744] The owner's "Columns shrink, then stack": a narrower view narrows every column down to its least, then the
-    /// rightmost columns leave the line and each stands, whole with its sections, under the column whose foot is highest.
+    /// [S-17161] The owner's "when the columns cant fit onto one screen anymore scrolling in both directions should be possible.
+    /// dont scale or stretch anything for it": the columns stay on one line at their widths, whatever the view; the sheet is
+    /// wider than a narrow view and scrolls across, as little as it takes to bring a widget whole into sight.
     /// </summary>
     [Fact]
-    public void S16744_columns_shrink_then_the_rightmost_stack_under_the_others()
+    public void S17161_columns_never_stack_or_narrow_a_wider_sheet_scrolls_across()
     {
         var layout = Layout(
-            Col(1, Sec("A", W("a1", 20, 30))),
-            Col(1, Sec("B", W("b1", 20, 10)), Sec("B2", W("b2", 20, 4))),
-            Col(1, Sec("C", W("c1", 20, 8))));
+            Col(30, Sec("A", W("a1", 20, 30))),
+            Col(20, Sec("B", W("b1", 20, 10)), Sec("B2", W("b2", 20, 4))),
+            Col(25, Sec("C", W("c1", 20, 8))));
 
-        // Wide: three across.
-        var wide = Lay(layout, 92);
-        Assert.Equal(3, wide.Columns.Count(c => c.Y == 0));
-        Assert.Equal([30, 30, 30], wide.Columns.Select(c => c.W));
+        var sheet = Lay(layout);
+        Assert.Equal([new CellBox(0, 0, 30, 32), new CellBox(32, 0, 20, 19), new CellBox(54, 0, 25, 10)], sheet.Columns);
+        Assert.Equal(new CellBox(54, 2, 20, 8), sheet.Tiles.Single(t => t.Piece.Key == "kind:c1").Box);
+        Assert.Contains(sheet.Headings, h => h.Text.Text() == "C" && h.Box == new CellBox(54, 0, 25, 2));
+        Assert.Equal((79, 32), (sheet.Cols, sheet.Rows));
 
-        // Narrow enough that three would be under the least (20): two across, the third under the shorter one (the second,
-        // its foot 2+10+1+2+4 = 19 against the first's 32), its sections intact.
-        Assert.Equal(2, CuratedBento.Across([1, 1, 1], [20, 20, 20], 60));
-        var narrow = Lay(layout, 60);
-        Assert.Equal([(0, 30), (31, 29)], narrow.Columns.Take(2).Select(c => (c.X, c.W)));
-        Assert.Equal(new CellBox(31, 20, 29, 10), narrow.Columns[2]);
-        var c1 = narrow.Tiles.Single(t => t.Piece.Key == "kind:c1");
-        Assert.Equal(new CellBox(31, 22, 20, 8), c1.Box);
-        Assert.Equal(new CuratedSlot(2, 0, 0), c1.Slot);
-        Assert.Contains(narrow.Headings, h => h.Text.Text() == "C" && h.Box == new CellBox(31, 20, 29, 2));
-
-        // Narrower than one column's least: one column, the rest under it in turn; every widget held to its width.
-        var one = Lay(layout, 15);
-        Assert.Single(one.Columns, c => c.Y == 0);
-        Assert.All(one.Tiles, t => Assert.True(t.Box.Right <= 15));
-        Assert.Equal(3, one.Columns.Select(c => c.Y).Distinct().Count());
-
-        // A column whose widget asks more than the least keeps it: its widgets' least decides when it stacks.
-        Assert.Equal(1, CuratedBento.Across([1, 1], [20, 40], 60));
+        // In a view 40 cells wide it scrolls 39 across; the third column's widget comes into sight by as little as it takes.
+        Assert.Equal(39, WidgetGallery.MaxScroll(sheet.Cols, 40));
+        Assert.Equal(0, WidgetGallery.MaxScroll(sheet.Cols, 120));
+        var c1 = sheet.Tiles.Single(t => t.Piece.Key == "kind:c1").Box;
+        Assert.Equal(34, WidgetGallery.RevealAcross(0, c1, 40, 39));
+        Assert.Equal(20, WidgetGallery.RevealAcross(20, sheet.Tiles[1].Box, 40, 39));   // already whole in sight: kept
+        Assert.Equal(0, WidgetGallery.RevealAcross(30, sheet.Tiles[0].Box, 40, 39));
     }
 
     /// <summary>[S-16743] [S-16721] A tab's sections down a column one cell apart, a titled one under its heading, every card under its title rows.</summary>
     [Fact]
     public void S16743_sections_stand_down_a_column_titled_under_a_heading_cards_under_their_titles()
     {
-        var layout = new CuratedLayout { Titles = true, Columns = [Col(1, Sec(null, W("a", 10, 6)), Sec("Second", W("b", 10, 6), W("c", 10, 6)))] };
-        var sheet = Lay(layout, 30, title: 2);
+        var layout = new CuratedLayout { Titles = true, Columns = [Col(30, Sec(null, W("a", 10, 6)), Sec("Second", W("b", 10, 6), W("c", 10, 6)))] };
+        var sheet = Lay(layout, title: 2);
 
         Assert.Equal(2, sheet.Title);
         Assert.Equal(new CellBox(0, 0, 10, 8), sheet.Tiles[0].Box);                       // no heading: the widget from the top
@@ -127,13 +124,13 @@ public sealed class CuratedBentoTests
         Assert.Equal([new CellBox(0, 0, 30, 8), new CellBox(0, 9, 30, 10)], sheet.Areas.Select(a => a.Box));
 
         // Editing: the column's tools' band first, every section's heading line, an empty section room to drop into.
-        var edit = Lay(CuratedEdits.AddSection(layout, 0), 30, title: 2, editing: true);
+        var edit = Lay(CuratedEdits.AddSection(layout, 0), title: 2, editing: true);
         Assert.Equal(3, edit.Headings.Count);
         Assert.Equal(3, edit.Headings[0].Box.Y);
         Assert.Equal(CuratedBento.EmptyRows + 2, edit.Areas[2].Box.H);
     }
 
-    /// <summary>[S-16746] A layout file read back is the layout written: titles, shares, sections, picks, styles, sizes and a config fragment.</summary>
+    /// <summary>[S-16746] [S-17162] A layout file read back is the layout written: titles, widths in blocks, sections, picks, styles, sizes and a config fragment.</summary>
     [Fact]
     public void S16746_a_layout_file_round_trips()
     {
@@ -142,27 +139,29 @@ public sealed class CuratedBentoTests
             Titles = false,
             Columns =
             [
-                Col(0.33333333, Sec("Clocks", W("clock", 20, 20) with { Style = "analog" }, W("quickToggle/wifi", 9, 9))),
-                Col(0.6666, Sec(null, W("rss", 30, 40) with { Config = new JsonObject { ["rows"] = 6, ["feeds"] = new JsonArray("a", "b") } })),
+                Col(26, Sec("Clocks", W("clock", 20, 20) with { Style = "analog" }, W("quickToggle/wifi", 9, 9))),
+                Col(40, Sec(null, W("rss", 30, 40) with { Config = new JsonObject { ["rows"] = 6, ["feeds"] = new JsonArray("a", "b") } })),
             ],
         };
 
         var text = CuratedLayouts.Write(layout);
         Assert.DoesNotContain("\r", text, StringComparison.Ordinal);
         Assert.EndsWith("}\n", text, StringComparison.Ordinal);
-        Assert.Contains("\"share\": 0.3333", text, StringComparison.Ordinal);
+        Assert.Contains("\"width\": 26,", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("share", text, StringComparison.Ordinal);
         Assert.DoesNotContain("\"title\": null", text, StringComparison.Ordinal);
 
         var back = CuratedLayouts.Read(text);
         Assert.Equal(text, CuratedLayouts.Write(back));
         Assert.False(back.Titles);
+        Assert.Equal([26, 40], back.Columns.Select(c => c.Width));
         Assert.Equal("analog", back.Columns[0].Sections[0].Widgets[0].Style);
         Assert.Equal(6, (int)back.Columns[1].Sections[0].Widgets[0].Config!["rows"]!);
         Assert.Throws<JsonException>(() => CuratedLayouts.Read("[1, 2]"));
         Assert.Equal("calendarMail.json", CuratedLayouts.FileName(AddFolderId.CalendarMail));
     }
 
-    /// <summary>[S-16746] Where read, a widget the build cannot show is dropped (loudly), a size held to its range, a bad share made 1.</summary>
+    /// <summary>[S-16746] [S-17162] Where read, a widget the build cannot show is dropped (loudly), a size held to its range, a missing or bad width made the column's widest widget's.</summary>
     [Fact]
     public void S16746_a_layout_is_checked_where_it_is_read()
     {
@@ -170,21 +169,31 @@ public sealed class CuratedBentoTests
         var checkedLayout = CuratedLayouts.Checked(layout, "time.json", w => w.Pick == "gone" ? "no such widget" : null);
 
         var widgets = checkedLayout.Columns[0].Sections[0].Widgets;
-        Assert.Equal(1, checkedLayout.Columns[0].Share);
+        Assert.Equal(1, checkedLayout.Columns[0].Width);   // its widest widget, the dropped one not counted
         Assert.Null(checkedLayout.Columns[0].Sections[0].Title);
         Assert.Equal(["clock"], widgets.Select(w => w.Pick));
         Assert.Equal((1, CuratedLayouts.MostCells), (widgets[0].W, widgets[0].H));
+
+        // A width missing (a file without one), too large or fine; an empty column's missing width the new column's.
+        var widths = CuratedLayouts.Checked(
+            Layout(Col(0, Sec(null, W("a", 12, 5), W("b", 30, 5))), Col(CuratedLayouts.MostCells + 1, Sec(null, W("c", 9, 5))), Col(26, Sec(null, W("d", 40, 5))), Col(0)),
+            "time.json",
+            _ => null);
+        Assert.Equal([30, 9, 26, CuratedBento.NewColumn], widths.Columns.Select(c => c.Width));
+        var read = CuratedLayouts.Read("""{ "columns": [ { "sections": [ { "widgets": [ { "pick": "a", "w": 14, "h": 3 } ] } ] } ] }""");
+        Assert.Equal(0, read.Columns[0].Width);
+        Assert.Equal(14, CuratedLayouts.Checked(read, "time.json", _ => null).Columns[0].Width);
 
         // Over this test's registry (no widget) every pick is one the build lacks.
         Assert.NotNull(CuratedLayouts.Problem(W("clock", 5, 5)));
         Assert.Empty(CuratedLayouts.Checked(layout, "time.json").Columns[0].Sections[0].Widgets);
     }
 
-    /// <summary>[S-16745] The editor's steps: a widget moved between and inside sections, resized, removed; columns resized, added and removed; sections reordered.</summary>
+    /// <summary>[S-16745] [S-17163] The editor's steps: a widget moved between and inside sections, resized, removed; a column set to a width in blocks, added and removed; sections reordered.</summary>
     [Fact]
     public void S16745_the_editors_steps_change_the_layout()
     {
-        var layout = Layout(Col(1, Sec("A", W("a", 5, 5), W("b", 5, 5), W("c", 5, 5))), Col(1, Sec("B", W("d", 5, 5))));
+        var layout = Layout(Col(30, Sec("A", W("a", 5, 5), W("b", 5, 5), W("c", 5, 5))), Col(30, Sec("B", W("d", 5, 5))));
 
         var inside = CuratedEdits.MoveWidget(layout, new CuratedSlot(0, 0, 0), new CuratedSlot(0, 0, 2));
         Assert.Equal(["b", "a", "c"], inside.Columns[0].Sections[0].Widgets.Select(w => w.Pick));
@@ -196,13 +205,15 @@ public sealed class CuratedBentoTests
         Assert.Equal((12, 1), (resized.Columns[0].Sections[0].Widgets[1].W, resized.Columns[0].Sections[0].Widgets[1].H));
         Assert.Equal(["a", "c"], CuratedEdits.RemoveWidget(layout, new CuratedSlot(0, 0, 1)).Columns[0].Sections[0].Widgets.Select(w => w.Pick));
 
-        Assert.Equal([0.5, 1.5], CuratedEdits.Edge(layout, 0, 30, 90).Columns.Select(c => c.Share));
-        Assert.Same(layout, CuratedEdits.Edge(layout, 1, 30, 90));
-        var edged = CuratedEdits.Edge(CuratedEdits.AddColumn(layout), 1, 10, 30);
-        Assert.Equal([1, 0.5, 1.5], edged.Columns.Select(c => c.Share));
-        Assert.Equal([39, 20, 59], CuratedBento.Widths([.. edged.Columns.Select(c => c.Share)], 120));
+        // A column set to a width exactly, the others kept: the one right of it moves, never narrows.
+        var wider = CuratedEdits.Width(layout, 0, 26);
+        Assert.Equal([26, 30], wider.Columns.Select(c => c.Width));
+        Assert.Equal((1, CuratedLayouts.MostCells), (CuratedEdits.Width(layout, 1, 0).Columns[1].Width, CuratedEdits.Width(layout, 1, 9999).Columns[1].Width));
+        Assert.Same(layout, CuratedEdits.Width(layout, 2, 26));
+        Assert.Equal([(0, 26), (28, 30)], Lay(wider).Columns.Select(c => (c.X, c.W)));
         var three = CuratedEdits.AddColumn(layout);
         Assert.Equal(3, three.Columns.Count);
+        Assert.Equal(CuratedBento.NewColumn, three.Columns[2].Width);
         Assert.Single(three.Columns[2].Sections);
         Assert.Single(CuratedEdits.RemoveColumn(CuratedEdits.RemoveColumn(layout, 0), 0).Columns);
 
@@ -213,7 +224,7 @@ public sealed class CuratedBentoTests
         Assert.Null(CuratedEdits.Rename(moved, new CuratedSlot(0, 0), "  ").Columns[0].Sections[0].Title);
         Assert.Equal(["A"], CuratedEdits.RemoveSection(moved, new CuratedSlot(0, 0)).Columns[0].Sections.Select(s => s.Title));
 
-        var placed = CuratedLayouts.Placed([layout, Layout(Col(1, Sec(null, W("clock", 1, 1) with { Style = "analog" })))]);
+        var placed = CuratedLayouts.Placed([layout, Layout(Col(20, Sec(null, W("clock", 1, 1) with { Style = "analog" })))]);
         Assert.Contains("clock@analog", placed);
         Assert.Contains("d", placed);
     }
@@ -229,16 +240,21 @@ public sealed class CuratedBentoTests
 
         var layout = CuratedLayouts.From(auto);
         Assert.True(layout.Titles);
-        Assert.Equal(auto.Columns.Count(c => c.Y == 0), layout.Columns.Count);
-        var curated = CuratedBento.Lay(AddFolderId.Time, LocalText.Fixed("Time"), layout, 80, CuratedFit.AsStored, 2, 3, piece: w => new GalleryPiece("kind:" + w.Pick, new WidgetId(w.Pick), null));
-        Assert.Equal(auto.Tiles.Select(t => (t.Piece.Key, t.Box)).OrderBy(t => t.Key), curated.Tiles.Select(t => (t.Piece.Key, t.Box)).OrderBy(t => t.Key));
+        var top = auto.Columns.Where(c => c.Y == 0).OrderBy(c => c.X).ToList();
+        Assert.Equal(top.Select(c => c.W), layout.Columns.Select(c => c.Width));
+
+        // [S-17160] Each column its blocks, the columns two apart (the bento's one): each column's widgets where the bento
+        // laid them in it, the column a cell further right for each gap before it.
+        var curated = CuratedBento.Lay(AddFolderId.Time, LocalText.Fixed("Time"), layout, CuratedFit.AsStored, 2, 3, piece: w => new GalleryPiece("kind:" + w.Pick, new WidgetId(w.Pick), null));
+        var shifted = auto.Tiles.Select(t => (t.Piece.Key, t.Box with { X = t.Box.X + top.FindIndex(c => t.Box.X >= c.X && t.Box.X < c.Right) }));
+        Assert.Equal(shifted.OrderBy(t => t.Key), curated.Tiles.Select(t => (t.Piece.Key, t.Box)).OrderBy(t => t.Key));
     }
 
     /// <summary>[S-16745] A widget dropped into a section lands before the first of its widgets that comes after the drop in reading order.</summary>
     [Fact]
     public void S16745_a_drop_lands_in_reading_order()
     {
-        var sheet = Lay(Layout(Col(1, Sec(null, W("a", 10, 5), W("b", 10, 5), W("c", 10, 5)))), 21);
+        var sheet = Lay(Layout(Col(21, Sec(null, W("a", 10, 5), W("b", 10, 5), W("c", 10, 5)))));
         var section = new CuratedSlot(0, 0);
         Assert.Equal(0, CuratedBento.Insertion(sheet, section, (2, 2)));
         Assert.Equal(1, CuratedBento.Insertion(sheet, section, (8, 2)));

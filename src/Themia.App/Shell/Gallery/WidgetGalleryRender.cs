@@ -352,6 +352,8 @@ internal static class WidgetGalleryRender
             var titled = true;
             var curated = new List<string>();
             var kept = true;
+            var across = new List<string>();
+            var acrossKept = true;
             for (var i = 0; i < gallery.Categories.Count; i++)
             {
                 gallery.Show(i);
@@ -375,12 +377,27 @@ internal static class WidgetGalleryRender
                 foreach (var scrolled in new[] { 0, gallery.MostScroll })
                 {
                     gallery.ScrollTo(scrolled);
-                    tidy &= Tidy(gallery.Screen.Widgets.Select(w => w.Rect).ToList(), view);
+                    tidy &= Tidy(gallery.Screen.Widgets.Select(w => w.Rect).ToList(), view, gallery.ScrolledAcross, sheet.Cols);
                     tidy &= gallery.Screen.Widgets.TrueForAll(w => gallery.CardOf(w.Id) is { } card && Same(card.LiveRect, w.Rect));
                     if (scrolled == gallery.MostScroll && gallery.Screen.Widgets.Count > 0)
                     {
                         reached &= gallery.Screen.Widgets.Max(w => w.Rect.Bottom) * rows <= view.Bottom + 1e-6;
                     }
+                }
+
+                // [S-17161] A curated tab wider than the view scrolls across by whole cells, its columns as wide as ever, until
+                // its last column's right edge is the view's.
+                if (gallery.MostScrollAcross > 0)
+                {
+                    across.Add(gallery.Categories[i].Id.ToString());
+                    gallery.ScrollTo(0);
+                    var left = gallery.Screen.Widgets.Count > 0 ? gallery.Screen.Widgets[0].Rect : default;
+                    gallery.ScrollAcross(gallery.MostScrollAcross);
+                    acrossKept &= gallery.ScrolledAcross == sheet.Cols - view.W && gallery.Screen.Widgets.Count > 0
+                        && Math.Abs(((left.X - gallery.Screen.Widgets[0].Rect.X) * cols) - gallery.ScrolledAcross) < 1e-6
+                        && gallery.Screen.Widgets.Max(w => w.Rect.Right) * cols <= view.Right + 1e-6
+                        && Tidy(gallery.Screen.Widgets.Select(w => w.Rect).ToList(), view, gallery.ScrolledAcross, sheet.Cols);
+                    gallery.ScrollAcross(0);
                 }
 
                 // At its top its first card stands on the view's first row under its title ([S-16721]) or its section's heading.
@@ -390,11 +407,14 @@ internal static class WidgetGalleryRender
                 whole &= gallery.Categories[i].Pieces.All(p => p.Group is not null || (p.Kind is { } kind && !parts.Contains(kind)));
             }
 
-            bool Tidy(List<FracRect> rects, CellBox view)
+            // Inside the view across, or, a sheet wider than it ([S-17161]), inside the sheet as it stands scrolled.
+            bool Tidy(List<FracRect> rects, CellBox view, int scrolled = 0, int sheetCols = 0)
             {
                 bool Whole(double v, int n) => Math.Abs((v * n) - Math.Round(v * n)) < 1e-6;
+                var wide = sheetCols > view.W;
+                var (from, to) = wide ? (view.X - scrolled, view.X - scrolled + sheetCols) : (view.X, view.Right);
                 var ok = rects.TrueForAll(r => Whole(r.X, cols) && Whole(r.Y, rows) && Whole(r.W, cols) && Whole(r.H, rows)
-                    && r.X * cols >= view.X - 1e-6 && r.Right * cols <= view.Right + 1e-6 && r.X >= work.X && r.Right <= work.Right);
+                    && r.X * cols >= from - 1e-6 && r.Right * cols <= to + 1e-6 && (wide || (r.X >= work.X && r.Right <= work.Right)));
                 for (var a = 0; a < rects.Count; a++)
                 {
                     for (var b = a + 1; b < rects.Count; b++)
@@ -412,6 +432,7 @@ internal static class WidgetGalleryRender
             Expect(whole, $"{at}: whole widgets and ready-made groups only: no family's small part");
             Expect(holed == 0, $"{at}: [S-16552] every category a column bento: no cell of a column empty between its cards ({holed})");
             Expect(titled, $"{at}: [S-16721] [S-16725] a small title over every card; Quick settings its sections' headings alone");
+            Expect(acrossKept, $"{at}: [S-17161] the tabs wider than the view ({(across.Count == 0 ? "none" : string.Join(", ", across))}) scroll across by whole cells to their last column, nothing narrowed");
             Expect(curated.Count > 0 && kept, $"{at}: [S-16740] [S-16743] the curated tabs ({string.Join(", ", curated)}) draw their layouts: every widget a slot of its file, inside its column");
             Expect(gallery.Categories.SelectMany(c => c.Pieces).All(p => p.Group is null), $"{at}: [S-16723] no ready-made group in the gallery");
 

@@ -2,7 +2,7 @@
   "titles": true,
   "columns": [
     {
-      "share": 0.0559,
+      "width": 8,
       "sections": [
         {
           "widgets": [
@@ -16,13 +16,13 @@
       ]
     },
     {
-      "share": 0.2378,
+      "width": 33,
       "sections": [
         {
           "widgets": [
             {
               "pick": "folder",
-              "w": 34,
+              "w": 33,
               "h": 21
             }
           ]
@@ -30,13 +30,13 @@
       ]
     },
     {
-      "share": 0.2378,
+      "width": 33,
       "sections": [
         {
           "widgets": [
             {
               "pick": "recentFiles",
-              "w": 34,
+              "w": 33,
               "h": 21
             }
           ]
@@ -44,13 +44,13 @@
       ]
     },
     {
-      "share": 0.2378,
+      "width": 33,
       "sections": [
         {
           "widgets": [
             {
               "pick": "fence",
-              "w": 34,
+              "w": 33,
               "h": 21
             }
           ]
@@ -58,13 +58,13 @@
       ]
     },
     {
-      "share": 0.2308,
+      "width": 32,
       "sections": [
         {
           "widgets": [
             {
               "pick": "recycleBin",
-              "w": 33,
+              "w": 32,
               "h": 21
             }
           ]

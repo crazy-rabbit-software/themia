@@ -100,15 +100,14 @@ public sealed class GallerySizes(ScreenMetrics screen, double contentScale, int 
 
     /// <summary>
     /// [S-16743] What a curated tab's widget is on this display (<see cref="CuratedBento"/>): its stored cells, never wider than
-    /// its column, held to its sizing here (what its card is drawn at); its least width, what decides when columns stack.
+    /// its column, held to its sizing here (what its card is drawn at).
     /// </summary>
     public CuratedFit Curated => _curated ??= new CuratedFit(
         (widget, width) =>
         {
             var (w, h) = (Math.Min(widget.W, Math.Max(1, width)), widget.H);
             return CuratedRange(widget) is { } r ? (Math.Clamp(w, r.MinW, r.MaxW), Math.Clamp(h, r.MinH, r.MaxH)) : (w, h);
-        },
-        widget => CuratedRange(widget)?.MinW ?? 1);
+        });
 
     private CuratedFit? _curated;
 

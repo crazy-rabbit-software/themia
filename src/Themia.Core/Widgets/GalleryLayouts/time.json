@@ -2,18 +2,18 @@
   "titles": true,
   "columns": [
     {
-      "share": 0.3007,
+      "width": 42,
       "sections": [
         {
           "widgets": [
             {
               "pick": "countdown",
-              "w": 43,
+              "w": 42,
               "h": 13
             },
             {
               "pick": "date",
-              "w": 43,
+              "w": 42,
               "h": 7
             }
           ]
@@ -21,13 +21,13 @@
       ]
     },
     {
-      "share": 0.2308,
+      "width": 32,
       "sections": [
         {
           "widgets": [
             {
               "pick": "stopwatch",
-              "w": 33,
+              "w": 32,
               "h": 24
             }
           ]
@@ -35,13 +35,13 @@
       ]
     },
     {
-      "share": 0.1748,
+      "width": 24,
       "sections": [
         {
           "widgets": [
             {
               "pick": "pomodoro",
-              "w": 25,
+              "w": 24,
               "h": 24
             }
           ]
@@ -49,18 +49,18 @@
       ]
     },
     {
-      "share": 0.1608,
+      "width": 22,
       "sections": [
         {
           "widgets": [
             {
               "pick": "alarm",
-              "w": 23,
+              "w": 22,
               "h": 14
             },
             {
               "pick": "clock",
-              "w": 23,
+              "w": 22,
               "h": 6
             }
           ]
@@ -68,7 +68,7 @@
       ]
     },
     {
-      "share": 0.1329,
+      "width": 19,
       "sections": [
         {
           "widgets": [

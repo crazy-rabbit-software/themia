@@ -95,6 +95,12 @@ public sealed record GalleryTile(GalleryPiece Piece, CellBox Box)
 /// </summary>
 public sealed record GallerySheet(AddFolderId Category, LocalText Name, int Rows, IReadOnlyList<GalleryTile> Tiles)
 {
+    /// <summary>
+    /// [S-17161] How wide the sheet is, in cells: a curated tab's columns at their widths with their gaps, wider than the view
+    /// where they are (it then scrolls across); 0, an automatic bento's, as wide as the view it was laid for.
+    /// </summary>
+    public int Cols { get; init; }
+
     public IReadOnlyList<CellBox> Columns { get; init; } = [];
 
     /// <summary>[S-16721] Rows over each card its title takes, inside its tile's box (0: no titles, Quick settings).</summary>
@@ -1462,6 +1468,10 @@ public static class WidgetGallery
 
     /// <summary>[S-14913] How far a sheet <paramref name="sheetRows"/> tall scrolls in a view <paramref name="viewRows"/> tall, in rows of cells.</summary>
     public static int MaxScroll(int sheetRows, int viewRows) => Math.Max(0, sheetRows - Math.Max(0, viewRows));
+
+    /// <summary>[S-17161] The scroll that brings <paramref name="box"/> whole into a view <paramref name="viewCols"/> wide scrolled across to <paramref name="at"/>, as little as it takes.</summary>
+    public static int RevealAcross(int at, CellBox box, int viewCols, int max)
+        => Reveal(at, new CellBox(box.Y, box.X, box.H, box.W), viewCols, max);
 
     /// <summary>[S-14913] A scroll of <paramref name="by"/> rows from <paramref name="at"/>, held to the sheet's ends.</summary>
     public static int Scroll(int at, int by, int max) => Math.Clamp(at + by, 0, Math.Max(0, max));

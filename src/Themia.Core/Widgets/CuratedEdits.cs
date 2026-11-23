@@ -6,12 +6,11 @@ namespace Themia.Core.Widgets;
 /// </summary>
 public static class CuratedEdits
 {
-    /// <summary>A column added at the right: as wide a share as the others' mean, one untitled section in it.</summary>
+    /// <summary>[S-17163] A column added at the right: <see cref="CuratedBento.NewColumn"/> blocks wide, one untitled section in it.</summary>
     public static CuratedLayout AddColumn(CuratedLayout layout)
     {
         ArgumentNullException.ThrowIfNull(layout);
-        var share = layout.Columns.Count == 0 ? 1 : layout.Columns.Average(c => c.Share);
-        return layout with { Columns = [.. layout.Columns, new CuratedColumn { Share = share, Sections = [new CuratedSection()] }] };
+        return layout with { Columns = [.. layout.Columns, new CuratedColumn { Width = CuratedBento.NewColumn, Sections = [new CuratedSection()] }] };
     }
 
     /// <summary>A column removed, its widgets with it (they are then not placed); the last column stays.</summary>
@@ -24,24 +23,11 @@ public static class CuratedEdits
     }
 
     /// <summary>
-    /// [S-16744] The edge between column <paramref name="column"/> and the next dragged: the two made <paramref name="left"/>
-    /// and <paramref name="right"/> cells wide, their shares together the same, split in proportion; the others kept.
+    /// [S-17163] A column made exactly <paramref name="width"/> blocks wide (held to 1..<see cref="CuratedLayouts.MostCells"/>);
+    /// the others keep theirs (the columns right of it move, none of them narrows).
     /// </summary>
-    public static CuratedLayout Edge(CuratedLayout layout, int column, int left, int right)
-    {
-        ArgumentNullException.ThrowIfNull(layout);
-        if (column < 0 || column + 1 >= layout.Columns.Count || left < 1 || right < 1)
-        {
-            return layout;
-        }
-
-        var both = layout.Columns[column].Share + layout.Columns[column + 1].Share;
-        var share = Math.Round(both * left / (left + right), 4);
-        return layout with
-        {
-            Columns = [.. layout.Columns.Select((c, i) => i == column ? c with { Share = share } : i == column + 1 ? c with { Share = Math.Round(both - share, 4) } : c)],
-        };
-    }
+    public static CuratedLayout Width(CuratedLayout layout, int column, int width)
+        => Column(layout, column, c => c with { Width = Math.Clamp(width, 1, CuratedLayouts.MostCells) });
 
     /// <summary>A section added at a column's foot, titled <paramref name="title"/> (none: no heading).</summary>
     public static CuratedLayout AddSection(CuratedLayout layout, int column, string? title = null)

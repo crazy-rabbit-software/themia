@@ -2,18 +2,18 @@
   "titles": true,
   "columns": [
     {
-      "share": 0.3125,
+      "width": 44,
       "sections": [
         {
           "widgets": [
             {
               "pick": "weekPlanner",
-              "w": 45,
+              "w": 44,
               "h": 14
             },
             {
               "pick": "email",
-              "w": 45,
+              "w": 44,
               "h": 25
             }
           ]
@@ -21,18 +21,18 @@
       ]
     },
     {
-      "share": 0.2292,
+      "width": 32,
       "sections": [
         {
           "widgets": [
             {
               "pick": "calendar",
-              "w": 33,
+              "w": 32,
               "h": 26
             },
             {
               "pick": "meeting",
-              "w": 33,
+              "w": 32,
               "h": 6
             }
           ]
@@ -40,18 +40,18 @@
       ]
     },
     {
-      "share": 0.2292,
+      "width": 32,
       "sections": [
         {
           "widgets": [
             {
               "pick": "contacts",
-              "w": 33,
+              "w": 32,
               "h": 29
             },
             {
               "pick": "meetings",
-              "w": 33,
+              "w": 32,
               "h": 12
             }
           ]
@@ -59,7 +59,7 @@
       ]
     },
     {
-      "share": 0.2292,
+      "width": 33,
       "sections": [
         {
           "widgets": [

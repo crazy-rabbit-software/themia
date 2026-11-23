@@ -8,8 +8,8 @@ namespace Themia.Core.Widgets;
 /// [S-16746] The gallery's layout files: one per tab, <c>src/Themia.Core/Widgets/GalleryLayouts/&lt;tab&gt;.json</c> in the
 /// repo, built into Core (owner, 2026-11-23: "In the repo, shipped": every user sees the curated gallery, the owner's edits a
 /// change to commit). Read from the build (<see cref="Load"/>), checked where read (<see cref="Checked"/>: a widget the build
-/// does not have, a preset or style its kind does not have, dropped loudly; a size or share out of range repaired, loudly),
-/// written as the editor saves them (<see cref="Write"/>: stable, two spaces, LF, shares to four places).
+/// does not have, a preset or style its kind does not have, dropped loudly; a size or a column's width out of range repaired,
+/// loudly), written as the editor saves them (<see cref="Write"/>: stable, two spaces, LF).
 /// </summary>
 public static class CuratedLayouts
 {
@@ -62,18 +62,18 @@ public static class CuratedLayouts
     public static CuratedLayout Read(string json)
         => JsonSerializer.Deserialize(json, CuratedLayoutJson.Default.CuratedLayout) ?? throw new JsonException("a layout file holds null");
 
-    /// <summary>[S-16746] A layout as its file holds it: two spaces, LF line ends, a line end last, each share to four places.</summary>
+    /// <summary>[S-16746] A layout as its file holds it: two spaces, LF line ends, a line end last.</summary>
     public static string Write(CuratedLayout layout)
     {
         ArgumentNullException.ThrowIfNull(layout);
-        var rounded = layout with { Columns = [.. layout.Columns.Select(c => c with { Share = Math.Round(c.Share, 4) })] };
-        return JsonSerializer.Serialize(rounded, CuratedLayoutJson.Default.CuratedLayout).ReplaceLineEndings("\n") + "\n";
+        return JsonSerializer.Serialize(layout,CuratedLayoutJson.Default.CuratedLayout).ReplaceLineEndings("\n") + "\n";
     }
 
     /// <summary>
     /// [S-16746] <paramref name="layout"/> checked (<paramref name="file"/> names it in the log): a widget whose
     /// <paramref name="problem"/> is not null (the build's registry by default, <see cref="Problem"/>) dropped, a size outside 1 to
-    /// <see cref="MostCells"/> held to it, a share that is no positive number made 1; each logged. Never half-built.
+    /// <see cref="MostCells"/> held to it, a column's width that is missing or not 1 to <see cref="MostCells"/> blocks made its
+    /// widest widget's (<see cref="CuratedBento.NewColumn"/> where it has none) ([S-17162]); each logged. Never half-built.
     /// </summary>
     public static CuratedLayout Checked(CuratedLayout layout, string file, Func<CuratedWidget, string?>? problem = null)
     {
@@ -82,13 +82,6 @@ public static class CuratedLayouts
         var columns = new List<CuratedColumn>();
         foreach (var column in layout.Columns ?? [])
         {
-            var share = column.Share;
-            if (!double.IsFinite(share) || share <= 0)
-            {
-                Log.Warn(Scope, $"{file}: a column's share {share} is no positive number; made 1");
-                share = 1;
-            }
-
             var sections = new List<CuratedSection>();
             foreach (var section in column.Sections ?? [])
             {
@@ -119,7 +112,14 @@ public static class CuratedLayouts
                 sections.Add(section with { Title = string.IsNullOrWhiteSpace(section.Title) ? null : section.Title.Trim(), Widgets = widgets });
             }
 
-            columns.Add(new CuratedColumn { Share = share, Sections = sections });
+            var width = column.Width;
+            if (width < 1 || width > MostCells)
+            {
+                width = sections.SelectMany(s => s.Widgets).Select(w => w.W).DefaultIfEmpty(CuratedBento.NewColumn).Max();
+                Log.Warn(Scope, $"{file}: a column's width {column.Width} is not 1 to {MostCells} blocks; made {width}, its widest widget's");
+            }
+
+            columns.Add(new CuratedColumn { Width = width, Sections = sections });
         }
 
         return layout with { Columns = columns };
@@ -162,7 +162,7 @@ public static class CuratedLayouts
 
     /// <summary>
     /// [S-16745] A tab's automatic bento as a curated layout, its first arrangement to edit (how the shipped files began): each
-    /// column on the sheet's top line a column of that share, one untitled section of its widgets in reading order at the
+    /// column on the sheet's top line a column of its width in blocks, one untitled section of its widgets in reading order at the
     /// cells their cards stand on; a sheet in sections (Quick settings) one column of them, each under its heading's words.
     /// </summary>
     public static CuratedLayout From(GallerySheet sheet)
@@ -187,6 +187,7 @@ public static class CuratedLayouts
                 [
                     new CuratedColumn
                     {
+                        Width = Math.Max(1, sheet.Columns.Select(c => c.W).DefaultIfEmpty(tiles.Select(t => t.Box.Right).DefaultIfEmpty(1).Max()).Max()),
                         Sections = [.. heads.Select((h, i) => new CuratedSection
                         {
                             Title = string.IsNullOrWhiteSpace(h.Text.Text()) ? null : h.Text.Text(),
@@ -203,13 +204,12 @@ public static class CuratedLayouts
             top = [new CellBox(0, 0, Math.Max(1, tiles.Select(t => t.Box.Right).DefaultIfEmpty(1).Max()), sheet.Rows)];
         }
 
-        double across = top.Sum(c => c.W);
         return new CuratedLayout
         {
             Titles = sheet.Title > 0,
             Columns = [.. top.Select(c => new CuratedColumn
             {
-                Share = Math.Round(c.W / across, 4),
+                Width = c.W,
                 Sections = [new CuratedSection { Widgets = [.. tiles.Where(t => t.Box.X >= c.X && t.Box.X < c.Right).Select(Of)] }],
             })],
         };

@@ -2,7 +2,7 @@
   "titles": true,
   "columns": [
     {
-      "share": 0.1608,
+      "width": 23,
       "sections": [
         {
           "widgets": [
@@ -26,18 +26,18 @@
       ]
     },
     {
-      "share": 0.2098,
+      "width": 29,
       "sections": [
         {
           "widgets": [
             {
               "pick": "deviceBatteries",
-              "w": 30,
+              "w": 29,
               "h": 26
             },
             {
               "pick": "brightness",
-              "w": 30,
+              "w": 29,
               "h": 15
             }
           ]
@@ -45,18 +45,18 @@
       ]
     },
     {
-      "share": 0.2098,
+      "width": 29,
       "sections": [
         {
           "widgets": [
             {
               "pick": "drives",
-              "w": 30,
+              "w": 29,
               "h": 27
             },
             {
               "pick": "drive",
-              "w": 30,
+              "w": 29,
               "h": 14
             }
           ]
@@ -64,18 +64,18 @@
       ]
     },
     {
-      "share": 0.2098,
+      "width": 29,
       "sections": [
         {
           "widgets": [
             {
               "pick": "usbSticks",
-              "w": 30,
+              "w": 29,
               "h": 27
             },
             {
               "pick": "usbStick",
-              "w": 30,
+              "w": 29,
               "h": 14
             }
           ]
@@ -83,18 +83,18 @@
       ]
     },
     {
-      "share": 0.2098,
+      "width": 29,
       "sections": [
         {
           "widgets": [
             {
               "pick": "networkDrives",
-              "w": 30,
+              "w": 29,
               "h": 27
             },
             {
               "pick": "networkDrive",
-              "w": 30,
+              "w": 29,
               "h": 14
             }
           ]
