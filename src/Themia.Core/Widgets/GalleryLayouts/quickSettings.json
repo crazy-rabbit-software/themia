@@ -2,75 +2,75 @@
   "titles": false,
   "columns": [
     {
-      "width": 25,
+      "width": 23,
       "sections": [
         {
           "title": "Tile",
           "widgets": [
             {
               "pick": "quickToggle/wifi",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/bluetooth",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/airplaneMode",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/sound",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/microphone",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/spatialSound",
-              "w": 12,
+              "w": 11,
               "h": 12
             },
             {
               "pick": "quickToggle/monoAudio",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/nightLight",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/colorFilters",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/rotationLock",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/energySaver",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/doNotDisturb",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             },
             {
               "pick": "quickToggle/gameMode",
-              "w": 12,
-              "h": 12
+              "w": 11,
+              "h": 11
             }
           ]
         }
