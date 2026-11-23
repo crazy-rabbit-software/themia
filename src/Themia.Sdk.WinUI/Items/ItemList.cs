@@ -23,7 +23,7 @@ namespace Themia.Sdk.WinUI.Items;
 /// (the arrows walk, Page Up/Down a page, Home/End, Enter opens, the Menu key its menu, Delete its own step, Escape lets
 /// go). With the gap on it names its items' boxes as the card's grounds (<see cref="Grounds"/>).
 /// </summary>
-public sealed partial class ItemList : Panel
+public sealed partial class ItemList : Panel, IStatusRoom
 {
     private readonly IWidgetHost _host;
     private readonly List<ItemView> _views = [];
@@ -41,6 +41,8 @@ public sealed partial class ItemList : Panel
     private int _carry;
     private int _cursor = -1;
     private ItemView? _pressed;
+    private double _statusRoom;
+    private ItemView? _roomed;
 
     public ItemList(IWidgetHost host)
     {
@@ -403,6 +405,7 @@ public sealed partial class ItemList : Panel
         }
 
         _titles.Arrange(new Rect(0, 0, finalSize.Width, _lay.Header));
+        ApplyRoom();
         Clip = new Microsoft.UI.Xaml.Media.RectangleGeometry { Rect = new Rect(0, 0, finalSize.Width, finalSize.Height) };
         if (_gap > 0 && (resized || !SameBoxes(before, _lay)))
         {
@@ -410,6 +413,31 @@ public sealed partial class ItemList : Panel
         }
 
         return finalSize;
+    }
+
+    /// <summary>
+    /// [S-12813] [S-12834] The status glyph over the card's top end corner (a stale list's warning, the busy ring) stands beside
+    /// the top end item's text, never over it: that item (or a table's column titles) ends that much sooner.
+    /// </summary>
+    public void StatusRoom(double width)
+    {
+        _statusRoom = double.IsFinite(width) ? Math.Max(0, width) : 0;
+        InvalidateArrange();
+    }
+
+    /// <summary>The room laid on the item (or the titles) at the card's top end corner, the one before let go.</summary>
+    private void ApplyRoom()
+    {
+        var titled = _titles.Visibility == Visibility.Visible;
+        _titles.Margin = new Thickness(0, 0, titled ? _statusRoom : 0, 0);
+        var top = titled ? null : _lay.Boxes.Where(b => b.Index < _views.Count && b.Y <= _lay.Header + LayoutMath.Tolerance).OrderByDescending(b => b.Right).Select(b => _views[b.Index]).FirstOrDefault();
+        if (_roomed is not null && !ReferenceEquals(_roomed, top))
+        {
+            _roomed.Room(0);
+        }
+
+        _roomed = top;
+        top?.Room(_statusRoom);
     }
 
     private ItemGrid Grid() => _area.Grid(XamlRoot?.RasterizationScale ?? 1);

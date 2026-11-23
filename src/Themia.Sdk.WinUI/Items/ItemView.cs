@@ -109,6 +109,19 @@ public sealed partial class ItemView : Grid
         }
     }
 
+    private Thickness? _padding;
+
+    /// <summary>
+    /// [S-12834] The status glyph over the card's top end corner stands beside the top end item's parts, never over them: that
+    /// item's parts end <paramref name="width"/> sooner (0: as laid).
+    /// </summary>
+    public void Room(double width)
+    {
+        _padding ??= Padding;
+        var basis = _padding.Value;
+        Padding = basis with { Right = basis.Right + (double.IsFinite(width) ? Math.Max(0, width) : 0) };
+    }
+
     /// <summary>The item it shows; null before the first.</summary>
     public Item? Item { get; private set; }
 
