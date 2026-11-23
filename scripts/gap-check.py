@@ -316,10 +316,11 @@ def side_by_side(items, height):
 
 def wrapped(items, width):
     """[S-16438] Whether the card's items are a list wrapped into lines of fixed cells (the forecast's Grid style, the
-    calendar's year view) whose room past the last whole column is under one cell: cells of one width from the card's left
-    edge on two lines or more, the right edge of the widest line less than a cell short of the card's (owner, 2026-11-23:
-    "Fixed size, gap at right")."""
-    if len({round(i['y']) for i in items}) < 2:
+    calendar's year view) whose room past the last whole column is under one cell: two cells or more of one width from the
+    card's left edge (on one line where the card's height reaches only the first: the days after it wrap below its foot),
+    the right edge of the widest line less than a cell short of the card's (owner, 2026-11-23: "Fixed size, gap at
+    right")."""
+    if len(items) < 2:
         return False
     widths = [i.get('fw', i['w']) for i in items]
     cell = max(widths)
@@ -501,6 +502,8 @@ def self_test():
         # [S-16438] The owner's "Fixed size, gap at right" (2026-11-23): days of 80 wrapped on lines, 40 short of the right.
         ('a wrapped grid of fixed cells, less than a cell at the right', card(520, 600, 12, 12, 20, 52,
                                                                             items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), [], False),
+        ('a wrapped grid the height shows one line of', card(350, 100, 12, 12, 20, 50,
+                                                             items=[{'x': 80.0 * n, 'y': 0, 'w': 80, 'h': 100} for n in range(4)]), [], False),
         ('a wrapped grid a whole cell short of the right', card(600, 600, 12, 12, 20, 132,
                                                                 items=[{'x': 80.0 * (n % 6), 'y': 100.0 * (n // 6), 'w': 80, 'h': 100} for n in range(14)]), [], True),
         ('a wrapped grid short of the left edge', card(520, 600, 12, 12, 40, 32,
