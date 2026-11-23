@@ -397,6 +397,7 @@ internal static class WidgetGalleryRender
             var kept = true;
             var across = new List<string>();
             var acrossKept = true;
+            string? untidy = null;
             for (var i = 0; i < gallery.Categories.Count; i++)
             {
                 gallery.Show(i);
@@ -421,7 +422,13 @@ internal static class WidgetGalleryRender
                 {
                     gallery.ScrollTo(scrolled);
                     tidy &= Tidy(gallery.Screen.Widgets.Select(w => w.Rect).ToList(), view, gallery.ScrolledAcross, sheet.Cols);
-                    tidy &= gallery.Screen.Widgets.TrueForAll(w => gallery.CardOf(w.Id) is { } card && Same(card.LiveRect, w.Rect));
+                    var drawn = gallery.Screen.Widgets.TrueForAll(w => gallery.CardOf(w.Id) is { } card && Same(card.LiveRect, w.Rect));
+                    if (!drawn && untidy is null && gallery.Screen.Widgets.Find(w => gallery.CardOf(w.Id) is not { } card || !Same(card.LiveRect, w.Rect)) is { } off)
+                    {
+                        untidy = $"{gallery.Categories[i].Id}: {off.Kind} drawn off its rect";
+                    }
+
+                    tidy &= drawn;
                     if (scrolled == gallery.MostScroll && gallery.Screen.Widgets.Count > 0)
                     {
                         reached &= gallery.Screen.Widgets.Max(w => w.Rect.Bottom) * rows <= view.Bottom + 1e-6;
@@ -456,13 +463,24 @@ internal static class WidgetGalleryRender
                 bool Whole(double v, int n) => Math.Abs((v * n) - Math.Round(v * n)) < 1e-6;
                 var wide = sheetCols > view.W;
                 var (from, to) = wide ? (view.X - scrolled, view.X - scrolled + sheetCols) : (view.X, view.Right);
-                var ok = rects.TrueForAll(r => Whole(r.X, cols) && Whole(r.Y, rows) && Whole(r.W, cols) && Whole(r.H, rows)
-                    && r.X * cols >= from - 1e-6 && r.Right * cols <= to + 1e-6 && (wide || (r.X >= work.X && r.Right <= work.Right)));
+                bool Fine(FracRect r) => Whole(r.X, cols) && Whole(r.Y, rows) && Whole(r.W, cols) && Whole(r.H, rows)
+                    && r.X * cols >= from - 1e-6 && r.Right * cols <= to + 1e-6 && (wide || (r.X >= work.X && r.Right <= work.Right));
+                var ok = rects.TrueForAll(Fine);
+                if (!ok && untidy is null && rects.Find(r => !Fine(r)) is var bad)
+                {
+                    untidy = $"a card at {bad.X * cols:0.##},{bad.Y * rows:0.##} {bad.W * cols:0.##}x{bad.H * rows:0.##} cells (view {from}..{to})";
+                }
                 for (var a = 0; a < rects.Count; a++)
                 {
                     for (var b = a + 1; b < rects.Count; b++)
                     {
-                        ok &= !(Math.Min(rects[a].Right, rects[b].Right) - Math.Max(rects[a].X, rects[b].X) > 1e-6 && Math.Min(rects[a].Bottom, rects[b].Bottom) - Math.Max(rects[a].Y, rects[b].Y) > 1e-6);
+                        var overlaps = Math.Min(rects[a].Right, rects[b].Right) - Math.Max(rects[a].X, rects[b].X) > 1e-6 && Math.Min(rects[a].Bottom, rects[b].Bottom) - Math.Max(rects[a].Y, rects[b].Y) > 1e-6;
+                        if (overlaps && untidy is null)
+                        {
+                            untidy = $"cards {a} and {b} overlap ({rects[a].X * cols:0.##},{rects[a].Y * rows:0.##} {rects[a].W * cols:0.##}x{rects[a].H * rows:0.##}; {rects[b].X * cols:0.##},{rects[b].Y * rows:0.##} {rects[b].W * cols:0.##}x{rects[b].H * rows:0.##})";
+                        }
+
+                        ok &= !overlaps;
                     }
                 }
 
@@ -470,6 +488,11 @@ internal static class WidgetGalleryRender
             }
 
             Say("     columns per category: " + string.Join(", ", columns));
+            if (untidy is not null)
+            {
+                Say($"     first untidy: {untidy}");
+            }
+
             Expect(tidy && gallery.Categories.Count > 0, $"{at}: every category's cards on whole cells of the display's grid, inside the view, apart, at its top and scrolled to its foot");
             Expect(reached, $"{at}: every category starts on the view's top row and scrolls until its last card is inside the view");
             Expect(whole, $"{at}: whole widgets and ready-made groups only: no family's small part");
