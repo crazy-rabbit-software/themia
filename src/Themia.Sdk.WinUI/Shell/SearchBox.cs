@@ -73,7 +73,14 @@ public sealed partial class SearchBox : Grid
         }
 
         AutomationProperties.SetName(_suggest, placeholder);
-        _suggest.TextChanged += (_, _) => Changed?.Invoke(_suggest.Text);
+        _suggest.TextChanged += (_, args) =>
+        {
+            Changed?.Invoke(_suggest.Text);
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                Typed?.Invoke(_suggest.Text);
+            }
+        };
         _suggest.Loaded += OnSuggestLoaded;
         _suggest.LayoutUpdated += OnLaidOut;
         VerticalAlignment = VerticalAlignment.Center;
@@ -242,6 +249,13 @@ public sealed partial class SearchBox : Grid
     /// <summary>Every change of the words, typed or set.</summary>
     public event Action<string>? Changed;
 
+    /// <summary>
+    /// [S-16409] The words the user changed: typed into the box, or emptied or typed into through its keys
+    /// (<see cref="Clear"/>, <see cref="Type"/>, <see cref="Backspace"/>), never set from code. A box drawn anew with
+    /// the words it had raises none: a page that draws its box again on every answer never answers its own drawing.
+    /// </summary>
+    public event Action<string>? Typed;
+
     /// <summary>The words in the box.</summary>
     public string Text
     {
@@ -329,6 +343,7 @@ public sealed partial class SearchBox : Grid
     public void Clear()
     {
         Text = string.Empty;
+        Typed?.Invoke(Text);
         FocusEnd();
     }
 
@@ -336,6 +351,7 @@ public sealed partial class SearchBox : Grid
     public void Type(char typed)
     {
         Text += typed;
+        Typed?.Invoke(Text);
         FocusEnd();
     }
 
@@ -345,6 +361,7 @@ public sealed partial class SearchBox : Grid
         if (Text.Length > 0)
         {
             Text = Text[..^1];
+            Typed?.Invoke(Text);
         }
 
         FocusEnd();

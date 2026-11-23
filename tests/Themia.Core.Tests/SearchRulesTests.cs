@@ -113,6 +113,85 @@ public sealed class SearchRulesTests
         Assert.Null(answers.For("quote", "u"));
     }
 
+    /// <summary>
+    /// [S-16409] The loop the owner saw ("when searching for a place it can go into an infinite reload loop"), as the page
+    /// lived it: an answer to "zu" draws the lookup's box anew (box B, "zu") while the box it replaces (A) still has the
+    /// user's "e" on its way. Each box raises its words later, A typed ("zue"), B set from code ("zu"); and every box the
+    /// page draws for a change raises its own starting words set from code after it. Taken as typing (the old rule: every
+    /// change of the words), the two texts flip what is typed for ever and every flip draws a box anew and asks again;
+    /// taken as <see cref="LookupTyping"/> takes them, the user's "zue" is typed once and the page settles.
+    /// </summary>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void S16409_a_lookup_drawn_anew_never_types_its_own_words_so_answers_settle(bool fixedRule)
+    {
+        bool Types(bool byUser, string text, string held) => fixedRule ? LookupTyping.Types(byUser, text, held) : text != held;
+
+        var held = "zu";
+        var drawings = 0;
+        var asked = new List<string> { "zu" };
+
+        // Waiting: A's typed "zue", then B's starting "zu" set from code.
+        var events = new Queue<(bool ByUser, string Text)>([(true, "zue"), (false, "zu")]);
+        while (events.Count > 0 && drawings < 50)
+        {
+            var (byUser, text) = events.Dequeue();
+            if (!Types(byUser, text, held))
+            {
+                continue;
+            }
+
+            // Typed: the page draws the lookup anew (a new box with what is typed, its words raised later) and asks.
+            held = text;
+            drawings++;
+            asked.Add(text);
+            events.Enqueue((false, text));
+        }
+
+        if (fixedRule)
+        {
+            Assert.Equal("zue", held);
+            Assert.Equal(1, drawings);
+            Assert.Equal(["zu", "zue"], asked);
+        }
+        else
+        {
+            Assert.Equal(50, drawings);
+        }
+    }
+
+    [Fact]
+    public void S16409_words_set_from_code_or_unchanged_are_no_typing()
+    {
+        Assert.True(LookupTyping.Types(byUser: true, "zur", "zu"));
+        Assert.False(LookupTyping.Types(byUser: false, "zur", "zu"));
+        Assert.False(LookupTyping.Types(byUser: true, "zu", "zu"));
+        Assert.True(LookupTyping.Types(byUser: true, string.Empty, "zu"));
+        Assert.False(LookupTyping.Types(byUser: true, string.Empty, null));
+    }
+
+    [Fact]
+    public void S16409_a_question_cut_short_is_asked_again_not_searching_for_good()
+    {
+        var answers = new LookupAnswers<string>();
+        answers.Asking("place", "zur");
+        Assert.False(answers.Wants("place", "zur"));
+
+        // Cut short (the page's token cancelled): forgotten, so the lookup drawn again asks it again.
+        answers.Drop("place", "zur");
+        Assert.True(answers.Wants("place", "zur"));
+        Assert.Null(answers.For("place", "zur"));
+
+        // A newer question or an answer already given is kept.
+        answers.Asking("place", "zuri");
+        answers.Drop("place", "zur");
+        Assert.False(answers.Wants("place", "zuri"));
+        Assert.True(answers.Answered("place", "zuri", "Zurich"));
+        answers.Drop("place", "zuri");
+        Assert.Equal("Zurich", answers.For("place", "zuri"));
+    }
+
     [Fact]
     public void S13609_an_answer_never_asked_for_is_dropped()
         => Assert.False(new LookupAnswers<string>().Answered("place", "zur", "Zürich"));

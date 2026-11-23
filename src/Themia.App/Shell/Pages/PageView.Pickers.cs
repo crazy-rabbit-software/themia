@@ -317,9 +317,11 @@ internal sealed partial class PageView
         }
 
         var status = SearchBox.Status(LookupStatus.Line(typed, asking, results.Count, note));
-        box.Changed += text =>
+        // [S-16409] Only the user's words: a box drawn anew (and the one it replaced) raise their words set from code, which
+        // taken as typing flipped what was typed between the two for ever, asking again on every flip.
+        box.Typed += text =>
         {
-            if (text != (_typed.GetValueOrDefault(row.Key) ?? string.Empty))
+            if (LookupTyping.Types(byUser: true, text, _typed.GetValueOrDefault(row.Key)))
             {
                 _typed[row.Key] = text;
                 Redraw();
@@ -373,9 +375,16 @@ internal sealed partial class PageView
     /// </summary>
     private async void Find(string key, SettingsSearch search, string typed)
     {
-        Cancel();
-        _finding = new CancellationTokenSource();
-        var token = _finding.Token;
+        // [S-16409] One question out per lookup: a lookup's newer question cancels its own older one, never another lookup's.
+        if (_finding.Remove(key, out var older))
+        {
+            older.Cancel();
+            older.Dispose();
+        }
+
+        var source = new CancellationTokenSource();
+        _finding[key] = source;
+        var token = source.Token;
         _found.Asking(key, typed);
         _searches++;
         try
@@ -394,7 +403,11 @@ internal sealed partial class PageView
             }
 
             var answer = await search.Find(typed, token).ConfigureAwait(true);
-            if (!token.IsCancellationRequested && _found.Answered(key, typed, answer))
+            if (token.IsCancellationRequested)
+            {
+                _found.Drop(key, typed);
+            }
+            else if (_found.Answered(key, typed, answer))
             {
                 _answered[key] = _answered.GetValueOrDefault(key) + 1;
                 Redraw();
@@ -402,7 +415,9 @@ internal sealed partial class PageView
         }
         catch (OperationCanceledException)
         {
-            // ignore: a newer search took its place.
+            // ignore: a newer search took its place. [S-16409] Unless the page cut it short (another lookup asked, the page
+            // went): then the question is forgotten, so the lookup asks it again when it is drawn, never "Searching…" for good.
+            _found.Drop(key, typed);
         }
         catch (Exception ex)
         {
@@ -416,6 +431,11 @@ internal sealed partial class PageView
         finally
         {
             _searches--;
+            if (_finding.TryGetValue(key, out var mine) && ReferenceEquals(mine, source))
+            {
+                _finding.Remove(key);
+                source.Dispose();
+            }
         }
     }
 

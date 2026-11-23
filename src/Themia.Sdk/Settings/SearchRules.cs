@@ -82,6 +82,19 @@ public static class LookupStatus
 }
 
 /// <summary>
+/// [S-16409] What a change of a lookup's box does (owner, 2026-11-23: "when searching for a place it can go into an infinite
+/// reload loop"): only words the user changed are what is typed, and only when they differ from what the page holds. A page
+/// draws its lookup's box anew on every answer, with the words it holds; the box drawn anew, and the one it replaced, raise
+/// their words set from code later, after the page's next drawing. Taken as typing, the old box's words and the new box's
+/// flipped what was typed between the two for ever: every flip drew the box anew and asked again, and no answer stayed.
+/// </summary>
+public static class LookupTyping
+{
+    /// <summary>Whether the box's words <paramref name="text"/>, changed <paramref name="byUser"/> or set from code, are typing over what the page holds (<paramref name="held"/>).</summary>
+    public static bool Types(bool byUser, string text, string? held) => byUser && !string.Equals(text ?? string.Empty, held ?? string.Empty, StringComparison.Ordinal);
+}
+
+/// <summary>
 /// [S-13609] The answers of a page's lookups, by the lookup's key: one question out per lookup, the latest
 /// typed; an answer to anything but the latest question is dropped, so a slow answer never replaces a newer
 /// one (the debounce's other half: typing settles for <c>MenuSearch.Settle</c> before it is asked).
@@ -109,6 +122,18 @@ public sealed class LookupAnswers<T>
 
         _asked[key] = (typed, answer);
         return true;
+    }
+
+    /// <summary>
+    /// [S-16409] The question <paramref name="typed"/> for <paramref name="key"/> went unanswered (given up, or cut short by the
+    /// page): forgotten while it is still the latest, so the lookup asks it again rather than saying "Searching…" for good.
+    /// </summary>
+    public void Drop(string key, string typed)
+    {
+        if (_asked.TryGetValue(key, out var asked) && asked.Answer is null && string.Equals(asked.Typed, typed, StringComparison.Ordinal))
+        {
+            _asked.Remove(key);
+        }
     }
 
     /// <summary>The answer to <paramref name="typed"/> for <paramref name="key"/>, or null while it is out (or never asked).</summary>

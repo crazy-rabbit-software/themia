@@ -62,7 +62,8 @@ internal sealed partial class PageView : ContentControl
     /// <summary>[S-2308] A lookup's last answer, by its row's key, with what it was asked for.</summary>
     private readonly LookupAnswers<SettingsSearchAnswer> _found = new();
 
-    private CancellationTokenSource? _finding;
+    /// <summary>[S-16409] Each lookup's question out, by its row's key.</summary>
+    private readonly Dictionary<string, CancellationTokenSource> _finding = new(StringComparer.Ordinal);
 
     private PageModel? _model;
 
@@ -399,9 +400,13 @@ internal sealed partial class PageView : ContentControl
 
     private void Cancel()
     {
-        _finding?.Cancel();
-        _finding?.Dispose();
-        _finding = null;
+        foreach (var source in _finding.Values)
+        {
+            source.Cancel();
+            source.Dispose();
+        }
+
+        _finding.Clear();
     }
 
     /// <summary>
