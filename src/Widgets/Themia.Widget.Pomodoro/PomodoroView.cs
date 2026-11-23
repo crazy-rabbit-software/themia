@@ -361,7 +361,8 @@ internal sealed partial class PomodoroView : Grid, IWidgetView, IWidgetSurfaceAw
         _time.MinWidth = Math.Max(Measured(worst.Value, _plan.Step), ReadoutRules.Width(_plan.Step, worst));
 
         // [S-14319] Held to the widest time its phases show: a tick never moves the figures (WR-15).
-        _time.Hold(worst.Value);
+        // [S-16607] Unpadded, aligned in its box as the caption is (WR-7): a "9:24" stands where a "25:00" does, centred.
+        _time.Hold(worst.Value, aligned: true);
         _caption.MinWidth = Enumerable.Range(0, _phases.Count).Select(i => Measured(PomodoroCycle.Caption(_phases, i), FamilyType.Body)).DefaultIfEmpty(0).Max();
         HoldRunLabels();
         Align(_block.Arrangement);
