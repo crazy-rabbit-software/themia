@@ -62,6 +62,11 @@ def find_exe(root, exe=None):
     return found[0]
 
 
+# [S-16316] The kinds whose other styles are drawn in every state, not their first alone: their styles are faces of their own
+# (the Metric widget's graph and value), so the empty and stale faces of each are judged.
+EVERY_STATE_STYLES = {'metrics'}
+
+
 class Lock:
     """One sweep drawing at a time on this PC (the PC hard-hung under ~16 renders at once): the second waits, saying
     whose sweep it waits for. An OS lock on a file in the user's home folder, so a killed sweep never leaves it held."""
@@ -261,7 +266,9 @@ class Renders:
         out = {}
         for k in kinds:
             styles = (by_id.get(k) or {}).get('styles') or []
-            out[k] = [(s, '') for s in states[k]] + [(states[k][0], style) for style in styles[1:]]
+            # [S-16316] A kind whose styles are faces of their own (a graph, a value alone) is drawn in every state in each.
+            firsts = states[k] if k in EVERY_STATE_STYLES else states[k][:1]
+            out[k] = [(s, '') for s in states[k]] + [(s, style) for style in styles[1:] for s in firsts]
         return out
 
     def render(self, jobs):

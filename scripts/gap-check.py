@@ -111,14 +111,17 @@ ONE_LINE = {'clock', 'date', 'header'}
 # [S-6754] The graph kinds: drawn on the one chart, their plot edge to edge in every state.
 GRAPH = re.compile(r'(History|Graph)$')
 GRAPHS = {'rainNextHour'}
+# [S-16316] A kind that is a graph in some of its styles: the styles (the default '') whose face is its plot edge to edge.
+GRAPH_STYLES = {'metrics': {'', 'graph'}}
 EDGE = 0.5  # DIP: layout rounding
 RIM = 4.0  # DIP: the card's own rim the measure leaves out (its outline and antialiased corners)
 
 
-def classify(kind):
-    """[S-14305] The one place a kind's class is read, from its name: 'picture' and 'windows' (the owner's exemptions,
-    not judged), 'tile' and 'one-line' (centred down, judged across), 'graph' (its plot edge to edge) or 'card' (any
-    other). A catalog of the kinds' traits can stand in for it here alone."""
+def classify(kind, style=''):
+    """[S-14305] The one place a kind's class is read, from its name (and [S-16316] its style, for a kind that is a graph
+    in some styles alone): 'picture' and 'windows' (the owner's exemptions, not judged), 'tile' and 'one-line' (centred
+    down, judged across), 'graph' (its plot edge to edge) or 'card' (any other). A catalog of the kinds' traits can stand in
+    for it here alone."""
     if kind in PICTURES:
         return 'picture'
     if kind in WINDOWS_LOOK:
@@ -127,13 +130,13 @@ def classify(kind):
         return 'tile'
     if kind in ONE_LINE:
         return 'one-line'
-    if GRAPH.search(kind) or kind in GRAPHS:
+    if GRAPH.search(kind) or kind in GRAPHS or (style or '') in GRAPH_STYLES.get(kind, ()):
         return 'graph'
     return 'card'
 
 
-def graph(kind):
-    return classify(kind) == 'graph'
+def graph(kind, style=''):
+    return classify(kind, style) == 'graph'
 
 
 def plot_box(layout):
@@ -220,7 +223,7 @@ def held(w, h, top, foot, left, right, holds):
     return top, foot, left, right
 
 
-def judge(kind, card, layout):
+def judge(kind, card, layout, style=''):
     w, h, top, foot, left, right = card
     if top is None:
         # [S-14712] A card one grid cell tall (a metric's graph alone: owner, 2026-11-21, "i want it to scale down all the
@@ -229,7 +232,7 @@ def judge(kind, card, layout):
         if is_rim_plot(w, h, layout):
             return []
         return ['WR-10 nothing drawn']
-    kind_class = classify(kind)
+    kind_class = classify(kind, style)
     if kind_class in ('picture', 'windows'):
         return []
     found = []
@@ -255,7 +258,7 @@ def judge(kind, card, layout):
     # [S-6754] A graph's plot reaches every edge of its card; where it does, it is the card's top and foot.
     plot = plot_box(layout)
     plot_top = plot_foot = False
-    if layout is not None and graph(kind) and plot is None:
+    if layout is not None and graph(kind, style) and plot is None:
         found.append('WR-10 no plot')
     plot_sides = False
     if plot is not None:
@@ -471,7 +474,7 @@ def check(kind, looks, drawn, out):
                 w, h, top, foot = card[:4]
                 box = f'{w:.0f}x{h:.0f}'
                 fmt = lambda v: '-' if v is None else f'{v:.1f}'
-                lines.append((kind, state_label, label, box, fmt(top), fmt(foot), judge(kind, card, layout) + inset))
+                lines.append((kind, state_label, label, box, fmt(top), fmt(foot), judge(kind, card, layout, style) + inset))
     return lines
 
 
@@ -497,6 +500,11 @@ def self_test():
                                                    plots=[{'x': 0, 'y': 0, 'w': 330, 'h': 130}]), [], False),
         ('a graph whose plot stops short', card(330, 130, 12.7, 0, 12.7, 254.7,
                                                 plots=[{'x': 0, 'y': 0, 'w': 300, 'h': 130}]), [], True),
+        # [S-16316] The Metric widget is a graph in its graph style (its default) and a reading in its value style.
+        ('a metric in its graph style with no plot', card(330, 130, 12, 12, 12, 12), ['metrics'], True),
+        ('a metric in its graph style, its plot edge to edge', card(330, 130, 12, 0, 12, 12,
+                                                                    plots=[{'x': 0, 'y': 0, 'w': 330, 'h': 130}]), ['metrics'], False),
+        ('a metric in its value style, no plot', card(330, 130, 30, 30, 12, 12), ['metrics@value'], False),
         # [S-14810] A forecast's 14 days as columns from the left edge in a card wider than them: the room past the last.
         ('columns side by side, fewer than the room', card(900, 300, 12, 12, 11.3, 74,
                                                             items=[{'x': 60.0 * n, 'y': 0, 'w': 60, 'h': 300} for n in range(14)]), [], False),
@@ -588,7 +596,8 @@ def self_test():
             continue
         measured, layout = card_layout
         kind = kinds[0] if kinds else 'stockHistory' if layout['plots'] else 'notes' if layout.get('fields') else 'recycleBin'
-        found = judge(kind, measured, layout)
+        kind, _, style = kind.partition('@')
+        found = judge(kind, measured, layout, style)
         if bool(found) != finds:
             failed += 1
             print(f'FAIL {name}: {found}')
