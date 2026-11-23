@@ -207,8 +207,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         var today = DateOnly.FromDateTime(DateTime.Now);
         var key = (style, plan, today, _config.ShowPrecipitation);
 
+        // [S-16439] The same plan in another width still draws anew: the curve's plot runs to the card's right edge.
         if (_built is { } built && built.Style == key.style && Equals(built.Plan, key.plan)
-            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation)
+            && built.Today == key.today && built.Precipitation == key.ShowPrecipitation && _laid.Width.Equals(area.Width))
         {
             return;
         }
