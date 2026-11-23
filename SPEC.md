@@ -9443,6 +9443,15 @@ edges touch and they are grouped together"). There are no groups ([S-2450]). A d
   inset as its own padding (WR-3: "the inset is padding inside the item, never a margin round the items"; it stood 8 in
   from the sides and the foot). Was: a short note (416 under its last line at 520x600) and a stroke drawn low on the pad
   (34 over it) were read as one-readout faces off centre.
+- **[S-16514]** **A picture is known by the face, never the kind's name** (the owner's exemption: "A kind whose face is a
+  picture or a video filling the card edge to edge ... meets WR-1..WR-4 by that picture"). A widget that draws a picture
+  to fill a box in some of its looks only (now playing's cover alone, its Full art) marks it (`PictureMark`), the layout
+  dump writes its box (`pictures`), and the gap check takes a picture reaching every edge of its card as the card's top,
+  foot and sides; a picture inside the card (the side cover's square) waives nothing and is judged as any part. The
+  kind-name list keeps the kinds that are always a picture (gallery, video stream); `musicCover` left it with its kind
+  ([S-16513]). A face that opens one thing but is no item of a list is no item to the dump either (`WidgetItems`, not
+  `ItemMark`): a card-sized item waived every band (the audit of 2026-11-23 on now playing's light, [S-16509]). Tests:
+  `gap-check.py --self-test`.
 - **[S-14304]** **A cut line's end is the cut's** ([S-14261]: a line the block cuts with its ellipsis at the width it is
   given). Cut, a text ends where its last whole letter and the ellipsis fit: the room after its ink is less than the next
   letter, not a band. The layout dump writes each text cut (`cuts`: `IsTextTrimmed`) and the gap check reads the end side

@@ -71,6 +71,23 @@ public static class PlotMark
 }
 
 /// <summary>
+/// [S-16514] A picture its widget draws to fill its box (a cover, a photo), so the layout dump (<c>--layout-json</c>'s
+/// <c>pictures</c>) and the gap check know the face by what it draws, never by its kind's name: a picture that reaches the
+/// card's edges is the card's top, foot and sides (the owner's exemption: "A kind whose face is a picture ... filling the
+/// card edge to edge ... meets WR-1..WR-4 by that picture"); one inside the card is judged as any part.
+/// </summary>
+public static class PictureMark
+{
+    private static readonly MarkTable Pictures = new();
+
+    /// <summary>Mark <paramref name="element"/> as a picture filling its box.</summary>
+    public static void Mark(FrameworkElement element) => Pictures.Mark(element);
+
+    /// <summary>Whether <paramref name="node"/> is a picture.</summary>
+    public static bool IsPicture(DependencyObject? node) => Pictures.Has(node);
+}
+
+/// <summary>
 /// [S-14314] A column's head over a column of items (the month's weekday letters over its day cells): its box is the
 /// column's across, so the layout dump (<c>--layout-json</c>'s <c>heads</c>) and the gap check read the text in it against
 /// a card edge that box stands on as an item's: the column's own padding stands there in the inset's place (WR-3), the

@@ -62,7 +62,8 @@ last row and column of ink (a pixel off the card's own colour), and judges:
   does not is fine.
 
 The exemptions the owner granted (docs/WIDGET-RULES.md "Exemptions"): a kind whose face is a picture or a video
-filling the card edge to edge (gallery, video stream, cover art) meets WR-1..WR-4 by that picture; a desktop icon keeps
+filling the card edge to edge (gallery, video stream) meets WR-1..WR-4 by that picture, and [S-16514] so does a face whose
+layout names a picture (`pictures`) reaching every edge of its card (now playing's cover alone, its Full art); a desktop icon keeps
 Windows' icon cell (not judged); a tile (quick toggles, power buttons) and a one-line face (clock, date, header) may
 stand centred: the bands over and under the face alike (within the tolerance), and [S-14305] its sides judged as any
 card's (WR-3: each band beside it within the inset; tiles: "nothing else of WR-1..WR-4 is relaxed"); a one-line face or
@@ -93,11 +94,12 @@ SCALE = 1.5  # the renders' raster scale
 # Desktop sizes, a few to a render so the page fits the screen and keeps the raster scale.
 SIZES = ['330x130,350x70,350x80', '330x140,300x164,600x200', '520x600', '900x300']
 
-# docs/WIDGET-RULES.md, "Exemptions granted by the owner": a picture or a video filling the card edge to edge.
+# docs/WIDGET-RULES.md, "Exemptions granted by the owner": a picture or a video filling the card edge to edge. [S-16514]
+# A face that draws a picture in one of its looks only (now playing's cover alone, its Full art) says so in its layout
+# (`pictures`) instead, and is exempt where its picture reaches the card's edges: by its face, never by its kind's name.
 PICTURES = {
     'gallery': 'a picture fills the card edge to edge',
     'videoStream': 'a video fills the card edge to edge',
-    'musicCover': 'the cover art fills the card edge to edge',
 }
 
 # docs/WIDGET-RULES.md, "Exemptions granted by the owner" (2026-11-19): desktop icons keep Windows' icon cell.
@@ -156,6 +158,23 @@ def is_rim_plot(w, h, layout):
         return False
     l, t, r, b = plot
     return l <= EDGE and t <= EDGE and r >= w - EDGE and b >= h - EDGE
+
+
+def picture_box(layout):
+    """[S-16514] The pictures' union in the card (DIPs), or None without one."""
+    pictures = (layout or {}).get('pictures', [])
+    if not pictures:
+        return None
+    return (min(p['x'] for p in pictures), min(p['y'] for p in pictures),
+            max(p['x'] + p['w'] for p in pictures), max(p['y'] + p['h'] for p in pictures))
+
+
+def edge_to_edge(box, layout):
+    """Whether a box reaches every edge of its card."""
+    if box is None or layout is None:
+        return False
+    l, t, r, b = box
+    return l <= EDGE and t <= EDGE and r >= layout['w'] - EDGE and b >= layout['h'] - EDGE
 
 
 def field_box(layout):
@@ -234,6 +253,10 @@ def judge(kind, card, layout, style=''):
         return ['WR-10 nothing drawn']
     kind_class = classify(kind, style)
     if kind_class in ('picture', 'windows'):
+        return []
+    # [S-16514] A picture the face draws from the card's edges to its edges (a cover alone, Full art's band): the face is
+    # that picture, which meets WR-1..WR-4 by itself (the owner's exemption for a picture filling the card).
+    if edge_to_edge(picture_box(layout), layout):
         return []
     found = []
     limit = INSET + TOLERANCE
@@ -549,6 +572,10 @@ def self_test():
         ('a clock line the height stops, centred', card(900, 160, 12, 12, 200, 201, align='center'), ['clock'], False),
         ('a clock line the height stops, aligned left but centred', card(900, 160, 12, 12, 200, 201, align='left'), ['clock'], True),
         ('a short date line in a wide card', card(600, 200, 50, 50, 150, 150), ['date'], True),
+        # [S-16514] A face that is its picture edge to edge (now playing's cover alone, a placeholder fill with its glyph in
+        # the middle); a picture inside the card waives nothing.
+        ('a cover alone edge to edge', card(160, 160, 50, 50, 50, 50, pictures=[{'x': 0, 'y': 0, 'w': 160, 'h': 160}]), ['music'], False),
+        ('a cover square inside the card', card(352, 120, 40, 12, 12, 12, pictures=[{'x': 12, 'y': 12, 'w': 96, 'h': 96}]), ['music'], True),
     ]
     # [S-15675] A held stacked clock at 520 x 600: "10" over "42 AM", its template "88" over "88 AM" (round under the
     # baseline) centred; the drawn "42" sits flat, 4.6 higher. Read by its template's ink down it is centred; a template

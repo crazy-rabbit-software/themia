@@ -43,6 +43,7 @@ GRACE = 60  # seconds a batch may take to start before its first job
 STAMPED = ('.dll', '.exe', '.pri', '.xbf', '.winmd')
 
 
+
 def repo_root():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -63,8 +64,9 @@ def find_exe(root, exe=None):
 
 
 # [S-16316] The kinds whose other styles are drawn in every state, not their first alone: their styles are faces of their own
-# (the Metric widget's graph and value), so the empty and stale faces of each are judged.
-EVERY_STATE_STYLES = {'metrics'}
+# (the Metric widget's graph and value), so the empty and stale faces of each are judged. [S-16515] Now playing too: its
+# styles lay their states differently (Full art keeps an idle face over its scrim, Strip one line; its element sets as states).
+EVERY_STATE_STYLES = {'metrics', 'music'}
 
 
 # [S-16316] A state whose face is another config of its kind (the Metric widget's graph types, each a metric of its own): the
