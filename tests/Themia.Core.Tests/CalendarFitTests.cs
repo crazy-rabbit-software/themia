@@ -197,11 +197,16 @@ public sealed class CalendarFitTests
     }
 
     [Fact]
-    public void S1267_OnlyAShortTilesTodayLosesItsHeading()
+    public void S16457_the_first_heading_stands_over_its_rows_at_every_height()
     {
-        Assert.False(KitPages.ShowsFirstHeading(Today, Today, height: 106));
-        Assert.True(KitPages.ShowsFirstHeading(Today.AddDays(1), Today, height: 106));
-        Assert.True(KitPages.ShowsFirstHeading(Today, Today, height: 200));
+        // WR-4: the items stand from the top in one order at every height, only the last cut: a short tile keeps today's
+        // heading as its first line (it was dropped under 128, [S-1267], so "Mia Chen" came first at 300 x 130).
+        foreach (var height in new[] { 30.0, 70, 106, 130, 200 })
+        {
+            Assert.True(KitPages.HeadingBefore(K(AgendaDays), 0, 0, firstHeading: true));
+            Assert.Equal(0, KitPages.Pages(K(AgendaDays), 1, height, 32, 40, firstHeading: true)[0]);
+            Assert.Equal(32 + 40, KitPages.ColumnHeight(K(AgendaDays), 0, 1, 32, 40, firstHeading: true));
+        }
     }
 
     // ---- [S-1268] Outlook hand-off ----------------------------------------------------------------

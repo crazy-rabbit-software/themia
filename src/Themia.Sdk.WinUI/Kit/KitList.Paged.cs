@@ -88,12 +88,12 @@ public sealed partial class KitList
             return;
         }
 
-        var today = DateOnly.FromDateTime(now.DateTime);
         var keys = _items.Select(i => i.Group?.Key ?? string.Empty).ToList();
         var box = KitPlanner.ListHeight(_area);
-        var firstHeading = KitPages.ShowsFirstHeading(_items[0].Group?.Day, today, _area.Height);
 
-        _pageStarts = KitPages.Pages(keys, _plan.Columns, box, _plan.HeadingHeight, _plan.RowHeight, firstHeading);
+        // [S-16457] Every page's first group has its heading at every height (WR-4: the items stand from the top in one
+        // order, the last cut; a short tile's "Today" was dropped under 128, [S-1267] retired).
+        _pageStarts = KitPages.Pages(keys, _plan.Columns, box, _plan.HeadingHeight, _plan.RowHeight, firstHeading: true);
         _pageIndex = Math.Clamp(_pageIndex, 0, _pageStarts.Count - 1);
 
         var at = _pageStarts[_pageIndex];
@@ -101,8 +101,7 @@ public sealed partial class KitList
         for (var c = 0; c < _plan.Columns && at < _items.Count; c++)
         {
             _page.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            var heading = firstHeading || at > 0;
-            var count = KitPages.Fit(keys, at, box, _plan.HeadingHeight, _plan.RowHeight, heading);
+            var count = KitPages.Fit(keys, at, box, _plan.HeadingHeight, _plan.RowHeight, firstHeading: true);
             var stack = new StackPanel();
 
             for (var i = at; i < at + count; i++)
@@ -110,7 +109,7 @@ public sealed partial class KitList
                 var item = _items[i];
                 draw.Index = i;
                 draw.Line = stack.Children.Count;
-                if (KitPages.HeadingBefore(keys, at, i, heading))
+                if (KitPages.HeadingBefore(keys, at, i, firstHeading: true))
                 {
                     var group = item.Group ?? new KitGroup(string.Empty);
                     var head = _look.Heading(group, draw);
@@ -137,7 +136,7 @@ public sealed partial class KitList
                 var item = _items[next];
                 draw.Index = next;
                 draw.Line = stack.Children.Count;
-                if (KitPages.HeadingBefore(keys, at, next, heading))
+                if (KitPages.HeadingBefore(keys, at, next, firstHeading: true))
                 {
                     stack.Children.Add(_look.Heading(item.Group ?? new KitGroup(string.Empty), draw));
                 }

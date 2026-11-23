@@ -1,3 +1,4 @@
+using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Office;
 using Themia.Sdk.Kit;
@@ -78,5 +79,20 @@ public sealed class AgendaSpecTests
         Assert.Equal(AgendaSpec.OpenId, open?.Id);
         Assert.Empty(AgendaSpec.Actions(new DayItem(At(10, 60), null), openable: false)); // CalDAV: no page to open
         Assert.Empty(AgendaSpec.Actions(new DayItem(null, new Birthday("Mia", 1, 1, null)), openable: true));
+    }
+
+    [Fact]
+    public void S16458_nothing_coming_keeps_todays_heading_over_a_row_saying_no_events()
+    {
+        var none = AgendaSpec.None(Today);
+
+        // Today's group (its heading over the row), a row as the day view says it, its tooltip the why.
+        Assert.Equal(Today, none.Group?.Day);
+        Assert.Equal(CalendarStr.WidgetsA_Calendar_NoEvents.Text(), none.Title);
+        Assert.Equal(CalendarStr.Calendar_NoUpcoming.Text(), none.Tooltip);
+        Assert.NotNull(none.Schedule);
+        Assert.Null(none.Schedule!.Start);
+        Assert.Equal(KitLeadKind.Icon, none.Lead.Kind);
+        Assert.StartsWith(none.Group!.Value.Key, none.Id, StringComparison.Ordinal);
     }
 }

@@ -191,7 +191,10 @@ public sealed class CalendarSizingTests
         // [S-14410] [S-14502] [S-15780] The days are the card's width: a 40 column a day from its left edge, every one the
         // width reaches (the last cut by its right edge), however many, a new one's seven, never stored.
         Assert.Equal(7 * CalendarSizing.StripColumn, Of(config).Natural.Width);
-        Assert.Equal(CalendarSizing.StripColumn, Of(config).Min.Width);
+        // [S-16459] Its least is as wide as its chosen day's rows read at, the agenda's least (one 40 column cut a row's title
+        // to 4 DIP); a narrower width still lays its one column, cut by the edge.
+        Assert.Equal(CalendarSizing.AgendaWidths.Min, Of(config).Min.Width);
+        Assert.True(Of(config).Min.Width >= CalendarSizing.StripColumn);
         Assert.Equal(7, CalendarSizing.WeekDaysIn(7 * CalendarSizing.StripColumn, titles: false));
         Assert.Equal(8, CalendarSizing.WeekDaysIn(300, titles: false));
         // [S-16452] The days never run out: a 900 card shows 23 (its last cut), a 5000 one 125, never a band left at the right.

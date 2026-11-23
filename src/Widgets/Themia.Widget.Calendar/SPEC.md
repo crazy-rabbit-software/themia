@@ -158,6 +158,10 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   still read"): a dots month goes down to a Caption number line of 16 in its cell's 4 over and under, six weeks under the
   weekday line (180 tall), in columns its two figures fit across (160 wide), no longer 260 × 210. Tests
   `MonthLayoutTests.S15798_`.
+- **[S-16459]** **The day strip is never narrower than its rows read** (WR-14: a face scaled down stays read; the fourth
+  audit of 2026-11-23: at its least, 40 × 170, one column stood over a row whose title was cut to 4 DIP): the chosen day's
+  rows are the agenda's ([S-2285]), so the strip's least width is the agenda's (`CalendarSizing.StripLeast`, 260), its
+  days the 40 columns that width reaches, the last cut by the edge. Test `CalendarSizingTests.S11545_S14410_`.
 - **[S-16452]** **The day strip's days never run out** (WR-4, WR-5, [S-14410]: "Anything that's just 'how many of the same
   item' (days, hours, weeks, processes) follows the card's size"; the third audit of 2026-11-23: the strip stopped at 14
   days and left 340 DIP empty at a 900 × 300 card's right): the strip shows every 40 column the card reaches, the last cut
@@ -187,6 +191,14 @@ sets the count and a resize stores none ([S-14502]); a list's Rows stay a settin
   calendar's colour (a 2 px bar) when colours show; a birthday its gift (neutral: not a state), its
   name and "Birthday". The view pages it with the card menu's back and forward ([S-12481]: the agenda has no period line) and the keys and hooks each event's row for its
   tooltip, its links across widgets and the click that opens it.
+- **[S-16457]** **The agenda's first line is its first day's heading at every height** (WR-4: the items stand from the top
+  in one order, only the last cut; the fourth audit of 2026-11-23: "Today · Mon, Nov 23" headed the agenda at 300 × 140 and
+  was gone at 300 × 130, "Mia Chen" first): the kit's paged list puts every page's first group's heading over its rows
+  however short the card ([S-7035]; [S-1267]'s dropped "Today" retired). Test `CalendarFitTests.S16457_`.
+- **[S-16458]** **Nothing coming keeps the agenda's face** (WR-10: "the widget keeps its face ... and says why in a compact
+  line"; the fourth audit: "No upcoming events." stood alone in place of the list): with no event or birthday in its
+  period the agenda draws today's heading over one row saying "No events" as the day view does (`AgendaSpec.None`, the
+  event glyph in its time column, its tooltip "No upcoming events."), opening nothing. Test `AgendaSpecTests.S16458_`.
 - **[S-3651]** The calendar's one stale rule ([S-7042]): each account whose last sync could not improve
   on the events held is a kit outcome (the office feed's, `OfficeScreens.Outcomes`, [S-7077]: its label, its problem in the kit's
   failure vocabulary, `SyncProblems.ToFetchStatus`, when its events are from); the problem

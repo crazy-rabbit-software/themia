@@ -33,9 +33,6 @@ public static class KitPages
     /// <summary>[S-2717] A title wraps onto at most this many lines; past them it ends in an ellipsis.</summary>
     public const int MaxTitleLines = 2;
 
-    /// <summary>[S-1267] Under this height the first page's first group is implied when it is today, and its heading's line goes to a row.</summary>
-    public const double FirstHeadingNeedsHeight = 128;
-
     /// <summary>
     /// [S-2709] How many rows from <paramref name="start"/> one column of <paramref name="height"/>
     /// holds whole, with their headings; <paramref name="firstHeading"/> false drops the column's first
@@ -137,13 +134,6 @@ public static class KitPages
 
         return page;
     }
-
-    /// <summary>
-    /// [S-1267] Whether the first page's first group gets its heading: on a short tile a first group
-    /// that is today is implied (it is what a small agenda is about) and its line goes to a row.
-    /// </summary>
-    public static bool ShowsFirstHeading(DateOnly? day, DateOnly today, double height)
-        => !(day == today && height > 0 && height < FirstHeadingNeedsHeight);
 }
 
 /// <summary>[S-2716] A day group's heading, written by the kit.</summary>

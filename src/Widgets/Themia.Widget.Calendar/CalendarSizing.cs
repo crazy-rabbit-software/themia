@@ -279,6 +279,12 @@ public static class CalendarSizing
     public const double StripColumn = 40;
 
     /// <summary>
+    /// [S-16459] The day strip's least width: its chosen day's rows at their least, the agenda's (<see cref="AgendaWidths"/>;
+    /// WR-14: at one 40 column a row's title was cut to 4 DIP, nothing of it read), its days the columns that width reaches.
+    /// </summary>
+    public static double StripLeast => Math.Max(WeekWidth(CalendarPeriod.WeekMinDays, titles: false), AgendaWidths.Min);
+
+    /// <summary>
     /// [S-14410] [S-14502] [S-15780] The width a week of <paramref name="days"/> takes: with titles the inset either side, the
     /// hour labels and a column a day; the strip its days' columns alone, each its one size, from the card's left edge.
     /// </summary>
@@ -310,7 +316,8 @@ public static class CalendarSizing
     /// [S-11545] [S-11546] [S-14410] [S-14500] The week: the day strip a 40 column a day, or the titles' 96 columns beside
     /// the hours, a new one <see cref="CalendarPeriod.WeekDefaultDays"/> days; the strip's height its chosen day's rows (its
     /// WeekRows a new one's), the titles' its hours (a new one 8); every cell between, the days, rows and hours what the
-    /// card holds.
+    /// card holds. [S-16459] The strip is never narrower than its rows read (WR-14): the chosen day's rows are the agenda's
+    /// ([S-2285]), so its least width is the agenda's (<see cref="StripLeast"/>).
     /// </summary>
     public static WidgetSizing WeekSizing(CalendarWidgetConfig config)
     {
@@ -329,7 +336,7 @@ public static class CalendarSizing
 
         var row = ItemSize.Optimal(FamilyShape.Row1, grid);
         return Lined(WidgetSizing.Range(
-            new(Width(CalendarPeriod.WeekMinDays), WeekRowsOver + row),
+            new(StripLeast, WeekRowsOver + row),
             new(Width(CalendarPeriod.WeekDefaultDays), WeekRowsOver + (ClampWeekRows(config.WeekRows) * row)),
             new(Width(CalendarPeriod.WeekMaxDays), WeekRowsOver + (MaxWeekRows * row))));
     }

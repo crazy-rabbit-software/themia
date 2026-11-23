@@ -67,18 +67,17 @@ internal sealed partial class CalendarView
 
         _agendaItems.Clear();
 
-        if (rows.Count == 0)
-        {
-            HideAgenda();
-            _agendaPages = 1;
-            _agendaPage = 0;
-            _state.Show(CalendarStr.Calendar_NoUpcoming.Text(), offerAccounts: false);
-            return;
-        }
-
         var showColors = ShowColors;
         var now = _clock();
-        var items = new List<KitItem>(rows.Count);
+        var items = new List<KitItem>(Math.Max(1, rows.Count));
+
+        // [S-16458] Nothing coming keeps the agenda's face (WR-10): today's heading and its row saying so, never a sentence
+        // in place of the list.
+        if (rows.Count == 0)
+        {
+            items.Add(AgendaSpec.None(today));
+        }
+
         foreach (var (day, item) in rows)
         {
             var kit = AgendaSpec.Item(item, day, now, _selected, showColors ? MarkOf : null);

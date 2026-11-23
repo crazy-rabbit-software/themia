@@ -57,6 +57,23 @@ public static class AgendaSpec
     }
 
     /// <summary>
+    /// [S-16458] The agenda with nothing coming (WR-10: "the widget keeps its face ... and says why in a compact line"): today's
+    /// group, its heading over one row saying "No events" as the day view does, its tooltip the why ("No upcoming events.").
+    /// It opens nothing.
+    /// </summary>
+    public static KitItem None(DateOnly today)
+    {
+        var group = new KitGroup(today.ToString("O", System.Globalization.CultureInfo.InvariantCulture), Day: today);
+        return new KitItem(
+            $"{group.Key}|none",
+            CalendarStr.WidgetsA_Calendar_NoEvents.Text(),
+            Lead: new KitLead(KitLeadKind.Icon, nameof(KitIcon.Event)),
+            Group: group,
+            Tooltip: CalendarStr.Calendar_NoUpcoming.Text(),
+            Schedule: new KitSchedule(null));
+    }
+
+    /// <summary>
     /// [S-2285] One of the narrow week's chosen day's rows: the agenda's row of the item on that day, in
     /// no group, so the list names no day (the strip over it does).
     /// </summary>

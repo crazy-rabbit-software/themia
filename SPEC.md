@@ -1864,8 +1864,8 @@ The shared parts a list widget is built from, and the rules they keep (design an
   page is the plan's columns filled one after the other, each group's heading (one row of 28,
   BodyStrong secondary; a day's: "Today", "Tomorrow" with the date where the line holds it whole,
   else the date, [S-2716]; primary for the selected day, [S-3622]) over its first row and again over
-  a column that starts mid-group; on a tile under 128px a first group that is today drops its
-  heading ([S-1267]); at least one row per column, so paging always moves. The widget turns the page
+  a column that starts mid-group; the first group's heading at every height ([S-16457]: WR-4, [S-1267]
+  retired); at least one row per column, so paging always moves. The widget turns the page
   (`KitList.Page`); the cursor takes the page with it.
 - **[S-15783]** **A page's next row is cut by the foot** (docs/WIDGET-RULES.md WR-4: "the last item will be cutoff to some
   extent then"; WR-5): where a page's last column leaves room under its whole lines and more items follow, the next
@@ -6820,8 +6820,9 @@ partial per layout), `CalendarData.cs` (the data seam), `ContactsView.cs`.
   fits, else the weeks that fit around today ([S-2702]).
 - **[S-1266]** *(Retired: 32/40 px hours on a scrolled timeline, [S-2705].)* A timeline block of three
   caption lines adds a "location · organizer" line; one of a single line keeps the title only.
-- **[S-1267]** *(Its two columns retired by [S-11540]: one column at every width.)* Agenda: under 128 tall the first page's "Today" heading is dropped (any other day keeps
-  its heading); at ≥720 px each page fills two columns, one after the other.
+- **[S-1267]** *(Retired: its two columns by [S-11540], one column at every width; the dropped "Today" heading by
+  [S-16457], the first group's heading stands at every height.)* Agenda: under 128 tall the first page's "Today" heading
+  was dropped; at ≥720 px each page filled two columns, one after the other.
 - **[S-1268]** Opening an event: a Microsoft account's event opens `ms-outlook://events/{id}` when
   Outlook's protocol is registered (one cached check shared with Mail, `ShellLauncher.OutlookInstalled`),
   else the provider's https page; the provider comes from the event's account, never the link's
