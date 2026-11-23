@@ -85,7 +85,7 @@ public static class KindMerges
                     }
                 }
 
-                notes.Add($"replaced {kind} '{id}' in view '{viewName}' in place by the single metric {target.Into} with its graph shown");
+                notes.Add($"replaced {kind} '{id}' in view '{viewName}' in place by {target.Into}");
             }
         }
 
