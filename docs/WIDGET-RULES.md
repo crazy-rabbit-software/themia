@@ -89,6 +89,9 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   cpu data available it should show the default values in the graph and not just not show the graph. for both cases.
   also for other widgets." No data, no account, not set up, offline: the widget keeps its face (its graph, its rows,
   its month, its reading as "--") and says why in a compact line; it never swaps its face for a status line alone.
+  2026-11-23, of the device widgets' items: "if elements are not shown like the battery percentage for example, it should
+  also not show them in the design, not just grey them out." A device item's part the device has none of (a battery
+  percentage, its bar) is not drawn and takes no room; the item keeps its icon, its name and its details saying why.
 - **WR-11 One base, little variance.** 2026-11-19: "they dont need to have an icon neccsarily, but they should reuse
   the same base. generally i feel like the widgets have to much variance in themselves. they should reuse more of the
   same components." Rows look like rows everywhere (same heights, type, padding, hover band); facts lists, item lists
@@ -130,9 +133,10 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   "the toggle buttons should be possible to be even smaller". A quick setting's (and a power button's) tile goes down to its
   glyph at 12 in a 4 inset (20); its words keep the 9 floor of WR-14 and give way before the glyph.
 - **A device list's block gap.** 2026-11-23, of the device widgets: "optionally it should be possible to add a block gap
-  into the widget so that they are dymanic but it looks like different widgets." With a device list's "Gap between items"
-  on (off by default), one grid cell stands between two items and the card paints a ground under each item alone, so each
-  looks like a widget of its own; that cell is not a WR-2 or WR-5 failure. Every item keeps WR-1, WR-3, WR-4 and WR-6.
+  into the widget so that they are dymanic but it looks like different widgets"; and the same day: "gap between items should
+  be settable as blocks, from 0 to x blocks." With a device list's "Gap between items" at 1 to 4 blocks (none by default),
+  that many grid cells stand between two items and the card paints a ground under each item alone, so each
+  looks like a widget of its own; that room is not a WR-2 or WR-5 failure. Every item keeps WR-1, WR-3, WR-4 and WR-6.
 - **Now playing's transport stands right-aligned.** 2026-11-23: "for the now playing widget move the action buttons on
   the right side of the text and right align them". The previous, play/pause and next buttons stand at the right inset,
   beside the texts or alone; the room at their left when they stand alone is not a WR-3 failure.

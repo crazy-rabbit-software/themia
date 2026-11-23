@@ -24,19 +24,21 @@ public sealed class DeviceItemTests
         Assert.Equal(("C:\\", "System (C:)", "55", "%", "419 GB free of 931 GB"), (item.Id, item.Name, item.Reading!.Value.Value, item.Reading.Value.Unit, item.Line));
         Assert.False(item.Absent);
         Assert.Equal(ColourRole.Accent, item.FillRole);
-        Assert.InRange(item.Fill, 0.54, 0.56);
+        Assert.InRange(item.Fill!.Value, 0.54, 0.56);
         Assert.Equal("C:\\", item.Icon.Drive!.Root);
     }
 
     [Fact]
-    public void S16631_S16632_a_drive_without_figures_keeps_its_face_and_says_why()
+    public void S16670_S16632_a_drive_without_figures_has_no_percentage_and_no_bar_and_says_why()
     {
+        // Owner, 2026-11-23: "if elements are not shown like the battery percentage for example, it should also not show
+        // them in the design, not just grey them out."
         var share = DeviceItems.Drive(Locale.En, new DriveEntry("Z:\\", VolumeKind.Network, DriveState.Disconnected, Share: "\\\\nas\\media"));
         Assert.True(share.Absent);
-        Assert.Equal(("--", "Disconnected network drive", 0.0), (share.Reading!.Value.Value, share.Line, share.Fill));
+        Assert.Equal(((DeviceReading?)null, "Disconnected network drive", (double?)null), (share.Reading, share.Line, share.Fill));
 
         var pending = DeviceItems.Drive(Locale.En, new DriveEntry("Y:\\", VolumeKind.Network, DriveState.Pending));
-        Assert.Equal(("--", "Connecting…"), (pending.Reading!.Value.Value, pending.Line));
+        Assert.Equal(((DeviceReading?)null, "Connecting…"), (pending.Reading, pending.Line));
 
         var full = DeviceItems.Drive(Locale.En, new DriveEntry("D:\\", VolumeKind.Fixed, DriveState.Ready, "Games", "NTFS", 100 * Gb, 5 * Gb));
         Assert.Equal(ColourRole.Critical, full.FillRole);
@@ -51,66 +53,71 @@ public sealed class DeviceItemTests
     }
 
     [Fact]
-    public void S16633_an_item_is_the_drive_face_in_whole_cells()
+    public void S16633_an_item_is_its_row_and_its_bar_with_the_inset_under_it_in_whole_cells()
     {
-        Assert.Equal(88, DeviceLayout.Natural);
-        Assert.Equal(90, DeviceLayout.Height(Grid));
+        // Owner, 2026-11-23: "there is no proper spacing between the bottom border and the progress bar".
+        Assert.Equal(12 + 36 + 12 + 4 + 12, DeviceLayout.Natural);
+        Assert.Equal(80, DeviceLayout.Height(Grid));
         Assert.Equal(240, DeviceLayout.Width(Grid));
     }
 
     [Fact]
     public void S16633_items_stand_down_from_the_top_edge_touching_the_last_cut()
     {
-        var lay = DeviceLayout.Lay(5, 300, 200, gap: false, Grid);
+        var lay = DeviceLayout.Lay(5, 300, 200, gap: 0, Grid);
 
         Assert.False(lay.Across);
-        Assert.Equal(new DeviceSlot[] { new(0, 0, 300, 90), new(0, 90, 300, 90), new(0, 180, 300, 90) }, lay.Slots);
+        Assert.Equal(new DeviceSlot[] { new(0, 0, 300, 80), new(0, 80, 300, 80), new(0, 160, 300, 80) }, lay.Slots);
     }
 
     [Fact]
-    public void S16634_the_block_gap_puts_one_cell_between_two_items()
+    public void S16673_the_gap_is_whole_grid_blocks_from_none_to_four()
     {
-        var lay = DeviceLayout.Lay(3, 300, 400, gap: true, Grid);
+        Assert.Equal(new[] { 0.0, 90.0, 180.0 }, DeviceLayout.Lay(3, 300, 400, gap: 1, Grid).Slots.Select(s => s.Y));
+        Assert.Equal(new[] { 0.0, 110.0, 220.0 }, DeviceLayout.Lay(3, 300, 400, gap: 3, Grid).Slots.Select(s => s.Y));
+        Assert.All(DeviceLayout.Lay(3, 300, 400, gap: 2, Grid).Slots, s => Assert.Equal(80, s.Height));
+        Assert.Equal(40, DeviceLayout.GapOf(9, Grid));
+        Assert.Equal(0, DeviceLayout.GapOf(-1, Grid));
 
-        Assert.Equal(10, lay.Gap);
-        Assert.Equal(new[] { 0.0, 100.0, 200.0 }, lay.Slots.Select(s => s.Y));
-        Assert.All(lay.Slots, s => Assert.Equal(90, s.Height));
+        var notes = new List<string>();
+        Assert.Equal((4, 0), (DeviceOrder.Repaired(7, "drives", notes), DeviceOrder.Repaired(-2, "drives", notes)));
+        Assert.Equal(2, notes.Count);
     }
 
     [Fact]
     public void S16633_a_card_one_item_tall_and_wide_lays_them_across_the_last_cut_by_its_right_edge()
     {
-        var lay = DeviceLayout.Lay(3, 600, 100, gap: false, Grid);
+        var lay = DeviceLayout.Lay(3, 600, 100, gap: 0, Grid);
         Assert.True(lay.Across);
-        Assert.Equal(new DeviceSlot[] { new(0, 0, 240, 90), new(240, 0, 240, 90), new(480, 0, 240, 90) }, lay.Slots);
+        Assert.Equal(new DeviceSlot[] { new(0, 0, 240, 80), new(240, 0, 240, 80), new(480, 0, 240, 80) }, lay.Slots);
 
-        var gapped = DeviceLayout.Lay(3, 600, 100, gap: true, Grid);
+        var gapped = DeviceLayout.Lay(3, 600, 100, gap: 1, Grid);
         Assert.Equal(new[] { 0.0, 250.0, 500.0 }, gapped.Slots.Select(s => s.X));
 
-        // One item, or a card too narrow for two: down.
-        Assert.False(DeviceLayout.Lay(1, 600, 100, gap: false, Grid).Across);
-        Assert.False(DeviceLayout.Lay(3, 470, 100, gap: false, Grid).Across);
-        Assert.False(DeviceLayout.Lay(3, 600, 180, gap: false, Grid).Across);
+        // One item, or a card too narrow for two, or tall enough for two: down.
+        Assert.False(DeviceLayout.Lay(1, 600, 100, gap: 0, Grid).Across);
+        Assert.False(DeviceLayout.Lay(3, 470, 100, gap: 0, Grid).Across);
+        Assert.False(DeviceLayout.Lay(3, 600, 170, gap: 0, Grid).Across);
     }
 
     [Fact]
     public void S16633_a_list_shows_one_item_at_least_and_none_past_its_edge()
     {
-        Assert.Single(DeviceLayout.Lay(4, 300, 40, gap: false, Grid).Slots);
-        Assert.Empty(DeviceLayout.Lay(0, 300, 400, gap: false, Grid).Slots);
-        Assert.Equal(2, DeviceLayout.Lay(4, 300, 180, gap: false, Grid).Slots.Count);
+        Assert.Single(DeviceLayout.Lay(4, 300, 40, gap: 0, Grid).Slots);
+        Assert.Empty(DeviceLayout.Lay(0, 300, 400, gap: 0, Grid).Slots);
+        Assert.Equal(2, DeviceLayout.Lay(4, 300, 160, gap: 0, Grid).Slots.Count);
     }
 
     [Fact]
     public void S16634_a_lists_sizing_is_its_items_down_with_the_gap_between()
     {
-        var plain = DeviceLayout.Sizing(3, gap: false);
-        Assert.Equal((220.0, 90.0), (plain.Min.Width, plain.Min.Height));
-        Assert.Equal((300.0, 270.0), (plain.Natural.Width, plain.Natural.Height));
+        var plain = DeviceLayout.Sizing(3, gap: 0);
+        Assert.Equal((220.0, 80.0), (plain.Min.Width, plain.Min.Height));
+        Assert.Equal((300.0, 240.0), (plain.Natural.Width, plain.Natural.Height));
 
-        var gapped = DeviceLayout.Sizing(3, gap: true);
-        Assert.Equal(290, gapped.Natural.Height);
-        Assert.Equal(90, gapped.Min.Height);
+        var gapped = DeviceLayout.Sizing(3, gap: 2);
+        Assert.Equal(280, gapped.Natural.Height);
+        Assert.Equal(80, gapped.Min.Height);
     }
 
     [Fact]
@@ -131,8 +138,8 @@ public sealed class DeviceItemTests
     public void S16637_a_single_device_face_is_the_items_height_and_never_narrower_than_its_line()
     {
         var face = DeviceLayout.Face(DeviceLayout.WidestLine(["419 GB free of 931 GB"]));
-        Assert.Equal(88, face.Natural.Height);
-        Assert.True(face.Min.Height < 88);
+        Assert.Equal(76, face.Natural.Height);
+        Assert.True(face.Min.Height < 76);
         Assert.True(DeviceLayout.Face(400).Min.Width > face.Min.Width);
     }
 }

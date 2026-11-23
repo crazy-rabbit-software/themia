@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Settings;
@@ -8,87 +7,136 @@ using Themia.Sdk.WinUI.Kit;
 
 namespace Themia.Sdk.WinUI.Devices;
 
-/// <summary>[S-16655] One device a list's lines name: its id, its name, its glyph.</summary>
+/// <summary>[S-16671] One device a list's lines name: its id, its name, its glyph.</summary>
 public readonly record struct DeviceChoice(string Id, string Name, string Glyph);
 
 /// <summary>
-/// [S-16655] A device list's lines, the same for every kind ([S-16636]): the devices of its kind as a checklist (a switch
-/// each, on while it is shown), the shown ones' order (a list dragged to reorder; the checklist hides, so nothing is
-/// removed there), the gap between them and how many rows a new card stands.
+/// [S-16671]..[S-16673] A device widget's lines, the same for every kind ([S-16636]; owner, 2026-11-23: "order and which
+/// items are shown should be combined. settings of elements that are shown should be all grouped together under a
+/// section. gap between items should be settable as blocks, from 0 to x blocks."): one reorderable checklist of the
+/// devices of its kind (its box shows or hides one, dragging or Ctrl+Up/Down orders them), the parts an item shows in one
+/// section with the kind's own, the gap in grid blocks and how many rows a new card stands.
 /// </summary>
 public static class DeviceMenuLines
 {
     /// <param name="devices">Every device of the list's kind there now, hidden ones too, in the kind's own order.</param>
-    public static void List<TConfig>(WidgetMenuLines menu, TConfig config, IReadOnlyList<DeviceChoice> devices)
-        where TConfig : IDeviceListConfig, IKitRows
+    /// <param name="own">The kind's own parts' lines (a Bluetooth device's connection word, its signal), in the parts' section.</param>
+    public static void List<TConfig>(WidgetMenuLines menu, TConfig config, IReadOnlyList<DeviceChoice> devices, IReadOnlyList<SettingsLine>? own = null)
+        where TConfig : IDeviceListConfig, IDeviceParts, IKitRows
     {
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(devices);
 
-        // [S-16651] The checklist: every device of the kind, in the list's order.
-        var ordered = DeviceOrder.Ordered(devices, d => d.Id, config.Order);
-        var checklist = new List<SettingsLine>(ordered.Count);
-        foreach (var device in ordered)
-        {
-            var id = device.Id;
-            var shown = !config.Hidden.Contains(id, StringComparer.OrdinalIgnoreCase);
-            checklist.Add(menu.Toggle(device.Glyph, device.Name, shown, on =>
-            {
-                config.Hidden.RemoveAll(h => string.Equals(h, id, StringComparison.OrdinalIgnoreCase));
-                if (!on)
-                {
-                    config.Hidden.Add(id);
-                }
-            }));
-        }
-
-        if (checklist.Count == 0)
-        {
-            checklist.Add(WidgetMenuLines.Note(Str.Devices_None.Text()));
-        }
-
-        menu.Lines.Add(WidgetMenuLines.Submenu(Glyphs.View, Str.Devices_Shown.Text(), checklist));
-
-        // [S-16652] The shown ones' order, dragged up and down.
-        var shownDevices = DeviceOrder.Arrange(devices, d => d.Id, config.Hidden, config.Order);
-        var order = new OrderedIds(config, [.. shownDevices.Select(d => d.Id)]);
-        menu.Lines.Add(menu.List(Glyphs.MoveDown, Str.Devices_Order.Text(), order, new MenuList<string>(
-            id => shownDevices.FirstOrDefault(d => d.Id == id) is { Name: { } name } ? name : id,
-            Str.Devices_None.Text())
-        {
-            Glyph = id => shownDevices.FirstOrDefault(d => d.Id == id) is { Glyph: { } glyph } ? glyph : null,
-            Min = int.MaxValue,
-        }));
-
-        // [S-16653] The block gap, then [S-16654] how many rows a new card stands.
+        menu.Lines.Add(Checklist(menu, config, devices));
+        menu.Lines.Add(Parts(menu, config, own));
         menu.Lines.Add(SettingsLine.Separator);
-        menu.Lines.Add(menu.Toggle(Glyphs.Grid, Str.Devices_Gap.Text(), config.Gap, on => config.Gap = on));
+        menu.Lines.Add(Gap(menu, config.Gap, value => config.Gap = value));
         menu.Lines.AddRange(KitMenuLines.Rows(menu, config));
     }
 
     /// <summary>
-    /// [S-16652] The shown devices' ids as the order list edits them: every change is written back to the config's order
-    /// (<see cref="DeviceOrder.Reordered"/>), so a device not there now keeps its place.
+    /// [S-16671] The devices of the kind as one list in the list's order: each its name with its box at its end (ticked:
+    /// shown; empty: left out), dragged up and down (or Ctrl+Up/Down) to order them; a device not there keeps its place.
     /// </summary>
-    private sealed class OrderedIds(IDeviceListConfig config, List<string> ids) : Collection<string>(ids)
+    public static SettingsLine Checklist(WidgetMenuLines menu, IDeviceListConfig config, IReadOnlyList<DeviceChoice> devices)
     {
-        protected override void InsertItem(int index, string item)
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(devices);
+
+        var ordered = DeviceOrder.Ordered(devices, d => d.Id, config.Order);
+        var ids = ordered.Select(d => d.Id).ToList();
+        void Move(int from, int to)
         {
-            base.InsertItem(index, item);
-            config.Order = DeviceOrder.Reordered(config.Order, this);
+            if (from < 0 || from >= ids.Count || to < 0 || to >= ids.Count || from == to)
+            {
+                return;
+            }
+
+            var id = ids[from];
+            ids.RemoveAt(from);
+            ids.Insert(to, id);
+            config.Order = DeviceOrder.Reordered(config.Order, ids);
         }
 
-        protected override void RemoveItem(int index)
+        var lines = new List<SettingsLine>(ordered.Count);
+        for (var i = 0; i < ordered.Count; i++)
         {
-            base.RemoveItem(index);
-            config.Order = DeviceOrder.Reordered(config.Order, this);
+            var device = ordered[i];
+            var shown = !config.Hidden.Contains(device.Id, StringComparer.OrdinalIgnoreCase);
+            var flip = menu.Command(null, device.Name, () =>
+            {
+                config.Hidden.RemoveAll(h => string.Equals(h, device.Id, StringComparison.OrdinalIgnoreCase));
+                if (shown)
+                {
+                    config.Hidden.Add(device.Id);
+                }
+            });
+            var moved = new Action<int, int>((from, to) => menu.Command(null, device.Name, () => Move(from, to)).Run());
+            lines.Add(new SettingsItem(device.Id, device.Name, device.Glyph,
+            [
+                new SettingsTool("show", shown ? Glyphs.Checked : Glyphs.Unchecked, Str.Devices_Show.Text(), SettingsToolKey.None) { Run = flip.Run },
+            ])
+            {
+                Order = new SettingsOrder(i, ordered.Count, moved),
+            });
         }
 
-        protected override void SetItem(int index, string item)
+        if (lines.Count == 0)
         {
-            base.SetItem(index, item);
-            config.Order = DeviceOrder.Reordered(config.Order, this);
+            lines.Add(WidgetMenuLines.Note(Str.Devices_None.Text()));
         }
+
+        return WidgetMenuLines.Submenu(Glyphs.View, Str.Devices_Shown.Text(), lines);
     }
+
+    /// <summary>
+    /// [S-16672] The parts an item shows, together in one section: its icon, its details, its percentage, its bar, then the
+    /// kind's own (<paramref name="own"/>). A part left out takes no room and is not drawn.
+    /// </summary>
+    public static SettingsLine Parts(WidgetMenuLines menu, IDeviceParts config, IReadOnlyList<SettingsLine>? own = null)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(config);
+        var lines = new List<SettingsLine>();
+        foreach (var part in Enum.GetValues<DevicePart>())
+        {
+            lines.Add(menu.Toggle(null, PartName(part), !config.HiddenParts.Contains(part), on =>
+            {
+                config.HiddenParts.Remove(part);
+                if (!on)
+                {
+                    config.HiddenParts.Add(part);
+                    config.HiddenParts.Sort();
+                }
+            }));
+        }
+
+        lines.AddRange(own ?? []);
+        return WidgetMenuLines.Submenu(Glyphs.Preview, Str.Devices_Parts.Text(), lines);
+    }
+
+    /// <summary>[S-16673] The gap between items in grid blocks: none to <see cref="DeviceLayout.MostGap"/>.</summary>
+    public static SettingsLine Gap(WidgetMenuLines menu, int gap, Action<int> set)
+    {
+        ArgumentNullException.ThrowIfNull(menu);
+        ArgumentNullException.ThrowIfNull(set);
+        var options = Enumerable.Range(0, DeviceLayout.MostGap + 1).Select(n => (n, n switch
+        {
+            0 => Str.Devices_Gap_None.Text(),
+            1 => Str.Devices_Gap_One.Text(),
+            _ => Str.Devices_Gap_Blocks.Format(("count", n.ToString(System.Globalization.CultureInfo.InvariantCulture))),
+        })).ToList();
+        return menu.Choice(Glyphs.Grid, Str.Devices_Gap.Text(), options, Math.Clamp(gap, 0, DeviceLayout.MostGap), set);
+    }
+
+    /// <summary>[S-16672] A part in words.</summary>
+    public static string PartName(DevicePart part) => (part switch
+    {
+        DevicePart.Icon => Str.Devices_Part_Icon,
+        DevicePart.Details => Str.Devices_Part_Details,
+        DevicePart.Reading => Str.Devices_Part_Reading,
+        _ => Str.Devices_Part_Bar,
+    }).Text();
 }

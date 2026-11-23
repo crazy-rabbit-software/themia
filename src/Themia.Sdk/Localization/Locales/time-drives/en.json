@@ -3,8 +3,16 @@
   "$englishOnly": [
     "devices.gap",
     "devices.shown",
-    "devices.order",
-    "devices.none"
+    "devices.none",
+    "devices.show",
+    "devices.parts",
+    "devices.part.icon",
+    "devices.part.details",
+    "devices.part.reading",
+    "devices.part.bar",
+    "devices.gap.none",
+    "devices.gap.one",
+    "devices.gap.blocks"
   ],
   "alarm.untitled": "Alarm",
   "alarm.off": "Off",
@@ -27,7 +35,15 @@
   "drives.disconnected": "Disconnected",
   "drives.eject": "Eject",
   "devices.gap": "Gap between items",
-  "devices.shown": "Shown",
-  "devices.order": "Order",
-  "devices.none": "None to show"
+  "devices.shown": "Shown and order",
+  "devices.none": "None to show",
+  "devices.show": "Show",
+  "devices.parts": "Each item shows",
+  "devices.part.icon": "Icon",
+  "devices.part.details": "Details",
+  "devices.part.reading": "Percentage",
+  "devices.part.bar": "Bar",
+  "devices.gap.none": "None",
+  "devices.gap.one": "1 block",
+  "devices.gap.blocks": "{count} blocks"
 }

@@ -15112,22 +15112,23 @@ widget's individuality, WR-16 retired; this shared design is the device family's
   batteries. The item is the SDK's (`Themia.Sdk/Devices`: `DeviceItem`, `DeviceLayout`, `DeviceOrder`; WinUI
   `Themia.Sdk.WinUI/Devices`: `DeviceItemView`, `DeviceFace`, `DeviceList`, `DeviceIconSlot`, `DeviceMenuLines`); a widget
   maps its own data onto it and keeps its own actions. Network adapters are no device here (an adapter, not a drive).
-- **[S-16631]** **The item** is the Drive widget's bar face with its name: in the card's inset the device's icon at the
-  reading's line (36: a drive's own picture, else its kind's glyph at 28 in its role), 8, its primary reading at 28 (a
-  drive's used share, a device's battery; held to "100%", WR-15), 12, its name (Body, primary, cut with its ellipsis); its
-  secondary line (Caption, secondary) under the reading ("419 GB free of 931 GB", "Headphones · Connected"); 8 under that
-  the Chart block's bar across the item. A device without its reading keeps the face (WR-10): "--" in the disabled role,
-  the empty track, the line saying why ("Disconnected network drive", "No media", "Not connected", "Bluetooth is off").
+- **[S-16631]** **The item** (owner, 2026-11-23: "the subtext like x free of y space should be directly under the name of
+  the drive, the name should be left aligned. from left to right: icon, then title and subtitle, then right aligned
+  percentage, under all of them the progress bar."): in the card's inset the device's icon (36: a drive's own picture, else
+  its kind's glyph at 28 in its role), 8, its name (Body, primary, left-aligned, cut with its ellipsis) with its details
+  right under it (Caption, secondary: "419 GB free of 931 GB", "Headphones · Connected"), 12, its percentage at 28 at the
+  item's end; 12 under that row the Chart block's bar across the item, the inset under the bar (owner, 2026-11-23: "there
+  is no proper spacing between the bottom border and the progress bar"). The one-device face ([S-16637]) is the same row.
 - **[S-16632]** The shared mappings (`DeviceItems`): a drive (its root, its name as This PC names it, the used share, the
   space line or why, the bar in the load's role, Caution from 70 %, Critical from 90 %, [S-4653]); a peripheral's glyph by
   its kind; a battery's bar Critical at or below its low, never Caution for being full. Tests `DeviceItemTests.S16632_`.
-- **[S-16633]** **One size, the last cut** (WR-4, WR-6): an item is 88 (the inset, 36, 16, 8, the 4 track, the inset), 90 on
+- **[S-16633]** **One size, the last cut** (WR-4, WR-6): an item is 76 (the inset, 36, 12, the 4 track, the inset), 80 on
   the default grid, at every size of its card. A list lays them down (each the card's whole width from its top edge,
   touching, WR-1..WR-3, as many as the card reaches, the last cut by its foot), or across where the card holds one item's
   height but two items' width (each 240 wide from the left edge, the last cut by the right edge) (`DeviceLayout.Lay`).
   Items past the card are not drawn: the card shows what its box holds ([S-14410]). Tests `DeviceItemTests.S16633_`.
-- **[S-16634]** **The block gap** ("Gap between items", off by default): one grid cell between two items, so each stands
-  as a card of its own while the widget stays one and dynamic (items come and go with the devices). A list's sizing is its
+- **[S-16634]** **The block gap** ("Gap between items", none by default; [S-16673]): grid cells between two items, so each
+  stands as a card of its own while the widget stays one and dynamic (items come and go with the devices). A list's sizing is its
   Rows of items down (three by default), the gap between them, one item at its least, 220..520 wide, a new one 300
   (`DeviceLayout.Sizing`). Tests `DeviceItemTests.S16634_`.
 - **[S-16635]** **The list shell** (`DeviceList`): an item lights under the pointer and pressed (the item layer's row fill,
@@ -15136,9 +15137,8 @@ widget's individuality, WR-16 retired; this shared design is the device family's
   Left/Right, Home/End), Enter opens, the Menu key shows its menu, Delete is the list's own step (a drive's Eject), Escape
   lets go. A list with nothing to show keeps the face: one item, its kind's glyph, "--" and why (WR-10).
 - **[S-16636]** **One list config shape** (`IDeviceListConfig`): the devices hidden (by id: a drive's root, a device's
-  endpoint id), the user's order, the gap, the rows; the same lines on every list's page (`DeviceMenuLines.List`): **Shown**
-  (a switch a device of its kind: the checklist), **Order** (the shown ones, dragged up and down; a device not there keeps
-  its place), **Gap between items**, **Rows**. Hidden devices are left out, the ordered ones first, the rest in the kind's
+  endpoint id), the user's order, the gap, the rows; the same lines on every list's page (`DeviceMenuLines.List`):
+  **Shown and order** ([S-16671]), **Each item shows** ([S-16672]), **Gap between items** ([S-16673]), **Rows**. Hidden devices are left out, the ordered ones first, the rest in the kind's
   own order (`DeviceOrder`). Tests `DeviceItemTests.S16636_`.
 - **[S-16637]** **One device's face** (`DeviceFace`): the item as the Drive widget drew it, its name the Header widget's
   over it ([S-12800]): the icon and the reading centred over the bar that spans the card ("Centred is fine"), the line under
@@ -15148,10 +15148,32 @@ widget's individuality, WR-16 retired; this shared design is the device family's
 - **[S-16638]** A removed kind replaced in place takes the keys its merge sets (`MergeFrom.Sets`, a JSON object; a single
   metric's `{"trend":"Line"}`, its graph shown, [S-14713]); none for one that sets none (Removable drives as the USB sticks'
   list). Test `KindMergesTests.S16638_`.
+- **[S-16670]** **A part not shown is no part** (owner, 2026-11-23: "if elements are not shown like the battery percentage
+  for example, it should also not show them in the design, not just grey them out."): a device without a reading (a
+  Bluetooth device that reports no battery, a drive without figures) has no percentage and no bar, and a part the user
+  left out is not drawn either; it takes no room and the others close up (never "--", never an empty track). The details
+  say why a device has no reading ("Disconnected network drive", "Not connected", "Bluetooth is off"). Tests
+  `DeviceItemTests.S16670_`, `BluetoothLadderTests.S16660_`.
+- **[S-16671]** **Shown and order, one list** (owner, 2026-11-23: "order and which items are shown should be combined."):
+  the devices of the kind in the list's order, each its name with its box at its end (ticked shown, empty left out,
+  `Glyphs.Checked`/`Unchecked`), dragged up and down or Ctrl+Up/Down to order them (`DeviceMenuLines.Checklist`); a device
+  not there keeps its place in the order.
+- **[S-16672]** **What an item shows, one section** (owner, 2026-11-23: "settings of elements that are shown should be all
+  grouped together under a section."): **Each item shows** holds a switch a part (Icon, Details, Percentage, Bar;
+  `DevicePart`, `IDeviceParts.HiddenParts`) and the kind's own (a Bluetooth item's connection word and signal), on every
+  device widget's page, the one-device ones too. A Bluetooth widget reads no battery while both its percentage and bar are
+  off ([S-3252]).
+- **[S-16673]** **The gap in blocks** (owner, 2026-11-23: "gap between items should be settable as blocks, from 0 to x
+  blocks."): **Gap between items** is a choice of None, 1, 2, 3 or 4 grid blocks (`DeviceLayout.MostGap`); 0 touching, 1+
+  that many cells of desktop between two items, each item its own ground ([S-16640]); a stored gap outside it is held to it,
+  loudly. Tests `DeviceItemTests.S16673_`.
 - **[S-16640]** **Grounds** (`IWidgetGrounds`): a view drawn as several cards on one (a device list with its gap) names its
   items' boxes; the card's own ground (frost, fill, image, glass, grain, border) steps back and each box is painted as the
   card was (its fill and opacity, the frost of what lies behind it, its border at its weight, the card's corners), nothing
-  between them; the card stays one widget to select, move and resize. Liquid glass's sheen and lens and a broken border's
+  between them; the card stays one widget to select, move and resize. The boxes are the items as last arranged, moved by
+  the view's place in the card; an item's hover, press and cursor fill its own box alone, never the gap (owner,
+  2026-11-23: "when hovering over an item like the bluetooth one and there is a gap to the next the gap is highlighted
+  too. fix this."). Liquid glass's sheen and lens and a broken border's
   dashes are not drawn on the grounds (their fill and border are). Needs a manual pass: the gap on the live desktop, frosted
   and in Liquid glass.
 

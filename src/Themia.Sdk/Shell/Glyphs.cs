@@ -270,6 +270,12 @@ public static class Glyphs
     public static readonly string Stop = From(0xE71A);
     public static readonly string Hide = From(0xED1A);
 
+    /// <summary>[S-16671] A checklist's ticked box (Segoe's CheckboxComposite): an item shown.</summary>
+    public static readonly string Checked = From(0xE73A);
+
+    /// <summary>[S-16671] A checklist's empty box (Segoe's Checkbox): an item left out.</summary>
+    public static readonly string Unchecked = From(0xE739);
+
     /// <summary>
     /// [S-3702] Header placement on the edit bar: Segoe "DockBottom"; the top is the same glyph
     /// turned over (Segoe has no "DockTop"), hidden is <see cref="Hide"/>.

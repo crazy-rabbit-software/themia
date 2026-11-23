@@ -106,8 +106,11 @@ internal sealed partial class WidgetCard
         _frost.Visibility = Visibility.Collapsed;
         _stroke.Visibility = Visibility.Collapsed;
 
-        foreach (var box in boxes)
+        // The view stands in the content at its margin (the card's top inset): its DIPs are the content's moved by it.
+        var at = _view.Margin;
+        foreach (var given in boxes)
         {
+            var box = given with { X = given.X + at.Left, Y = given.Y + at.Top };
             var body = new Grid();
             if (frosted is not null)
             {

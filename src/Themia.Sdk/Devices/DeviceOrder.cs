@@ -15,8 +15,8 @@ public interface IDeviceListConfig
     /// <summary>[S-16652] The user's order by ids: these first, as listed, every other device after them in its kind's order.</summary>
     List<string> Order { get; set; }
 
-    /// <summary>[S-16653] One grid cell between two devices, so each stands as a card of its own.</summary>
-    bool Gap { get; set; }
+    /// <summary>[S-16673] The grid blocks between two devices, 0..<see cref="DeviceLayout.MostGap"/>: each then a card of its own.</summary>
+    int Gap { get; set; }
 
     /// <summary>[S-16654] How many devices a new card stands (its natural height), 1..20.</summary>
     int Rows { get; set; }
@@ -72,6 +72,39 @@ public static class DeviceOrder
         var next = shown.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         next.AddRange(order.Where(id => !next.Contains(id, StringComparer.OrdinalIgnoreCase)));
         return next;
+    }
+
+    /// <summary>[S-16673] A gap held to 0..<see cref="DeviceLayout.MostGap"/> blocks; a note where it was not.</summary>
+    public static int Repaired(int gap, string kind, List<string> notes)
+    {
+        ArgumentNullException.ThrowIfNull(notes);
+        var held = Math.Clamp(gap, 0, DeviceLayout.MostGap);
+        if (held != gap)
+        {
+            notes.Add($"{kind}: a gap of {gap} blocks is outside 0..{DeviceLayout.MostGap}; using {held}");
+        }
+
+        return held;
+    }
+
+    /// <summary>[S-16672] Parts left out once each, every one a part: a hand-edited list repaired, a note per one dropped.</summary>
+    public static List<DevicePart> Repaired(List<DevicePart> parts, string kind, List<string> notes)
+    {
+        ArgumentNullException.ThrowIfNull(notes);
+        var kept = new List<DevicePart>();
+        foreach (var part in parts ?? [])
+        {
+            if (Enum.IsDefined(part) && !kept.Contains(part))
+            {
+                kept.Add(part);
+            }
+            else
+            {
+                notes.Add($"{kind}: part '{part}' is unknown or there twice; dropped");
+            }
+        }
+
+        return kept;
     }
 
     /// <summary>[S-16655] Ids once each, none empty: a hand-edited list repaired, a note per id dropped.</summary>

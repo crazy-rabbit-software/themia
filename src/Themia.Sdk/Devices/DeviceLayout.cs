@@ -31,8 +31,15 @@ public sealed record DeviceLay(bool Across, double Pitch, double Gap, IReadOnlyL
 /// </summary>
 public static class DeviceLayout
 {
-    /// <summary>[S-16633] An item's natural height: the inset, the reading (Big28), its line (Caption), 8, the bar's track, the inset.</summary>
-    public static double Natural => FamilySpace.ContentTop + FamilyType.Big28.LineHeight + FamilyType.Caption.LineHeight + FamilySpace.S2 + FamilyShape.Track + FamilySpace.Inset;
+    /// <summary>
+    /// [S-16633] An item's natural height: the inset, its line of parts (the reading's Big28 line, as tall as the name over
+    /// its details, Body and Caption), 12, the bar's track, the inset under it (owner, 2026-11-23: "there is no proper
+    /// spacing between the bottom border and the progress bar"): 76, 80 on the default grid.
+    /// </summary>
+    public static double Natural => FamilySpace.ContentTop + FamilyType.Big28.LineHeight + FamilySpace.S3 + FamilyShape.Track + FamilySpace.Inset;
+
+    /// <summary>[S-16634] The most grid blocks between two items.</summary>
+    public const int MostGap = 4;
 
     /// <summary>[S-16633] An item's natural width side by side: its icon, the reading held to "100%" and a name worth reading.</summary>
     public const double AcrossWidth = 240;
@@ -55,14 +62,14 @@ public static class DeviceLayout
     /// <summary>[S-16633] An item's one width side by side on <paramref name="grid"/>: its natural in whole cells.</summary>
     public static double Width(ItemGrid grid) => ItemSize.Optimal(AcrossWidth, grid);
 
-    /// <summary>[S-16634] The block gap: one grid cell between two items where it is on, none where it is off.</summary>
-    public static double GapOf(bool gap, ItemGrid grid) => gap ? grid.Pitch : 0;
+    /// <summary>[S-16634] The gap between two items: <paramref name="blocks"/> grid cells (0..<see cref="MostGap"/>; 0 touching).</summary>
+    public static double GapOf(int blocks, ItemGrid grid) => Math.Clamp(blocks, 0, MostGap) * grid.Pitch;
 
     /// <summary>
     /// [S-16633] Whether <paramref name="count"/> items stand side by side in a card <paramref name="width"/> ×
     /// <paramref name="height"/> (from its top edge): the card holds one item's height but not two, and two items' width.
     /// </summary>
-    public static bool Across(int count, double width, double height, bool gap, ItemGrid grid)
+    public static bool Across(int count, double width, double height, int gap, ItemGrid grid)
     {
         var g = GapOf(gap, grid);
         return count > 1
@@ -76,7 +83,7 @@ public static class DeviceLayout
     /// from the card's top edge to its foot): each its one fixed size, from the card's start, the gap between two, every
     /// one the card reaches (at least one), the last cut by the card's edge. Every edge on a whole device pixel.
     /// </summary>
-    public static DeviceLay Lay(int count, double width, double height, bool gap, ItemGrid grid)
+    public static DeviceLay Lay(int count, double width, double height, int gap, ItemGrid grid)
     {
         width = double.IsFinite(width) ? Math.Max(0, width) : 0;
         height = double.IsFinite(height) ? Math.Max(0, height) : 0;
@@ -108,13 +115,14 @@ public static class DeviceLayout
     /// </summary>
     public static WidgetSizing Face(double widestLine)
     {
-        var sizing = WidgetSizing.Range(new(160, Natural), new(200, Natural), new(320, Natural));
+        var sizing = WidgetSizing.Range(new(160, Natural), new(220, Natural), new(360, Natural));
         var k = ScaleFloor.Least(FamilyType.Caption.FontSize);
         var natural = sizing.Natural;
         var scaled = sizing.ScalesDownTo(new SizeDip(
             ((natural.Width - (2 * FamilySpace.Inset)) * k) + (2 * FamilySpace.Inset),
             ((natural.Height - FamilySpace.ContentTop - FamilySpace.Inset) * k) + FamilySpace.ContentTop + FamilySpace.Inset));
-        var least = Math.Ceiling(((FamilyType.Big28.LineHeight + FamilySpace.GlyphGap + widestLine) * k) + (2 * FamilySpace.Inset));
+        var row = FamilyType.Big28.LineHeight + FamilySpace.GlyphGap + widestLine + FamilySpace.S3 + ReadingWidth;
+        var least = Math.Ceiling((row * k) + (2 * FamilySpace.Inset));
         var min = new SizeDip(Math.Max(scaled.Min.Width, least), scaled.Min.Height);
         return scaled with
         {
@@ -124,6 +132,9 @@ public static class DeviceLayout
         };
     }
 
+    /// <summary>[S-16631] The reading's widest form ("100%") at 28, estimated.</summary>
+    public static double ReadingWidth => Math.Ceiling(HeroFit.Ems("100%") * FamilyType.Big28.FontSize);
+
     /// <summary>[S-16637] The widest of <paramref name="lines"/> on the item's line (Caption), estimated in DIPs.</summary>
     public static double WidestLine(IEnumerable<string> lines) => (lines ?? []).Select(HeroFit.Ems).DefaultIfEmpty(0).Max() * FamilyType.Caption.FontSize;
 
@@ -131,7 +142,7 @@ public static class DeviceLayout
     /// [S-16634] A list's sizing: <paramref name="rows"/> items down at its natural (the gap between two where it is on),
     /// one at its least, twenty at its most; 220..520 wide, a new one 300. Every cell between (a resize steps one cell).
     /// </summary>
-    public static WidgetSizing Sizing(int rows, bool gap)
+    public static WidgetSizing Sizing(int rows, int gap)
     {
         var grid = ItemGrid.Default();
         var h = Height(grid);

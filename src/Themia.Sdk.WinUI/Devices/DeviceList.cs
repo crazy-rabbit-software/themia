@@ -26,8 +26,9 @@ public sealed partial class DeviceList : Panel
     private readonly List<DeviceItemView> _views = [];
     private IReadOnlyList<DeviceItem> _items = [];
     private DeviceLay _lay = new(false, 0, 0, []);
+    private Size _arranged;
     private WidgetArea _area;
-    private bool _gap;
+    private int _gap;
     private bool _stock;
     private int _cursor = -1;
     private DeviceItemView? _pressed;
@@ -69,8 +70,8 @@ public sealed partial class DeviceList : Panel
     /// <summary>The layout as last arranged.</summary>
     public DeviceLay Lay => _lay;
 
-    /// <summary>[S-16634] One grid cell between two items, so each stands as a card of its own.</summary>
-    public bool Gap
+    /// <summary>[S-16634] The grid blocks between two items (0..4: touching to four cells), each then a card of its own.</summary>
+    public int Gap
     {
         get => _gap;
         set
@@ -92,13 +93,13 @@ public sealed partial class DeviceList : Panel
     {
         get
         {
-            if (!_gap)
+            if (_gap <= 0)
             {
                 return null;
             }
 
-            var width = ActualWidth;
-            var height = ActualHeight;
+            // The box as last arranged (read while the arrange tells of it, before ActualHeight has caught up).
+            var (width, height) = (_arranged.Width, _arranged.Height);
             var grounds = new List<DipRect>(_lay.Slots.Count);
             foreach (var slot in _lay.Slots.Take(_items.Count))
             {
@@ -118,9 +119,10 @@ public sealed partial class DeviceList : Panel
     /// [S-16635] Show <paramref name="items"/> in their order: the item views standing are shown again in place (a drive's
     /// picture is not asked again), the rest made or taken down. <paramref name="stock"/>: drives wear their kinds' stock icons.
     /// </summary>
-    public void Show(IReadOnlyList<DeviceItem> items, bool stock)
+    public void Show(IReadOnlyList<DeviceItem> items, IReadOnlyCollection<DevicePart> hidden, bool stock)
     {
         ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(hidden);
         var was = _items;
         _items = items;
         _stock = stock;
@@ -144,7 +146,7 @@ public sealed partial class DeviceList : Panel
         Redrawing?.Invoke();
         for (var i = 0; i < items.Count; i++)
         {
-            _views[i].Show(items[i], stock);
+            _views[i].Show(items[i], hidden, stock);
             Paint(_views[i]);
             Decorate?.Invoke(items[i], _views[i]);
         }
@@ -155,7 +157,7 @@ public sealed partial class DeviceList : Panel
         }
 
         InvalidateMeasure();
-        if (_gap && was.Count != items.Count)
+        if (_gap > 0 && was.Count != items.Count)
         {
             GroundsChanged?.Invoke();
         }
@@ -211,10 +213,11 @@ public sealed partial class DeviceList : Panel
     {
         var width = double.IsFinite(availableSize.Width) ? availableSize.Width : DeviceLayout.NaturalWidth;
         var height = double.IsFinite(availableSize.Height) ? availableSize.Height : _area.IsMeasured ? _area.Height + FamilySpace.Inset : 0;
-        _lay = DeviceLayout.Lay(_items.Count, width, height, _gap, Grid());
+        // The measure's own lay: the arranged one (what the grounds are) is the arrange's alone.
+        var lay = DeviceLayout.Lay(_items.Count, width, height, _gap, Grid());
         for (var i = 0; i < _views.Count; i++)
         {
-            var slot = i < _lay.Slots.Count ? _lay.Slots[i] : default;
+            var slot = i < lay.Slots.Count ? lay.Slots[i] : default;
             _views[i].Measure(new Size(slot.Width, slot.Height));
         }
 
@@ -224,6 +227,8 @@ public sealed partial class DeviceList : Panel
     protected override Size ArrangeOverride(Size finalSize)
     {
         var before = _lay;
+        var resized = finalSize != _arranged;
+        _arranged = finalSize;
         _lay = DeviceLayout.Lay(_items.Count, finalSize.Width, finalSize.Height, _gap, Grid());
         for (var i = 0; i < _views.Count; i++)
         {
@@ -242,7 +247,7 @@ public sealed partial class DeviceList : Panel
         }
 
         Clip = new Microsoft.UI.Xaml.Media.RectangleGeometry { Rect = new Rect(0, 0, finalSize.Width, finalSize.Height) };
-        if (_gap && !SameSlots(before, _lay))
+        if (_gap > 0 && (resized || !SameSlots(before, _lay)))
         {
             GroundsChanged?.Invoke();
         }

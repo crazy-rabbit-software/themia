@@ -14,42 +14,60 @@ namespace Themia.Sdk.Devices;
 /// <param name="Drive">The drive the picture is the shell's of; null for a device drawn by its glyph.</param>
 public sealed record DeviceIcon(string Glyph, ColourRole Role = ColourRole.TextSecondary, DriveEntry? Drive = null);
 
-/// <summary>
-/// [S-16631] A device item's primary reading: the figure and its unit as the Readout draws them ("55" and "%"), or the
-/// placeholder "--" while the device gives none (WR-10: the face stays, the line says why).
-/// </summary>
+/// <summary>[S-16631] A device item's primary reading: the figure and its unit as the Readout draws them ("55" and "%").</summary>
 public readonly record struct DeviceReading(string Value, string Unit)
 {
-    /// <summary>The figure a device without one shows.</summary>
-    public const string Placeholder = "--";
-
-    /// <summary>[S-16631] No figure now: "--" with the unit it would have.</summary>
-    public static DeviceReading None(string unit = "%") => new(Placeholder, unit);
-
     /// <summary>[S-16631] A 0..1 share as a whole percentage, split into its figure and unit ("55" "%", Turkish "%55" all figure).</summary>
     public static DeviceReading Percent(Locale locale, double fraction)
     {
         var split = ReadoutRules.Split(Formatting.Percent(locale, fraction));
         return new DeviceReading(split.Value, split.Unit);
     }
+}
 
-    /// <summary>Whether it is the placeholder: the device gives no figure now.</summary>
-    public bool Absent => Value == Placeholder;
+/// <summary>
+/// [S-16670] The parts of a device item the user may leave out (owner, 2026-11-23: "settings of elements that are shown
+/// should be all grouped together under a section"): a part left out takes no room and is not drawn, the others close up.
+/// </summary>
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<DevicePart>))]
+public enum DevicePart
+{
+    /// <summary>The device's picture or glyph.</summary>
+    Icon = 0,
+
+    /// <summary>The line under the name: its figures in words, or why there are none.</summary>
+    Details = 1,
+
+    /// <summary>The percentage at the item's end.</summary>
+    Reading = 2,
+
+    /// <summary>The bar under the item.</summary>
+    Bar = 3,
+}
+
+/// <summary>[S-16670] A device widget's config that lets the user leave parts of its items out.</summary>
+public interface IDeviceParts
+{
+    /// <summary>The parts left out; none by default.</summary>
+    List<DevicePart> HiddenParts { get; set; }
 }
 
 /// <summary>
 /// [S-16630] [S-16631] One device as the device family draws it (owner, 2026-11-23: "i want you to create a base design that
-/// all of those widgets can use. it should look very similar to how todays drive widget looks like"): its icon, its name,
-/// its primary reading (a drive's used share, a device's battery), the bar of that reading and one secondary line under
-/// the reading ("419 GB free of 931 GB", "Headphones · Connected"). A device without its reading keeps the face: the
-/// reading "--", the bar empty, the line saying why (<see cref="DeviceReading.None"/>, WR-10). Pure: a widget maps its
-/// own data onto it (a drive by <see cref="DeviceItems.Drive"/>, a Bluetooth device and a battery in their modules).
+/// all of those widgets can use. it should look very similar to how todays drive widget looks like"; and, the same day:
+/// "from left to right: icon, then title and subtitle, then right aligned percentage, under all of them the progress
+/// bar"): its icon, its name with its secondary line under it ("419 GB free of 931 GB", "Headphones · Connected"), its
+/// primary reading at the end (a drive's used share, a device's battery) and the bar of that reading under them all. A
+/// part the device has none of is no part ("if elements are not shown like the battery percentage for example, it should
+/// also not show them in the design, not just grey them out"): no reading is no percentage and no bar, the line saying
+/// why. Pure: a widget maps its own data onto it (a drive by <see cref="DeviceItems.Drive"/>, a Bluetooth device and a
+/// battery in their modules).
 /// </summary>
 /// <param name="Id">Stable for the device while it is there: a drive's root, a device's endpoint or reading id.</param>
 /// <param name="Name">What the device is called ("System (C:)", "Surface Headphones 2"), as Windows names it.</param>
-/// <param name="Reading">The primary reading; null where the widget draws none (a battery it was told not to read).</param>
-/// <param name="Line">The secondary line under the reading: its figures in words, or why there is no reading.</param>
-/// <param name="Fill">The bar's share, 0..1; 0 for a device without a reading (the empty track, never a gap).</param>
+/// <param name="Reading">The primary reading; null where the device gives none (or the widget reads none): not drawn.</param>
+/// <param name="Line">The secondary line under the name: its figures in words, or why there is no reading.</param>
+/// <param name="Fill">The bar's share, 0..1; null for a device without a reading: no bar.</param>
 /// <param name="FillRole">The bar's colour: the accent, Caution or Critical by the reading's state ([S-6717]).</param>
 /// <param name="Tooltip">Everything the item says, in words.</param>
 public sealed record DeviceItem(
@@ -58,12 +76,12 @@ public sealed record DeviceItem(
     DeviceIcon Icon,
     DeviceReading? Reading,
     string Line,
-    double Fill,
+    double? Fill,
     ColourRole FillRole,
     string Tooltip)
 {
-    /// <summary>[S-16631] Whether the device has no reading now ("--", WR-10): its figure and line in the disabled and secondary roles.</summary>
-    public bool Absent => Reading is { Absent: true };
+    /// <summary>[S-16631] Whether the device has no reading now (its percentage and bar not drawn, its line saying why).</summary>
+    public bool Absent => Reading is null;
 }
 
 /// <summary>[S-16632] The device family's mappings of shared data onto the item, and the glyphs of the kinds of device.</summary>
@@ -72,8 +90,8 @@ public static class DeviceItems
     /// <summary>
     /// [S-16632] [S-4653] A drive as a device item: its root the id, its name as This PC names it ("System (C:)"), its own
     /// picture, the used share the reading with its bar in the load's role (Caution from 70 %, Critical from 90 %), the
-    /// space line under it ("419 GB free of 931 GB"). A drive without figures keeps the face: "--", the empty bar and why
-    /// in its line (a share Windows cannot reach "Disconnected network drive", "Connecting…", "No media", "Not connected").
+    /// space line under its name ("419 GB free of 931 GB"). A drive without figures has no percentage and no bar, its line
+    /// saying why (a share Windows cannot reach "Disconnected network drive", "Connecting…", "No media", "Not connected").
     /// </summary>
     public static DeviceItem Drive(Locale locale, DriveEntry drive)
     {
@@ -86,9 +104,9 @@ public static class DeviceItems
             drive.Root,
             name,
             new DeviceIcon(DriveRules.Glyph(drive), ColourRole.TextSecondary, drive),
-            used is { } share ? DeviceReading.Percent(locale, share) : DeviceReading.None(),
+            used is { } share ? DeviceReading.Percent(locale, share) : null,
             line,
-            used ?? 0,
+            used,
             DriveRules.Role(drive),
             $"{name} · {DriveRules.Description(locale, drive)} · {space}");
     }
