@@ -106,7 +106,9 @@ public sealed partial class QuickToggleView : Grid, IWidgetView, IWidgetSurfaceA
         _lease?.Dispose();
         _lease = null;
         _switch = new ToggleGate();
-        if (_surface is not { IsPreview: true })
+
+        // [S-1251] A debug render reads nothing and switches nothing; [S-16724] the widget gallery's reads, never switches.
+        if (_surface is not { IsPreview: true } || _surface.ReadsLive)
         {
             _lease = _host.Toggles.Acquire(_toggle, OnChanged);
         }

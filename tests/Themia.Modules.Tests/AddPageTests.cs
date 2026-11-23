@@ -230,48 +230,9 @@ public sealed class AddPageTests
         Assert.Equal(20, sections[0].Tiles.Count);
         Assert.All(sections.Skip(1), s => Assert.Equal(12, s.Family!.Tiles.Count));
 
-        // Closed, the whole subject draws its own widgets and one row per family: 20 + 30 × 3 at three across.
-        var drawn = sections[0].Tiles.Count + sections.Skip(1).Sum(s => AddPageLayout.Stack(s.Tiles.Count, 3, open: false).Stops);
-        Assert.Equal(20 + (30 * 3), drawn);
     }
 
     // ---- [S-13612] [S-13614] family stacks --------------------------------------------------------
-
-    [Fact]
-    public void S13612_a_collapsed_stack_shows_its_first_row_ending_in_plus_n()
-    {
-        // Five widgets, three across: two tiles and "+3".
-        Assert.Equal(new AddStack(2, 3), AddPageLayout.Stack(5, 3, open: false));
-        Assert.Equal(3, AddPageLayout.Stack(5, 3, open: false).Stops);
-
-        // Eleven one-row facts, four across: three and "+8"; opened, all eleven and no "+N".
-        Assert.Equal(new AddStack(3, 8), AddPageLayout.Stack(11, 4, open: false));
-        Assert.Equal(new AddStack(11, 0), AddPageLayout.Stack(11, 4, open: true));
-        Assert.Equal(11, AddPageLayout.Stack(11, 4, open: true).Stops);
-
-        // A family that fits one row shows whole, open or not.
-        Assert.Equal(new AddStack(3, 0), AddPageLayout.Stack(3, 3, open: false));
-        Assert.Equal(new AddStack(2, 0), AddPageLayout.Stack(2, 5, open: false));
-
-        // One across: its first tile and "+N" under it.
-        Assert.Equal(new AddStack(1, 4), AddPageLayout.Stack(5, 1, open: false));
-        Assert.Equal(new AddStack(1, 1), AddPageLayout.Stack(2, 1, open: false));
-    }
-
-    [Fact]
-    public void S13612_a_stack_shows_and_hides_every_tile_of_its_family_once()
-    {
-        foreach (var columns in new[] { 1, 2, 3, 5 })
-        {
-            foreach (var count in new[] { 2, 3, 5, 11, 40 })
-            {
-                var closed = AddPageLayout.Stack(count, columns, open: false);
-                Assert.Equal(count, closed.Shown + closed.Hidden);
-                Assert.True(closed.Stops <= Math.Max(columns, 2), $"{count} in {columns} across takes more than its first row");
-                Assert.True(closed.Shown >= 1);
-            }
-        }
-    }
 
     [Fact]
     public void S13614_a_familys_preview_is_its_first_widgets_picture_under_its_own_key()
@@ -357,48 +318,6 @@ public sealed class AddPageTests
     // ---- [S-13601] [S-13616] the layout -----------------------------------------------------------
 
     [Fact]
-    public void S13601_tiles_of_at_least_200_fill_the_list_4_apart()
-    {
-        Assert.Equal(1, AddPageLayout.Columns(150));
-        Assert.Equal(1, AddPageLayout.Columns(403));
-        Assert.Equal(2, AddPageLayout.Columns(404));
-        Assert.Equal(5, AddPageLayout.Columns(1016));
-        Assert.Equal(4, AddPageLayout.Columns(1015));
-
-        var columns = AddPageLayout.Columns(1048);
-        var tile = AddPageLayout.TileWidth(1048, columns);
-        Assert.True(tile >= 200);
-        Assert.True((columns * tile) + ((columns - 1) * 4) <= 1048);
-        Assert.True((columns * tile) + ((columns - 1) * 4) > 1048 - columns);
-    }
-
-    [Fact]
-    public void S13616_the_rail_the_list_and_the_preview_share_the_width_the_preview_dropping_first()
-    {
-        // A 1920 display's bar less the flyout's gutters: the rail, two tiles across, the 360 pane.
-        Assert.Equal((240.0, 596.0, 360.0), AddPageLayout.Split(1228));
-        Assert.Equal(2, AddPageLayout.Columns(AddPageLayout.Split(1228).List));
-
-        // Just room for the rail, two tiles and the pane; less and the pane goes, the list taking its room.
-        Assert.Equal((240.0, 404.0, 360.0), AddPageLayout.Split(240 + 16 + 404 + 16 + 360));
-        Assert.Equal((240.0, 779.0, 0.0), AddPageLayout.Split(240 + 16 + 779));
-        Assert.False(AddPageLayout.Compact(240 + 16 + 404));
-
-        // Narrower still: the rail its glyphs alone, the list the rest.
-        Assert.Equal((48.0, 403.0 + 192, 0.0), AddPageLayout.Split(240 + 16 + 403));
-        Assert.True(AddPageLayout.Compact(240 + 16 + 403));
-        Assert.Equal((48.0, 0.0, 0.0), AddPageLayout.Split(-5));
-    }
-
-    [Fact]
-    public void S13602_a_picture_is_scaled_down_to_its_box_and_never_up()
-    {
-        Assert.Equal(1, AddPageLayout.Fit(100, 50, 184, 104));
-        Assert.Equal(0.5, AddPageLayout.Fit(368, 100, 184, 104));
-        Assert.Equal(104.0 / 400, AddPageLayout.Fit(300, 400, 184, 104), 6);
-    }
-
-    [Fact]
     public void S11707_the_page_hangs_flush_under_the_bar_as_wide_with_no_beak_and_at_most_70_percent_tall()
     {
         var bar = new DipRect(400, 8, 1100, 48);
@@ -414,92 +333,6 @@ public sealed class AddPageTests
 
     // ---- [S-13617] the keys -----------------------------------------------------------------------
 
-    [Fact]
-    public void S13617_down_from_the_box_goes_to_the_first_stop_and_up_from_the_first_row_back()
-    {
-        int[] counts = [3, 5];
-        Assert.Equal(new AddKeyStep(new AddCursor(0, 0), true), AddPageKeys.Move(counts, 4, null, WidgetKey.Down));
-        Assert.False(AddPageKeys.Move(counts, 4, null, WidgetKey.Left).Handled);
-        Assert.Equal(new AddKeyStep(null, true), AddPageKeys.Move(counts, 4, new AddCursor(0, 2), WidgetKey.Up));
-    }
-
-    [Fact]
-    public void S13617_the_arrows_walk_the_grid_and_cross_sections()
-    {
-        int[] counts = [3, 6];
-        const int across = 4;
-
-        // Right at a section's end goes on to the next; Left inside a row back one.
-        Assert.Equal(new AddCursor(1, 0), AddPageKeys.Move(counts, across, new AddCursor(0, 2), WidgetKey.Right).Cursor);
-        Assert.Equal(new AddCursor(1, 1), AddPageKeys.Move(counts, across, new AddCursor(1, 2), WidgetKey.Left).Cursor);
-
-        // Down from a section's last row: the same column of the next's first row, held to its tiles.
-        Assert.Equal(new AddCursor(1, 2), AddPageKeys.Move(counts, across, new AddCursor(0, 2), WidgetKey.Down).Cursor);
-        Assert.Equal(new AddCursor(1, 5), AddPageKeys.Move(counts, across, new AddCursor(1, 1), WidgetKey.Down).Cursor);
-
-        // A row with nothing under that column: Down goes to the last tile.
-        Assert.Equal(new AddCursor(1, 5), AddPageKeys.Move(counts, across, new AddCursor(1, 3), WidgetKey.Down).Cursor);
-
-        // Up from a section's first row: the same column of the last row above.
-        Assert.Equal(new AddCursor(0, 1), AddPageKeys.Move(counts, across, new AddCursor(1, 1), WidgetKey.Up).Cursor);
-        Assert.Equal(new AddCursor(0, 2), AddPageKeys.Move(counts, across, new AddCursor(1, 3), WidgetKey.Up).Cursor);
-
-        Assert.Equal(new AddCursor(0, 0), AddPageKeys.Move(counts, across, new AddCursor(1, 4), WidgetKey.Home).Cursor);
-        Assert.Equal(new AddCursor(1, 5), AddPageKeys.Move(counts, across, new AddCursor(0, 0), WidgetKey.End).Cursor);
-
-        // The last tile stays put going on.
-        Assert.Equal(new AddCursor(1, 5), AddPageKeys.Move(counts, across, new AddCursor(1, 5), WidgetKey.Right).Cursor);
-    }
-
-    [Fact]
-    public void S13617_left_at_a_rows_start_goes_back_to_the_rail()
-    {
-        int[] counts = [3, 6];
-        var back = AddPageKeys.Move(counts, 4, new AddCursor(1, 4), WidgetKey.Left);
-        Assert.True(back.Handled);
-        Assert.True(back.ToRail);
-        Assert.Null(back.Cursor);
-        Assert.True(AddPageKeys.Move(counts, 4, new AddCursor(1, 0), WidgetKey.Left).ToRail);
-        Assert.False(AddPageKeys.Move(counts, 4, new AddCursor(1, 1), WidgetKey.Left).ToRail);
-    }
-
-    [Fact]
-    public void S13617_a_familys_head_is_a_run_of_one_over_its_stack()
-    {
-        // Widgets (3), then a family: its head, then its stack of two tiles and "+N".
-        int[] counts = [3, 1, 3];
-        const int across = 3;
-
-        Assert.Equal(new AddCursor(1, 0), AddPageKeys.Move(counts, across, new AddCursor(0, 2), WidgetKey.Down).Cursor);
-        Assert.Equal(new AddCursor(2, 0), AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Down).Cursor);
-        Assert.Equal(new AddCursor(1, 0), AddPageKeys.Move(counts, across, new AddCursor(2, 2), WidgetKey.Up).Cursor);
-        Assert.Equal(new AddCursor(0, 0), AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Up).Cursor);
-        Assert.Equal(new AddCursor(2, 0), AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Right).Cursor);
-        Assert.True(AddPageKeys.Move(counts, across, new AddCursor(1, 0), WidgetKey.Left).ToRail);
-    }
-
-    [Fact]
-    public void S13617_the_rail_walks_up_and_down_up_from_the_first_to_the_box_and_right_into_the_content()
-    {
-        Assert.Equal(new AddRailStep(3, AddRailMove.Item), AddPageKeys.Rail(11, 2, WidgetKey.Down));
-        Assert.Equal(new AddRailStep(1, AddRailMove.Item), AddPageKeys.Rail(11, 2, WidgetKey.Up));
-        Assert.Equal(new AddRailStep(0, AddRailMove.Box), AddPageKeys.Rail(11, 0, WidgetKey.Up));
-        Assert.Equal(new AddRailStep(10, AddRailMove.Item), AddPageKeys.Rail(11, 10, WidgetKey.Down));
-        Assert.Equal(new AddRailStep(0, AddRailMove.Item), AddPageKeys.Rail(11, 6, WidgetKey.Home));
-        Assert.Equal(new AddRailStep(10, AddRailMove.Item), AddPageKeys.Rail(11, 6, WidgetKey.End));
-        Assert.Equal(new AddRailStep(6, AddRailMove.Content), AddPageKeys.Rail(11, 6, WidgetKey.Right));
-        Assert.Equal(new AddRailStep(6, AddRailMove.Content), AddPageKeys.Rail(11, 6, WidgetKey.Enter));
-        Assert.Equal(AddRailMove.None, AddPageKeys.Rail(11, 6, WidgetKey.Left).Move);
-        Assert.Equal(AddRailMove.None, AddPageKeys.Rail(0, 0, WidgetKey.Down).Move);
-    }
-
-    [Fact]
-    public void S13617_ctrl_tab_steps_the_rail_round()
-    {
-        Assert.Equal(1, AddPageKeys.Tab(11, 0, back: false));
-        Assert.Equal(0, AddPageKeys.Tab(11, 10, back: false));
-        Assert.Equal(10, AddPageKeys.Tab(11, 0, back: true));
-    }
 
     // ---- [S-11709] the desktop icon kind ----------------------------------------------------------
 

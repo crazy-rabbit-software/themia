@@ -49,7 +49,7 @@ public sealed class RenderCommandLineTests
     public void S69_the_verbs_are_the_render_flags_the_start_knows()
     {
         Assert.Equal(StartRequest.Render, StartArguments.Classify([Exe, "--render", "list"], RenderCommandLine.Flags).Request);
-        Assert.Equal(StartRequest.Render, StartArguments.Classify([Exe, "--check", "add-pictures", "a.png"], RenderCommandLine.Flags).Request);
+        Assert.Equal(StartRequest.Render, StartArguments.Classify([Exe, "--check", "gallery", "a.txt"], RenderCommandLine.Flags).Request);
         Assert.Equal(StartRequest.Unknown, StartArguments.Classify([Exe, "--widget-png", "clock", "a.png"], RenderCommandLine.Flags).Request);
     }
 

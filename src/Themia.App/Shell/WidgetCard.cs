@@ -113,6 +113,9 @@ internal interface IWidgetCardHost
     /// <summary>[S-1251] True for a debug render's host: its cards are previews and must not act on the machine.</summary>
     bool IsPreview => false;
 
+    /// <summary>[S-16724] A preview host whose cards read what they show live (the widget gallery's).</summary>
+    bool ReadsLive => false;
+
     /// <summary>
     /// [S-11851] What this host's cards read in place of this PC (the add page's pictures: the sample PC's
     /// hub, their own gallery service), handed to them explicitly; null for every desktop surface, whose
@@ -1419,6 +1422,8 @@ internal sealed partial class WidgetCard : Grid, IWidgetSurface, IItemPaletteOwn
     void IWidgetSurface.RequestTextInput(bool wanted) => _host.RequestTextInput(this, wanted);
 
     bool IWidgetSurface.IsPreview => _host.IsPreview;
+
+    bool IWidgetSurface.ReadsLive => _host.ReadsLive;
 
     bool IWidgetSurface.EditMode => _host.EditMode;
 

@@ -21,19 +21,17 @@ using B = Themia.Sdk.Kit.ShellMetrics.Bar;
 namespace Themia.App.Shell;
 
 /// <summary>What the edit bar's entries and buttons do, given by the surface (or a render's stand-in).</summary>
-/// <param name="Add">[S-11707] Add widget: the add page opened under the bar, or closed again.</param>
+/// <param name="Add">[S-16728] Add widget: the widget gallery opened under the bar, or closed again.</param>
 /// <param name="Page">[S-2327] A page's entry: its flyout opened, or closed again.</param>
 /// <param name="Selection">[S-2343] The selection's entry: its flyout opened, or closed again.</param>
 /// <param name="IntoFlyout">[S-2327] Down from the bar: the keyboard into the open flyout.</param>
 /// <param name="Done">Leaves edit mode.</param>
-/// <param name="Gallery">[S-14910] The widget gallery opened, or closed again; none (a render's stand-in): its button does nothing.</param>
 internal sealed record EditBarCommands(
     Action Add,
     Action<SettingsPageId> Page,
     Action Selection,
     Action IntoFlyout,
-    Action Done,
-    Action? Gallery = null);
+    Action Done);
 
 /// <summary>[S-2341] The selection's entry: its words ("Clock", "2 × Clock", "3 widgets") and its kind's glyph.</summary>
 internal sealed record BarSelection(string Words, string Glyph);
@@ -42,14 +40,8 @@ internal sealed record BarSelection(string Words, string Glyph);
 /// <param name="Open">The page whose flyout is open; with <paramref name="SelectionOpen"/> the selection's; neither: none.</param>
 internal sealed record EditBarState(BarSelection? Selection, int Errors, SettingsPageId? Open, bool SelectionOpen, double Widest)
 {
-    /// <summary>[S-11707] The add page is open: Add is marked as an open entry is.</summary>
+    /// <summary>[S-16728] The widget gallery is open: Add widget is marked as an open entry is.</summary>
     public bool AddOpen { get; init; }
-
-    /// <summary>[S-14910] The widget gallery is open: its button is marked as an open entry is.</summary>
-    public bool GalleryOpen { get; init; }
-
-    /// <summary>[S-13701] How many desktop icons the display's view does not place: the Unplaced icons entry's badge.</summary>
-    public int Unplaced { get; init; }
 }
 
 /// <summary>
@@ -58,8 +50,8 @@ internal sealed record EditBarState(BarSelection? Selection, int Errors, Setting
 /// one width whatever is selected. Left to right: the pages' entries (General, Accounts, Display, Views,
 /// Appearance) 4 apart, no fill until pointed at, the open one on the subtle fill with the accent's pill at
 /// its foot; 8, a hairline 20 tall while something is selected, 8; the selection's entry in its 256 room;
-/// a 16 gutter; the problems' button while there are any, in its room; 4; the widget gallery (its icon alone, [S-14910]);
-/// 4; Add widget; 4; Unplaced icons (its icon and count badge, [S-13701]); 8; Done (the one accent button, at least 80). On a narrow display the pages' entries show their icon alone (their words
+/// a 16 gutter; the problems' button while there are any, in its room; 4; Add widget (it opens the widget gallery,
+/// [S-16728]); 8; Done (the one accent button, at least 80). On a narrow display the pages' entries show their icon alone (their words
 /// the tooltip). Laid out by <see cref="EditBarLayout"/>. No grip, no undo, no search, no close.
 /// <para>
 /// Its own control so the debug render draws the real bar; its buttons are built as edit mode starts
@@ -84,8 +76,6 @@ internal sealed partial class EditBar : Grid
     private Button? _errors;
     private Button? _add;
     private Rectangle? _addPill;
-    private Button? _gallery;
-    private Rectangle? _galleryPill;
     private Button? _done;
 
     private EditBarCommands _commands;
@@ -132,8 +122,8 @@ internal sealed partial class EditBar : Grid
         _row.Children.Clear();
         _pages.Clear();
 
-        // [S-13701] Every page's entry, Unplaced icons' too: it stands beside Add, as the plan lays it.
-        foreach (var page in SettingsPages.Order)
+        // [S-16727] Every page's entry; Unplaced icons is the widget gallery's Not on view tab, no entry of the bar's.
+        foreach (var page in SettingsPages.Entries)
         {
             var entry = new Entry(SettingsPages.Glyph(page), SettingsPages.Name(page)) { Tag = "page:" + page };
             entry.Click += (_, _) => commands.Page(page);
@@ -158,24 +148,8 @@ internal sealed partial class EditBar : Grid
         Entry.Subtle(_errors);
         _row.Children.Add(_errors);
 
-        // [S-14910] The widget gallery: an icon button just before Add, its words its tooltip, the accent's pill while it is open.
-        _galleryPill = Entry.Pill();
-        _gallery = new Button
-        {
-            Content = new Grid { Children = { UiLanguage.Mirrored(new FontIcon { Glyph = Glyphs.WidgetGallery, FontSize = B.Icon, VerticalAlignment = VerticalAlignment.Center }), _galleryPill } },
-            Width = B.IconOnly,
-            Tag = "gallery",
-        };
-        Entry.Subtle(_gallery);
-        _gallery.Padding = new Thickness(0);
-        _gallery.VerticalContentAlignment = VerticalAlignment.Stretch;
-        ToolTipService.SetToolTip(_gallery, Str.WidgetGallery_Entry.Text());
-        AutomationProperties.SetName(_gallery, Str.WidgetGallery_Entry.Text());
-        _gallery.Click += (_, _) => commands.Gallery?.Invoke();
-        _row.Children.Add(_gallery);
-
         // [S-3501] A command bar's button as the pages' entries are, Karpo's "+ Add" (§575: no fill nor rim until
-        // pointed at, Done the one accent button); [S-11707] it opens the add page under the bar, and while that is
+        // pointed at, Done the one accent button); [S-16728] it opens the widget gallery under the bar, and while that is
         // open the accent's pill marks it.
         _addPill = Entry.Pill();
         var addWords = Entry.Labelled(Glyphs.Add, Str.Shell_Toolbar_AddWidget.Text(), null);
@@ -207,8 +181,8 @@ internal sealed partial class EditBar : Grid
         _pages.Clear();
         _selection = null;
         _divider = null;
-        _addPill = _galleryPill = null;
-        _errors = _add = _gallery = _done = null;
+        _addPill = null;
+        _errors = _add = _done = null;
     }
 
     /// <summary>[S-2320] Lay the bar out for <paramref name="state"/>: the selection's entry, the problems, the open entry lit.</summary>
@@ -234,15 +208,7 @@ internal sealed partial class EditBar : Grid
 
         foreach (var (page, entry) in _pages)
         {
-            var unplaced = page == SettingsPageId.DesktopItems;
-            var part = unplaced
-                ? plan.Of(BarPartKind.Unplaced)!.Value
-                : plan.Of(BarPartKind.Page, SettingsPages.Entries.ToList().IndexOf(page))!.Value;
-            entry.Lay(part, state.Open == page);
-
-            // [S-13701] Unplaced icons counts what the display's view does not place, while there is any.
-            entry.Badge(unplaced ? Core.Desktop.UnplacedItems.Badge(state.Unplaced) : null,
-                unplaced && state.Unplaced > 0 ? Str.Unplaced_Badge.Plural(state.Unplaced) : null);
+            entry.Lay(plan.Of(BarPartKind.Page, SettingsPages.Entries.ToList().IndexOf(page))!.Value, state.Open == page);
         }
 
         if (plan.Of(BarPartKind.Divider) is { } divider)
@@ -280,22 +246,18 @@ internal sealed partial class EditBar : Grid
             _errors!.Visibility = Visibility.Collapsed;
         }
 
-        var gallery = plan.Of(BarPartKind.Gallery)!.Value;
-        Canvas.SetLeft(_gallery, gallery.X);
-        _galleryPill!.Visibility = state.GalleryOpen ? Visibility.Visible : Visibility.Collapsed;
-        if (state.GalleryOpen)
-        {
-            _gallery!.Background = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
-        }
-        else
-        {
-            _gallery!.ClearValue(Control.BackgroundProperty);
-        }
-
         var add = plan.Of(BarPartKind.Add)!.Value;
         Canvas.SetLeft(_add, add.X);
         _add!.Width = add.Width;
         _addPill!.Visibility = state.AddOpen ? Visibility.Visible : Visibility.Collapsed;
+        if (state.AddOpen)
+        {
+            _add.Background = ThemeBrush.Of("SubtleFillColorSecondaryBrush", Colors.Gray);
+        }
+        else
+        {
+            _add.ClearValue(Control.BackgroundProperty);
+        }
         var done = plan.Of(BarPartKind.Done)!.Value;
         Canvas.SetLeft(_done, done.X);
         _done!.Width = done.Width;
@@ -342,10 +304,10 @@ internal sealed partial class EditBar : Grid
         return new Themia.Core.Geometry.DipRect(box.X, box.Y, box.Width, box.Height);
     }
 
-    /// <summary>[S-16558] Where the Widget gallery's button is, in <paramref name="layer"/>'s coordinates: null before it is laid out.</summary>
+    /// <summary>[S-16558] [S-16728] Where Add widget (the gallery's button) is, in <paramref name="layer"/>'s coordinates: null before it is laid out.</summary>
     public Themia.Core.Geometry.DipRect? GalleryBox(UIElement layer)
     {
-        if (_gallery is not { ActualWidth: > 0 } shown)
+        if (_add is not { ActualWidth: > 0 } shown)
         {
             return null;
         }
@@ -361,7 +323,7 @@ internal sealed partial class EditBar : Grid
         entry?.Focus(FocusState.Keyboard);
     }
 
-    /// <summary>[S-11708] The keyboard back on Add (the add page closed from the keyboard).</summary>
+    /// <summary>[S-11708] The keyboard back on Add (the gallery closed from the keyboard).</summary>
     public void FocusAdd() => _add?.Focus(FocusState.Keyboard);
 
     /// <summary>[S-2327] Whether <paramref name="node"/> is on the bar: a press there toggles or swaps a flyout, never closes it first.</summary>
@@ -413,9 +375,6 @@ internal sealed partial class EditBar : Grid
         private readonly Border _icon = new() { Width = B.Icon, Height = B.Icon, VerticalAlignment = VerticalAlignment.Center };
         private readonly TextBlock _words;
         private readonly Rectangle _pill = Pill();
-        private readonly TextBlock _count = Fluent.Text(FamilyType.Caption, "TextOnAccentFillColorPrimaryBrush");
-        private readonly Border _badge;
-        private string _said = string.Empty;
 
         /// <summary>[S-2321] The open entry's accent pill at its foot (hidden until open).</summary>
         internal static Rectangle Pill() => new()
@@ -437,26 +396,8 @@ internal sealed partial class EditBar : Grid
             Subtle(this);
             _words = Words(words);
             _words.Margin = new Thickness(B.IconGap, 0, 0, 0);
-            _count.HorizontalAlignment = HorizontalAlignment.Center;
-            _count.VerticalAlignment = VerticalAlignment.Center;
-            _count.TextLineBounds = TextLineBounds.TrimToCapHeight;
-            _count.ClearValue(TextBlock.LineHeightProperty);
-            _badge = new Border
-            {
-                Child = new Grid { Children = { _count } },
-                MinWidth = B.Badge,
-                Height = B.Badge,
-                Padding = new Thickness(B.BadgePad, 0, B.BadgePad, 0),
-                CornerRadius = new CornerRadius(B.BadgeRadius),
-                Background = Family.Brush(ColourRole.Accent),
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(-B.Badge, -B.BadgeOut, -B.BadgeOut - B.BadgePad, 0),
-                IsHitTestVisible = false,
-                Visibility = Visibility.Collapsed,
-            };
             Set(glyph, words);
-            var icon = new Grid { VerticalAlignment = VerticalAlignment.Center, Children = { _icon, _badge } };
+            var icon = new Grid { VerticalAlignment = VerticalAlignment.Center, Children = { _icon } };
             var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Children = { icon, _words } };
             Content = new Grid { Children = { row, _pill } };
             HorizontalContentAlignment = HorizontalAlignment.Left;
@@ -467,19 +408,8 @@ internal sealed partial class EditBar : Grid
         {
             _icon.Child = UiLanguage.Mirrored(new FontIcon { Glyph = glyph, FontSize = B.Icon });
             _words.Text = words;
-            _said = words;
             ToolTipService.SetToolTip(this, words);
             AutomationProperties.SetName(this, words);
-        }
-
-        /// <summary>[S-13701] The count badge over the icon's corner (none: <paramref name="count"/> null); what it counts said with the entry's words.</summary>
-        public void Badge(string? count, string? said)
-        {
-            _badge.Visibility = count is null ? Visibility.Collapsed : Visibility.Visible;
-            _count.Text = count ?? string.Empty;
-            var name = count is not null && said is not null ? $"{_said}, {said}" : _said;
-            ToolTipService.SetToolTip(this, name);
-            AutomationProperties.SetName(this, name);
         }
 
         /// <summary>[S-2320] Where the plan puts it; [S-2321] lit while its flyout is open.</summary>

@@ -18,16 +18,15 @@ namespace Themia.App.Shell.Gallery;
 /// detached store and a real <see cref="DesktopWindow"/> on a stand-in display (1920 × 1080 pixels unless sized, its taskbar
 /// 48 at the foot), off-screen, in edit mode with the gallery opened from the bar's path.
 /// <c>Themia.exe --render gallery &lt;outDir&gt; [--theme light|dark] [--category Id]</c> draws every category's bento (or the
-/// one's; one taller than the well again at its foot), two searches, a widget with styles in focus, one without and a
-/// ready-made group in focus, several picked and a drag under way (<c>gallery-&lt;theme&gt;-…png</c>); each of
-/// <c>--displays WxH,..</c> after it (small monitors, [S-16561]) its Time, System and Quick settings tabs, a search and a focus.
+/// one's; one taller than the well again at its foot), two searches, a widget clicked (picked, nothing else), the Not on view
+/// tab, several picked and a drag under way (<c>gallery-&lt;theme&gt;-…png</c>); each of <c>--displays WxH,..</c> after it
+/// (small monitors, [S-16561]) its Time, System and Quick settings tabs and a search.
 /// <c>--wallpaper &lt;picture&gt;</c> stands the display over that wallpaper ([S-16563]).
 /// <c>Themia.exe --check gallery &lt;out.txt&gt;</c> checks the window under the bar and its beak, the head (tabs, hint, search
-/// always open), every bento's columns (no hole, how even their feet), a search (its first finds, a keystroke's time), the
-/// focus (the piece never moving, its words and styles alone, clicks on them picking, never navigating) and its return, the
-/// keys, the quick settings' two sizes, and drives the drag as its pointer does: one widget and then three picked, dragged and
-/// dropped, a drag given up and a style shown in focus dragged; on each of <c>--displays</c> the window, head and bentos
-/// again; PASS or FAIL.
+/// always open), every bento's columns (no hole, how even their feet) and titles, a search (its first finds, a keystroke's
+/// time), a click (it picks and does nothing else), the keys, Quick settings' sections, no ready-made group, the Not on view
+/// tab, and drives the drag as its pointer does: one widget and then three picked, dragged and dropped, a drag given up and a
+/// toggle's style dragged; on each of <c>--displays</c> the window, head and bentos again; PASS or FAIL.
 /// </summary>
 internal static class WidgetGalleryRender
 {
@@ -38,10 +37,10 @@ internal static class WidgetGalleryRender
         "gallery",
         "<outDir> [--theme light|dark] [--category Id] [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]",
         """
-        the widget gallery through a real host and surface in edit mode: every tab (or --category's), searches, a widget with
-        styles, one without and a group in focus, several picked, a drag under way (gallery-<theme>-<w>x<h>-*.png) [S-14917]
-        [S-16410]; --width/--height the stand-in display's pixels (1920 × 1080), --displays more displays after it (their Time,
-        System and Quick settings tabs, a search, a focus) [S-16561], --wallpaper its wallpaper [S-16563], --raster 100 at 100 %
+        the widget gallery through a real host and surface in edit mode: every tab (or --category's), searches, a widget
+        clicked, the Not on view tab, several picked, a drag under way (gallery-<theme>-<w>x<h>-*.png) [S-14917] [S-16410]
+        [S-16722] [S-16727]; --width/--height the stand-in display's pixels (1920 × 1080), --displays more displays after it
+        (their Time, System and Quick settings tabs, a search) [S-16561], --wallpaper its wallpaper [S-16563], --raster 100 at 100 %
         """,
         run => DrawAsync(run, run.PathArg(0), run.App.RequestedTheme != ApplicationTheme.Light, Category(run), Displays(run)));
 
@@ -50,12 +49,11 @@ internal static class WidgetGalleryRender
         "gallery",
         "<out.txt> [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]",
         """
-        the widget gallery under the bar (its beak), its head (tabs, hint, search), its column bentos (no hole, even feet), a
-        search (its first finds, a keystroke's time), the focus (the piece never moving, its styles alone, clicks picking, never
-        navigating) and its return, the keys, the quick settings' two sizes, and its drag driven as its pointer does: one widget
-        and three dragged (no jump, whole cells) and dropped (selected, their settings page open, the gallery closed), a drag
-        given up, a style dragged from a focus; --displays the window and bentos on more displays; PASS or FAIL [S-14917]
-        [S-16410] [S-16564]
+        the widget gallery under Add widget (its beak), its head (tabs, hint, search), its column bentos (no hole, even feet,
+        titles), a search (its first finds, a keystroke's time), a click (picks, nothing else), the keys, Quick settings'
+        sections, no group, the Not on view tab, and its drag driven as its pointer does: one widget and three dragged (no jump,
+        whole cells) and dropped (selected, their settings page open, the gallery closed), a drag given up, a toggle's style
+        dragged; --displays the window and bentos on more displays; PASS or FAIL [S-14917] [S-16410] [S-16564] [S-16720]..
         """,
         run => CheckAsync(run, run.PathArg(0), Displays(run)));
 
@@ -152,7 +150,7 @@ internal static class WidgetGalleryRender
         return RenderCommandLine.Passed;
     }
 
-    /// <summary>One display's pictures: all of them, or (<paramref name="brief"/>, a small display) three tabs, a search and a focus.</summary>
+    /// <summary>One display's pictures: all of them, or (<paramref name="brief"/>, a small display) three tabs and a search.</summary>
     private static async Task DrawOneAsync(RenderRun run, string outDir, bool dark, AddFolderId? category, (int Width, int Height) display, bool brief)
     {
         StandInDesktop? desk = null;
@@ -199,48 +197,19 @@ internal static class WidgetGalleryRender
 
             gallery.Search(string.Empty);
 
-            // [S-16554] [S-16555] A widget with styles in focus: where it stood, its words and its other styles round it.
-            gallery.ShowCategory(category ?? AddFolderId.Time);
-            var styled = gallery.Screen.Widgets.FirstOrDefault(w => WidgetStyles.Offers(w.Kind) && gallery.PieceOf(w.Id).Count == 1) ?? gallery.Screen.Widgets[0];
-            await Shot("focus-before").ConfigureAwait(true);
-            gallery.FocusOn(styled.Id);
-            await Shot("focus-styles").ConfigureAwait(true);
             if (brief)
             {
                 return;
             }
 
-            // A style picked in focus: picked, nothing else moves.
-            if (gallery.Screen.Widgets.FirstOrDefault(w => gallery.PieceAt(w.Id)?.Role == GalleryRole.Style) is { } style)
-            {
-                gallery.ClickForCheck(style.Id);
-                await Shot("focus-style-picked").ConfigureAwait(true);
-            }
+            // [S-16722] A widget clicked: picked, nothing moves, fades or appears.
+            gallery.ShowCategory(category ?? AddFolderId.Time);
+            gallery.ClickForCheck(gallery.Screen.Widgets[0].Id);
+            await Shot("click").ConfigureAwait(true);
 
-            // One with no style of its own: its words alone round it.
-            for (var i = 0; i < gallery.Categories.Count; i++)
-            {
-                gallery.Show(i);
-                if (gallery.Screen.Widgets.FirstOrDefault(w => !WidgetStyles.Offers(w.Kind) && gallery.PieceOf(w.Id).Count == 1) is { } plain)
-                {
-                    gallery.FocusOn(plain.Id);
-                    await Shot("focus-plain").ConfigureAwait(true);
-                    break;
-                }
-            }
-
-            // A ready-made group in focus: its words.
-            for (var i = 0; i < gallery.Categories.Count; i++)
-            {
-                if (gallery.Categories[i].Pieces.Any(p => p.Group is not null))
-                {
-                    gallery.Show(i);
-                    var member = gallery.Screen.Widgets.First(w => gallery.PieceOf(w.Id).Count > 1);
-                    gallery.FocusOn(member.Id);
-                    await Shot("focus-group").ConfigureAwait(true);
-                    break;
-                }
-            }
+            // [S-16727] The Not on view tab: the desktop's icons this view does not place.
+            gallery.ShowUnplaced();
+            await Shot("unplaced").ConfigureAwait(true);
 
             // Several picked: the frame round them.
             gallery.ShowCategory(category ?? AddFolderId.Time);
@@ -355,12 +324,18 @@ internal static class WidgetGalleryRender
             var reached = true;
             var columns = new List<string>();
             var holed = 0;
+            var titled = true;
             for (var i = 0; i < gallery.Categories.Count; i++)
             {
                 gallery.Show(i);
                 var view = gallery.Frame!.View;
                 var sheet = gallery.Sheet!;
-                var h = WidgetGallery.Holes(sheet);
+                var h = gallery.Categories[i].Sections is null ? WidgetGallery.Holes(sheet) : 0;
+
+                // [S-16721] A title over every card (none in Quick settings, its headings instead), each over its own card's top.
+                titled &= gallery.Categories[i].Sections is null
+                    ? sheet.Title > 0 && gallery.Labels.Count == sheet.Tiles.Count
+                    : sheet.Title == 0 && gallery.Labels.Count == sheet.Headings.Count && sheet.Headings.Count > 0;
                 columns.Add($"{gallery.Categories[i].Id} {sheet.Columns.Count} ({string.Join("+", sheet.Columns.Select(c => c.W))}) ragged {WidgetGallery.Ragged(sheet)}");
                 holed += h;
                 foreach (var scrolled in new[] { 0, gallery.MostScroll })
@@ -401,26 +376,35 @@ internal static class WidgetGalleryRender
             Expect(reached, $"{at}: every category starts on the view's top row and scrolls until its last card is inside the view");
             Expect(whole, $"{at}: whole widgets and ready-made groups only: no family's small part");
             Expect(holed == 0, $"{at}: [S-16552] every category a column bento: no cell of a column empty between its cards ({holed})");
+            Expect(titled, $"{at}: [S-16721] [S-16725] a small title over every card; Quick settings its sections' headings alone");
+            Expect(gallery.Categories.SelectMany(c => c.Pieces).All(p => p.Group is null), $"{at}: [S-16723] no ready-made group in the gallery");
 
-            // [S-16562] Quick settings: every toggle at its size and right after it at its least, both cards.
+            // [S-16562] [S-16724]..[S-16726] Quick settings: the toggles by style, then the power buttons; the first style and the
+            // power buttons each at its size and right after it at its least, smaller; the tiles square.
             var quick = gallery.Categories.ToList().FindIndex(c => c.Id == AddFolderId.QuickSettings);
             if (quick >= 0)
             {
                 gallery.Show(quick);
+                var sections = gallery.Categories[quick].Sections!;
                 var least = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id)?.Least == true).ToList();
-                var full = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id) is { Least: false, Kind: not null, Group: null }).ToList();
-                Expect(least.Count > 0 && least.Count == full.Count && least.TrueForAll(w => full.Exists(f => gallery.PieceAt(f.Id)?.Pick == gallery.PieceAt(w.Id)?.Pick && f.Rect.W >= w.Rect.W - 1e-9 && f.Rect.H >= w.Rect.H - 1e-9 && f.Rect.W * f.Rect.H > (w.Rect.W * w.Rect.H) + 1e-9)),
-                    $"{at}: [S-16562] [S-16565] the quick settings show {full.Count} toggles and power buttons at their size and {least.Count} at their least, smaller");
+                var twice = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id) is { Least: false, Style: null, Kind: not null }).ToList();
+                Expect(least.Count > 0 && least.Count == twice.Count && least.TrueForAll(w => twice.Exists(f => gallery.PieceAt(f.Id)?.Pick == gallery.PieceAt(w.Id)?.Pick && f.Rect.W * f.Rect.H > (w.Rect.W * w.Rect.H) + 1e-9)),
+                    $"{at}: [S-16562] the quick settings show {twice.Count} toggles and power buttons at their size and {least.Count} at their least, smaller");
+                var square = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id) is { Square: true } piece && piece.Style is not 2).ToList();
+                var (pw, ph) = (surface.Metrics.Width / cols, surface.Metrics.Height / rows);
+                Expect(square.Count > 0 && square.TrueForAll(w => Math.Abs((w.Rect.W * surface.Metrics.Width) - (w.Rect.H * surface.Metrics.Height)) <= Math.Max(pw, ph) + 1e-6),
+                    $"{at}: [S-16724] {square.Count} tiles and power buttons square to a cell");
+                Expect(sections.Count >= 2 && sections[^1].Pieces.All(p => WidgetGallery.PowerOrder.Contains(p.Kind!.Value.Value)) && sections.SkipLast(1).All(s => s.Pieces.All(p => !WidgetGallery.PowerOrder.Contains(p.Kind!.Value.Value))),
+                    $"{at}: [S-16725] {sections.Count} sections ({string.Join(", ", sections.Select(s => s.Heading.Text()))}): the power buttons apart, last");
             }
 
             if (brief)
             {
-                // A small display: a search and a focus besides.
+                // A small display: a search besides.
                 gallery.Search("weather");
                 Expect(gallery.Sheet!.Tiles.Count is > 0 and <= WidgetGallery.MostFound && WidgetGallery.Holes(gallery.Sheet!) == 0 && Tidy([.. gallery.Screen.Widgets.Select(w => w.Rect)], gallery.Frame!.View),
                     $"{at}: a search shows its first {gallery.Sheet!.Tiles.Count} finds as a column bento");
                 gallery.Search(string.Empty);
-                await FocusAsync().ConfigureAwait(true);
                 return;
             }
 
@@ -481,13 +465,21 @@ internal static class WidgetGalleryRender
                     $"{gallery.Category.Id}: a group picked by one widget is picked whole ({gallery.Picked.Count} widgets)");
             }
 
-            var count = await FocusAsync().ConfigureAwait(true);
-
-            // The arrows move the pick between the cards in focus; Escape leaves the focus.
+            // [S-16722] A click picks the card and does nothing else: the same cards on the same cells, nothing new.
             gallery.ShowCategory(AddFolderId.Time);
-            gallery.ClickForCheck(gallery.Screen.Widgets.First(w => WidgetStyles.Offers(w.Kind) && gallery.PieceOf(w.Id).Count == 1).Id);
-            await stand.ReadyAsync("focused for the keys").ConfigureAwait(true);
-            var focusKey = gallery.FocusKey;
+            await stand.ReadyAsync("the Time tab for a click").ConfigureAwait(true);
+            var unclicked = gallery.Screen.Widgets.Select(w => (w.Id, Corner: Corner(gallery.CardOf(w.Id)!))).ToList();
+            var clicked = gallery.Screen.Widgets.First(w => WidgetStyles.Offers(w.Kind)).Id;
+            gallery.ClickForCheck(clicked);
+            await stand.ReadyAsync("a card clicked").ConfigureAwait(true);
+            var clickedOn = gallery.Screen.Widgets.Select(w => (w.Id, Corner: Corner(gallery.CardOf(w.Id)!))).ToList();
+            Expect(gallery.Picked.SequenceEqual([clicked]) && unclicked.SequenceEqual(clickedOn) && gallery.CardOf(clicked)!.Opacity == 1
+                && gallery.Screen.Widgets.TrueForAll(w => gallery.CardOf(w.Id)!.Opacity == 1),
+                "[S-16722] a click picks the card; nothing moves, fades or appears");
+            gallery.ClickEmptyForCheck();
+            Expect(gallery.Screen.Widgets.Select(w => (w.Id, Corner: Corner(gallery.CardOf(w.Id)!))).SequenceEqual(unclicked), "[S-16722] a click on empty room changes nothing either");
+
+            // The arrows move the pick from card to card.
             var pickedBefore = gallery.Picked.ToList();
             var moved = false;
             foreach (var arrow in new[] { Windows.System.VirtualKey.Down, Windows.System.VirtualKey.Up, Windows.System.VirtualKey.Right, Windows.System.VirtualKey.Left })
@@ -498,11 +490,16 @@ internal static class WidgetGalleryRender
                 }
             }
 
-            Expect(moved && gallery.Picked.Count > 0 && gallery.FocusKey == focusKey,
-                $"an arrow moves the pick in focus; the focus stays (the search box {(gallery.SearchHasKeys ? "has" : "has not")} the keys)");
-            gallery.HandleKey(Windows.System.VirtualKey.Escape, false);
-            await stand.ReadyAsync("escaped the focus").ConfigureAwait(true);
-            Expect(!gallery.Focused && gallery.Sheet!.Tiles.Count == count && gallery.Abouts == 0, "Escape leaves the focus: the category back whole");
+            Expect(moved && gallery.Picked.Count > 0, $"an arrow moves the pick (the search box {(gallery.SearchHasKeys ? "has" : "has not")} the keys)");
+
+            // [S-16727] The Not on view tab: last, its page in the well, the cards gone; a tab back brings them.
+            gallery.ShowUnplaced();
+            await stand.ReadyAsync("the Not on view tab").ConfigureAwait(true);
+            var room = gallery.UnplacedRoom;
+            Expect(gallery.UnplacedShown && gallery.UnplacedPart is not null && gallery.Screen.Widgets.Count == 0 && room is { } r && surface.OverUnplacedPage(new Point(r.X + (r.Width / 2), r.Y + (r.Height / 2))),
+                "[S-16727] the Not on view tab shows its page in the well, the cards gone; a desktop icon let go there would leave the view");
+            gallery.ShowCategory(AddFolderId.Time);
+            Expect(!gallery.UnplacedShown && gallery.Screen.Widgets.Count > 0 && !surface.OverUnplacedPage(new Point(0, 0)), "[S-16727] another tab: the cards back");
 
             // [S-16407] [S-16408] Enter places the pick: the placement session starts.
             gallery.ShowCategory(AddFolderId.Time);
@@ -594,74 +591,17 @@ internal static class WidgetGalleryRender
             Expect(host.State.Views[0].Widgets.Count == widgets && !gallery.Following && ReferenceEquals(surface.DebugGallery, gallery) && !surface.SelectionPageOpen,
                 "given up: nothing placed, the gallery back as it stood");
 
-            // [S-16404] A style shown round a widget in focus, clicked (picked) and dragged out, lands in that style.
-            gallery.FocusOn(gallery.Screen.Widgets.First(w => WidgetStyles.Offers(w.Kind) && gallery.PieceOf(w.Id).Count == 1).Id);
-            await stand.ReadyAsync("gallery check: a style in focus").ConfigureAwait(true);
+            // [S-16726] A toggle in another style (Quick settings' Round section), picked and dragged out, lands in that style.
+            gallery.ShowCategory(AddFolderId.QuickSettings);
+            await stand.ReadyAsync("gallery check: a toggle's style").ConfigureAwait(true);
             // One standing whole in the view (a card under the well's foot is cut by it; dragged, the ghost is held to the display).
-            var styleCard = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id)?.Role == GalleryRole.Style)
+            var styleCard = gallery.Screen.Widgets.Where(w => gallery.PieceAt(w.Id)?.Style is not null)
                 .OrderBy(w => w.Rect.Bottom * rows > gallery.Frame!.View.Bottom + 1e-6 || w.Rect.Bottom > work.Bottom + 1e-9 ? 1 : 0).First();
             var style = gallery.PieceAt(styleCard.Id)!.Style;
             gallery.ClickForCheck(styleCard.Id);
             var placed = await DragAndDrop($"{styleCard.Kind} in style {style}", [styleCard.Id], 5, -8).ConfigureAwait(true);
             Expect(placed.Count == 1 && WidgetStyles.Current(placed[0].Config) == style, $"the style shown ({style}) is the placed widget's");
             await RenderHarness.SaveAsync(surface.DebugRoot, Path.ChangeExtension(outPath, ".png"), "gallery-check").ConfigureAwait(true);
-
-            // [S-16554]..[S-16556] A widget with styles put in focus where it stands: the same card on the same cells before, in
-            // focus and after; its words and its other styles alone round it; a click on a style picks it and navigates nowhere;
-            // a click on empty room leaves the focus. One of one style: its words alone. Returns the Time tab's piece count.
-            async Task<int> FocusAsync()
-            {
-                gallery.ShowCategory(AddFolderId.Time);
-                var pieces = gallery.Sheet!.Tiles.Count;
-                gallery.ScrollTo(0);
-                var styled = gallery.Screen.Widgets.First(w => WidgetStyles.Offers(w.Kind) && gallery.PieceOf(w.Id).Count == 1);
-                var card = gallery.CardOf(styled.Id)!;
-                var (corner, rect) = (Corner(card), card.LiveRect);
-                gallery.ClickForCheck(styled.Id);
-                await stand.ReadyAsync($"{at}: {styled.Kind} put in focus").ConfigureAwait(true);
-                var focus = gallery.Sheet!;
-                var styles = focus.Tiles.Count(t => t.Piece.Role == GalleryRole.Style);
-                Expect(gallery.Focused && ReferenceEquals(gallery.CardOf(styled.Id), card) && Corner(card) == corner && Same(card.LiveRect, rect),
-                    $"{at}: [S-16554] {styled.Kind} clicked: in focus, the same card on the same cells ({corner.X:0.#},{corner.Y:0.#})");
-                Expect(gallery.Abouts == 1 && styles == WidgetStyles.For(styled.Kind).Count - 1 && focus.Tiles.All(t => t.Piece.Role is GalleryRole.Picked or GalleryRole.About or GalleryRole.Style)
-                    && Tidy([.. gallery.Screen.Widgets.Select(w => w.Rect)], gallery.Frame!.View),
-                    $"{at}: [S-16555] round it its words and its {styles} other styles, nothing else");
-
-                // [S-16556] A style clicked: picked, the focus stays, nothing moves or navigates; clicked again, the same.
-                var key = gallery.FocusKey;
-                var other = gallery.Screen.Widgets.First(w => gallery.PieceAt(w.Id)?.Role == GalleryRole.Style);
-                var otherCorner = Corner(gallery.CardOf(other.Id)!);
-                gallery.ClickForCheck(other.Id);
-                gallery.ClickForCheck(other.Id);
-                await stand.ReadyAsync($"{at}: a style clicked in focus").ConfigureAwait(true);
-                Expect(gallery.Focused && gallery.FocusKey == key && gallery.Picked.SequenceEqual([other.Id]) && Corner(card) == corner && Corner(gallery.CardOf(other.Id)!) == otherCorner
-                    && gallery.Sheet!.Tiles.Count == focus.Tiles.Count,
-                    $"{at}: [S-16556] a style clicked in focus is picked; the focus, the cards and the sheet stay");
-                gallery.ClickForCheck(styled.Id);
-                Expect(gallery.Focused && gallery.FocusKey == key && gallery.Picked.SequenceEqual([styled.Id]), $"{at}: [S-16556] the piece itself clicked again: picked, still in focus");
-
-                // Left by a click on empty room: the sheet back, the card where it stood.
-                gallery.ClickEmptyForCheck();
-                await stand.ReadyAsync($"{at}: the focus left").ConfigureAwait(true);
-                Expect(!gallery.Focused && ReferenceEquals(gallery.CardOf(styled.Id), card) && Corner(card) == corner && gallery.Sheet!.Tiles.Count == pieces,
-                    $"{at}: [S-16554] a click on empty room leaves the focus; the card stays where it stood");
-
-                // One of one style: its words alone.
-                for (var i = 0; i < gallery.Categories.Count; i++)
-                {
-                    gallery.Show(i);
-                    if (gallery.Screen.Widgets.FirstOrDefault(w => !WidgetStyles.Offers(w.Kind) && gallery.PieceOf(w.Id).Count == 1) is { } plain)
-                    {
-                        gallery.FocusOn(plain.Id);
-                        Expect(gallery.Focused && gallery.Abouts == 1 && gallery.Sheet!.Tiles.Count == 2, $"{at}: [S-16555] {plain.Kind} (one style) in focus: its words alone round it");
-                        gallery.LeaveFocus();
-                        break;
-                    }
-                }
-
-                await stand.ReadyAsync($"{at}: focus checked").ConfigureAwait(true);
-                return pieces;
-            }
         }
         catch (Exception ex)
         {

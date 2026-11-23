@@ -21,22 +21,18 @@ public sealed class EditBarLayoutTests
         => EditBarLayout.Lay(Pages, selection, errors, 80, 20, widest);
 
     [Fact]
-    public void S13701_unplaced_icons_stands_right_beside_add_widget_its_icon_alone()
+    public void S16728_add_widget_is_the_one_button_before_done_no_gallery_nor_unplaced_entry()
     {
-        // Owner, 2026-11-21: "the selector settings page should be moved next to add widget and given another icon". Its
-        // entry is not among the pages' any more: the five pages, then right after Add its icon alone, at every width.
+        // Owner, 2026-11-23: "not on home should be a tab in the widget gallery now. it should be removed from the topbar root.
+        // the normal Add widget page should also be removed. the widget gallery will be the new add widget page". The five
+        // pages, then Add widget (it opens the gallery), then Done: no gallery button, no Unplaced icons entry, at every width.
         Assert.DoesNotContain(Settings.SettingsPageId.DesktopItems, Settings.SettingsPages.Entries);
-        Assert.Equal(Settings.SettingsPages.Order.Count - 1, Settings.SettingsPages.Entries.Count);
-        Assert.Equal(Glyphs.UnplacedIcons, Settings.SettingsPages.Glyph(Settings.SettingsPageId.DesktopItems));
-        Assert.NotEqual(Glyphs.GridLayout, Glyphs.UnplacedIcons);
-        Assert.NotEqual(Glyphs.Apps, Glyphs.UnplacedIcons);
+        Assert.Equal(["Page", "Divider", "Selection", "Errors", "Add", "Done"], Enum.GetNames<BarPartKind>());
 
         foreach (var plan in new[] { Lay(), Lay(selection: 100, errors: true), Lay(selection: 100, widest: Lay(selection: 100).Width - 1) })
         {
-            var unplaced = plan.Of(BarPartKind.Unplaced)!.Value;
             var add = plan.Of(BarPartKind.Add)!.Value;
-            Assert.Equal((B.IconOnly, true), (unplaced.Width, unplaced.IconOnly));
-            Assert.Equal(add.Right + B.EntryGap, unplaced.X);
+            Assert.Equal(add.Right + B.Pad, plan.Of(BarPartKind.Done)!.Value.X);
             Assert.Equal(Pages.Length, plan.Parts.Count(p => p.Kind == BarPartKind.Page));
             Assert.True(plan.Parts.Where(p => p.Kind == BarPartKind.Page).Max(p => p.Right) < plan.SelectionX);
         }
@@ -57,19 +53,15 @@ public sealed class EditBarLayoutTests
         Assert.Equal(divider.Right + B.DividerRoom, plan.SelectionX);
         Assert.Equal(plan.SelectionX, plan.Of(BarPartKind.Selection)!.Value.X);
 
-        // [S-11959] retired: no toggle at the bar's root. After the gutter the errors' room, then [S-14910] the widget
-        // gallery's icon button directly before Add, and [S-13701] Unplaced icons right beside Add on its other side.
+        // [S-11959] retired: no toggle at the bar's root. After the gutter the errors' room, then [S-16728] Add widget (the
+        // gallery's button), then Done.
         Assert.DoesNotContain("Toggle", Enum.GetNames<BarPartKind>());
         var errors = plan.Of(BarPartKind.Errors)!.Value;
         Assert.Equal((plan.SelectionX + B.Selection + B.Gutter, B.IconOnly), (errors.X, errors.Width));
-        var gallery = plan.Of(BarPartKind.Gallery)!.Value;
-        Assert.Equal((errors.Right + B.EntryGap, B.IconOnly, true), (gallery.X, gallery.Width, gallery.IconOnly));
         var add = plan.Of(BarPartKind.Add)!.Value;
-        Assert.Equal(gallery.Right + B.EntryGap, add.X);
-        var unplaced = plan.Of(BarPartKind.Unplaced)!.Value;
-        Assert.Equal((add.Right + B.EntryGap, B.IconOnly, true), (unplaced.X, unplaced.Width, unplaced.IconOnly));
+        Assert.Equal(errors.Right + B.EntryGap, add.X);
         var done = plan.Of(BarPartKind.Done)!.Value;
-        Assert.Equal(unplaced.Right + B.Pad, done.X);
+        Assert.Equal(add.Right + B.Pad, done.X);
         Assert.Equal(B.DoneLeast, done.Width);
         Assert.Equal(done.Right + B.Pad, plan.Width);
         Assert.Equal(48, B.Height);
@@ -82,13 +74,10 @@ public sealed class EditBarLayoutTests
 
         Assert.Equal(bare.Width, Lay(selection: 300, errors: true).Width);
         Assert.Equal(bare.Of(BarPartKind.Add), Lay(selection: 40, errors: true).Of(BarPartKind.Add));
-        Assert.Equal(bare.Of(BarPartKind.Gallery), Lay(selection: 300, errors: true).Of(BarPartKind.Gallery));
         Assert.Null(bare.Of(BarPartKind.Divider));
         Assert.Null(bare.Of(BarPartKind.Selection));
         Assert.Null(bare.Of(BarPartKind.Errors));
 
-        // [S-13701] Unplaced icons stands whatever is selected.
-        Assert.Equal(bare.Of(BarPartKind.Unplaced), Lay(selection: 300, errors: true).Of(BarPartKind.Unplaced));
     }
 
     [Fact]

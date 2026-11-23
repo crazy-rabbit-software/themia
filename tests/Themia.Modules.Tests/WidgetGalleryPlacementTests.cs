@@ -38,9 +38,10 @@ public sealed class WidgetGalleryPlacementTests
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
         var categories = WidgetGallery.Of(page);
 
-        // Every ready-made group this build places, once; the power buttons' aside ([S-16565]: they stand alone in Quick settings).
+        // [S-16723] No ready-made group while the gallery shows none (the one switch); the power buttons' aside ([S-16565]).
         var groups = categories.SelectMany(c => c.Pieces).Where(p => p.Group is not null).Select(p => p.Group!.Id).ToList();
-        Assert.Equal(ReadyMadeGroups.Offered().Where(g => !WidgetGallery.InQuickSettings.Contains(g.Home)).Select(g => g.Id).Order(StringComparer.Ordinal), groups.Order(StringComparer.Ordinal));
+        var offered = WidgetGallery.ShowsGroups ? ReadyMadeGroups.Offered().Where(g => !WidgetGallery.InQuickSettings.Contains(g.Home)).Select(g => g.Id) : [];
+        Assert.Equal(offered.Order(StringComparer.Ordinal), groups.Order(StringComparer.Ordinal));
 
         // Every widget that stands alone on the add page (a subject's own), once, in its subject; no part of a family.
         var sections = page.Rail.Where(r => r.Id != AddFolderId.Start).SelectMany(r => page.Sections(r.Id).Select(s => (Subject: r.Id, Section: s))).ToList();
@@ -48,13 +49,11 @@ public sealed class WidgetGalleryPlacementTests
         var families = sections.Where(s => s.Section.Kind == AddSectionKind.Family).ToList();
         var parts = families.Where(s => !WidgetGallery.InQuickSettings.Contains(s.Section.Family!.Id)).SelectMany(s => s.Section.Tiles.OfType<AddWidgetTile>().Select(t => t.Kind)).ToHashSet();
         var power = families.Where(s => WidgetGallery.InQuickSettings.Contains(s.Section.Family!.Id)).SelectMany(s => s.Section.Tiles.OfType<AddWidgetTile>().Select(t => (Subject: AddFolderId.QuickSettings, t.Kind))).Distinct().ToList();
-        var kinds = categories.SelectMany(c => c.Pieces.Where(p => p.Kind is not null && !p.Least).Select(p => (Subject: c.Id, Kind: p.Kind!.Value))).ToList();
+        var kinds = categories.SelectMany(c => c.Pieces.Where(p => p.Kind is not null && !p.Least && p.Style is null).Select(p => (Subject: c.Id, Kind: p.Kind!.Value))).ToList();
         Assert.Equal(own.Concat(power).OrderBy(o => o.Kind.Value, StringComparer.Ordinal), kinds.OrderBy(k => k.Kind.Value, StringComparer.Ordinal));
         Assert.NotEmpty(parts);
         Assert.DoesNotContain(kinds, k => parts.Contains(k.Kind));
 
-        // The ready-made groups are pieces of their own.
-        Assert.Contains("nowPlaying", groups);
 
         // Start is no category: it only shows again what is at home elsewhere.
         Assert.DoesNotContain(categories, c => c.Id == AddFolderId.Start);
@@ -81,12 +80,12 @@ public sealed class WidgetGalleryPlacementTests
         var sizes = new GallerySizes(screen, 1, view);
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
         var categories = WidgetGallery.Of(page);
-        var shown = categories.Concat(new[] { "weather", "clock", "music", "cpu", "calendar", "a" }.Select(q => WidgetGallery.Find(page, categories, q)!)).ToList();
+        var shown = categories.Where(c => c.Sections is null).Concat(new[] { "weather", "clock", "music", "cpu", "calendar", "a" }.Select(q => WidgetGallery.Find(page, categories, q)!)).ToList();
         var said = new List<string>();
         foreach (var category in shown)
         {
             var clock = System.Diagnostics.Stopwatch.StartNew();
-            var sheet = WidgetGallery.Lay(category, view, sizes.Of);
+            var sheet = WidgetGallery.Lay(category, view, sizes.Of, sizes.TitleRows);
             var ms = clock.Elapsed.TotalMilliseconds;
             Assert.Equal(category.Pieces.Count, sheet.Tiles.Count);
             var room = new CellBox(0, 0, view, sheet.Rows);
@@ -102,8 +101,10 @@ public sealed class WidgetGalleryPlacementTests
                 }
 
                 var asked = sizes.Of(tile.Piece);
-                Assert.True(tile.Piece.Group is null || tile.Box.H == asked.H, $"{category.Id}: {tile.Piece.Key} is {tile.Box.H} tall, laid {asked.H}");
-                Assert.True(tile.Box.W >= Math.Min(asked.MinW, view) && tile.Box.H >= asked.MinH, $"{category.Id}: {tile.Piece.Key} {tile.Box} under its least {asked.MinW}x{asked.MinH}");
+                var card = sheet.CardOf(tile);
+                Assert.Equal(sizes.TitleRows, card.Y - tile.Box.Y);
+                Assert.True(tile.Piece.Group is null || card.H == asked.H, $"{category.Id}: {tile.Piece.Key} is {card.H} tall, laid {asked.H}");
+                Assert.True(tile.Box.W >= Math.Min(asked.MinW, view) && card.H >= asked.MinH, $"{category.Id}: {tile.Piece.Key} {tile.Box} under its least {asked.MinW}x{asked.MinH}");
                 Assert.True(asked.Widths is null || asked.Widths.Contains(tile.Box.W) || (asked.W > view && tile.Box.W == view),
                     $"{category.Id}: group {tile.Piece.Key} made {tile.Box.W} wide, not a width its step lands on");
                 Assert.Contains(sheet.Columns, c => c.Holds(tile.Box));
@@ -121,6 +122,7 @@ public sealed class WidgetGalleryPlacementTests
 
             var (holes, ragged) = (WidgetGallery.Holes(sheet), WidgetGallery.Ragged(sheet));
             var tallestKept = sheet.Tiles.Where(t => !sizes.Of(t.Piece).Taller).Select(t => t.Box.H + WidgetGallery.Gap).DefaultIfEmpty(0).Max();
+            Assert.Empty(sheet.Headings);
             said.Add($"{category.Id}/{category.Pieces.Count}: {sheet.Columns.Count} columns ({string.Join("+", sheet.Columns.Select(c => c.W))}), {sheet.Rows} rows, ragged {ragged}, {ms:0.0} ms");
             Assert.True(holes == 0, $"{category.Id}: {holes} cells of its columns empty{Environment.NewLine}{Map(sheet, view)}");
             Assert.True(ragged <= Math.Max(Uneven, tallestKept), $"{category.Id}: its columns' feet {ragged} rows apart{Environment.NewLine}{Map(sheet, view)}");
@@ -211,103 +213,85 @@ public sealed class WidgetGalleryPlacementTests
     }
 
     /// <summary>
-    /// [S-16562] The owner (2026-11-23): "the quick settings should show in two sizes, the small size that we have right now
-    /// and then even a smaller size". Every toggle of the Quick settings tab is there at the size it has new and right after it
-    /// at its least, both whole widgets that drag out at that size; no other tab doubles its widgets.
+    /// [S-16562] [S-16724]..[S-16726] The owner (2026-11-23): "all the widgets in the quick settings should be shown squared
+    /// ... the other styles should also be shown ... you should just add headers to the columns or individual sections there
+    /// ... order them as well so that the actions dont interweave with the toggle buttons". Quick settings is sections under
+    /// headings: the toggles in their first style each at the size it has new and right after it at its least, then each other
+    /// style once, then the power buttons in their order, each at its two sizes; every tile and round one square on the
+    /// display's cells (to a cell); laid with no title over a card and no piece of one section among another's.
     /// </summary>
-    [Fact]
-    public void S16562_the_quick_settings_show_every_toggle_at_its_size_and_at_its_least()
+    [Theory]
+    [InlineData(1920, 1080)]
+    [InlineData(1366, 768)]
+    public void S16724_quick_settings_is_sections_of_square_toggles_by_style_then_the_power_buttons(int width, int height)
     {
-        var (screen, view) = Display(1920, 1080);
+        var (screen, view) = Display(width, height);
         var sizes = new GallerySizes(screen, 1, view);
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
         var categories = WidgetGallery.Of(page);
         var quick = categories.Single(c => c.Id == AddFolderId.QuickSettings);
+        var sections = quick.Sections!;
+        var toggles = page.Sections(AddFolderId.QuickSettings).Where(s => s.Kind == AddSectionKind.Widgets).SelectMany(s => s.Tiles.OfType<AddWidgetTile>()).Select(t => t.Kind).ToList();
+        var styles = WidgetStyles.For(toggles[0]);
+        Assert.True(styles.Count >= 2);
+        Assert.Equal(styles.Count + 1, sections.Count);
+        Assert.Equal([.. styles.Select(o => o.Label.Text()), Str.AddMenu_Family_PowerButtons.Text()], sections.Select(s => s.Heading.Text()));
+        Assert.Equal(sections.SelectMany(s => s.Pieces), quick.Pieces);
 
-        var widgets = quick.Pieces.Where(p => p.Kind is not null && !p.Least).ToList();
-        Assert.NotEmpty(widgets);
-        foreach (var widget in widgets)
+        // The first style: each toggle at its size and right after it at its least, smaller.
+        var first = sections[0].Pieces;
+        Assert.Equal(toggles.SelectMany(k => new[] { k, k }), first.Select(p => p.Kind!.Value));
+        for (var i = 0; i < first.Count; i += 2)
         {
-            var at = quick.Pieces.ToList().IndexOf(widget);
-            var least = quick.Pieces[at + 1];
-            Assert.True(least.Least && least.Kind == widget.Kind && least.Key == "least:" + widget.Key);
-            var (asked, small) = (sizes.Of(widget), sizes.Of(least));
-            Assert.True(small.W <= asked.W && small.H <= asked.H && (small.W, small.H) != (asked.W, asked.H), $"{widget.Key}: {small.W}x{small.H} is not smaller than {asked.W}x{asked.H}");
-            Assert.False(small.Wider || small.Taller);
-            var limits = SizeFit.Limits(SizeFit.Of(widget.Kind!.Value, null), screen, 1)!;
-            var (cols, rows) = GridGeometry.GridDims(screen);
-            Assert.Equal(((int)Math.Ceiling((limits.Width.Min * cols) - 1e-6), (int)Math.Ceiling((limits.Height.Min * rows) - 1e-6)), (small.W, small.H));
+            Assert.True(!first[i].Least && first[i + 1].Least && first[i + 1].Key == "least:" + first[i].Key);
+            var (asked, small) = (sizes.Of(first[i]), sizes.Of(first[i + 1]));
+            Assert.True(small.W <= asked.W && small.H <= asked.H && (small.W, small.H) != (asked.W, asked.H), $"{first[i].Key}: {small.W}x{small.H} beside {asked.W}x{asked.H}");
+            Assert.False(asked.Wider || asked.Taller || small.Wider || small.Taller);
         }
 
-        Assert.DoesNotContain(categories.Where(c => c.Id != AddFolderId.QuickSettings).SelectMany(c => c.Pieces), p => p.Least);
-
-        // Laid, each least one stands at its least.
-        var sheet = WidgetGallery.Lay(quick, view, sizes.Of);
-        Assert.All(sheet.Tiles.Where(t => t.Piece.Least), t => Assert.Equal((sizes.Of(t.Piece).W, sizes.Of(t.Piece).H), (t.Box.W, t.Box.H)));
-    }
-
-    /// <summary>
-    /// [S-16565] The owner (2026-11-23): "the power widgets like restart shutdown etc, should be shown without the header bar and
-    /// should be shown in two different sizes. the same sizes that the quick settings are shown"; "the power actions should be
-    /// moved to the quick settings page". Every power button stands alone in Quick settings, at its size and at its least,
-    /// nowhere else; the ready-made Power group (a Header over the buttons) is not in the gallery.
-    /// </summary>
-    [Fact]
-    public void S16565_the_power_buttons_stand_alone_in_quick_settings_at_two_sizes()
-    {
-        var (screen, view) = Display(1920, 1080);
-        var sizes = new GallerySizes(screen, 1, view);
-        var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
-        var categories = WidgetGallery.Of(page);
-        var family = page.Rail.SelectMany(r => page.Sections(r.Id)).First(s => s.Family?.Id == AddFolderId.PowerButtons).Tiles.OfType<AddWidgetTile>().Select(t => t.Kind).ToList();
-        Assert.Contains(new WidgetId("shutdown"), family);
-        Assert.Contains(new WidgetId("restart"), family);
-
-        var quick = categories.Single(c => c.Id == AddFolderId.QuickSettings);
-        foreach (var kind in family)
+        // Each other style once, in it.
+        for (var s = 1; s < styles.Count; s++)
         {
-            var two = quick.Pieces.Where(p => p.Kind == kind).ToList();
-            Assert.Equal([false, true], two.Select(p => p.Least));
-            Assert.All(two, p => Assert.Null(p.Group));
-            var (natural, least) = (sizes.Of(two[0]), sizes.Of(two[1]));
-            Assert.True(least.W <= natural.W && least.H <= natural.H && (least.W, least.H) != (natural.W, natural.H), $"{kind}: {least.W}x{least.H} beside {natural.W}x{natural.H}");
+            Assert.Equal(toggles, sections[s].Pieces.Select(p => p.Kind!.Value));
+            Assert.All(sections[s].Pieces, p => Assert.Equal(styles[s].Value, p.Style));
         }
 
-        Assert.DoesNotContain(categories.Where(c => c.Id != AddFolderId.QuickSettings).SelectMany(c => c.Pieces), p => p.Kind is { } k && family.Contains(k));
-        Assert.DoesNotContain(categories.SelectMany(c => c.Pieces), p => p.Group?.Home == AddFolderId.PowerButtons);
-        Assert.Contains(categories, c => c.Id == AddFolderId.Devices);
-        Assert.Equal(0, WidgetGallery.Holes(WidgetGallery.Lay(quick, view, sizes.Of)));
-    }
+        // The power buttons last, lock first and the screen off last, each at its two sizes.
+        var power = sections[^1].Pieces;
+        var order = power.Where(p => !p.Least).Select(p => p.Kind!.Value.Value).ToList();
+        Assert.Equal(WidgetGallery.PowerOrder.Where(order.Contains), order);
+        Assert.Equal("lock", order[0]);
+        Assert.Equal([false, true], power.Take(2).Select(p => p.Least));
 
-    /// <summary>[S-16554] [S-16555] The clock of the build in focus on the 1920 by 1080 display: where it stood, its words and every other style round it, nothing else.</summary>
-    [Fact]
-    public void S16554_the_clock_in_focus_stays_where_it_stood_its_styles_round_it()
-    {
-        var (screen, view) = Display(1920, 1080);
-        var sizes = new GallerySizes(screen, 1, view);
-        var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(w => w.Id)], ReadyMadeGroups.Offered());
-        var time = WidgetGallery.Of(page).First(c => c.Pieces.Any(p => p.Kind?.Value == "clock"));
-        var laid = WidgetGallery.Lay(time, view, sizes.Of);
-        var at = laid.Tiles.First(t => t.Piece.Kind?.Value == "clock");
-        var styles = WidgetStyles.For(at.Piece.Kind!.Value).Select(o => o.Value).Skip(1).ToList();
-
-        var focus = WidgetGallery.Focus(time, at.Piece, styles);
-        var sheet = WidgetGallery.LayFocus(focus, at.Box, view, laid.Rows, sizes.Of);
-
-        Assert.Equal(at.Box, sheet.Tiles[0].Box);
-        Assert.Equal(styles.Count, sheet.Tiles.Count(t => t.Piece.Role == GalleryRole.Style));
-        Assert.Single(sheet.Tiles, t => t.Piece.Role == GalleryRole.About);
-        Assert.Equal(styles.Count + 2, sheet.Tiles.Count);
-        Assert.True(sheet.Rows >= laid.Rows);
-        for (var i = 0; i < sheet.Tiles.Count; i++)
+        // Square on the display's cells: as many DIPs down as across, to a cell; a switch keeps its height.
+        var (cols, rows) = GridGeometry.GridDims(screen);
+        var (pw, ph) = (screen.Width / cols, screen.Height / rows);
+        foreach (var piece in quick.Pieces.Where(p => p.Style is null || styles.First(o => o.Value == p.Style).Name != "switch"))
         {
-            Assert.True(sheet.Tiles[i].Box.Right <= view, $"{sheet.Tiles[i].Piece.Key} at {sheet.Tiles[i].Box}");
-            for (var j = i + 1; j < sheet.Tiles.Count; j++)
+            var asked = sizes.Of(piece);
+            Assert.True(Math.Abs((asked.W * pw) - (asked.H * ph)) <= Math.Max(pw, ph) + 1e-9, $"{piece.Key}: {asked.W}x{asked.H} cells is {asked.W * pw}x{asked.H * ph} DIPs");
+        }
+
+        // Laid: no titles, the headings over their sections, no piece of one section among another's.
+        var sheet = WidgetGallery.Lay(quick, view, sizes.Of, sizes.TitleRows, sizes.HeadingRows);
+        Assert.Equal(0, sheet.Title);
+        Assert.Equal(sections.Count, sheet.Headings.Count);
+        var at = 0;
+        for (var s = 0; s < sections.Count; s++)
+        {
+            var top = sheet.Headings[s].Box.Bottom;
+            var next = s + 1 < sections.Count ? sheet.Headings[s + 1].Box.Y : int.MaxValue;
+            foreach (var tile in sheet.Tiles.Skip(at).Take(sections[s].Pieces.Count))
             {
-                var (a, b) = (sheet.Tiles[i].Box, sheet.Tiles[j].Box);
-                Assert.False(new CellBox(a.X - 1, a.Y - 1, a.W + 2, a.H + 2).Overlaps(b), $"{sheet.Tiles[i].Piece.Key} {a} and {sheet.Tiles[j].Piece.Key} {b}");
+                Assert.True(tile.Box.Y >= top && tile.Box.Bottom < next && tile.Box.Right <= view, $"{tile.Piece.Key} at {tile.Box}");
+                Assert.Equal((sizes.Of(tile.Piece).W, sizes.Of(tile.Piece).H), (tile.Box.W, tile.Box.H));
             }
+
+            at += sections[s].Pieces.Count;
         }
+
+        Assert.DoesNotContain(categories.Where(c => c.Id != AddFolderId.QuickSettings).SelectMany(c => c.Pieces), p => p.Least || p.Square);
+        Assert.DoesNotContain(categories.SelectMany(c => c.Pieces), p => p.Group is not null);
     }
 
     private static ViewState Gallery(params (string Kind, CellBox Box)[] cards)

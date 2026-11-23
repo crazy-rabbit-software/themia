@@ -522,7 +522,7 @@ internal static class SceneRender
 
     /// <summary>
     /// [S-1077] Edit mode as the edit bar's pictures compose it: the real bar at the top centre, the
-    /// selection's entry on it; the add menu hung under it; the selection's page hung from its entry, a
+    /// selection's entry on it; the selection's page hung from its entry, a
     /// row (by its key) opened in it.
     /// </summary>
     private static async Task<bool> ComposeEditAsync(Canvas canvas, SceneEdit edit, ViewState view, Job job, ScreenMetrics metrics, DesignState design)
@@ -540,23 +540,11 @@ internal static class SceneRender
             barRect = EditBarRender.PlaceBar(canvas, bar, width);
         }
 
+        // [S-16728] The add page is gone: Add widget opens the widget gallery, which a scene does not draw.
         if (edit.Add)
         {
-            if (bar is null)
-            {
-                Console.WriteLine($"scene: {job.Scene.Name}: \"edit.add\" hangs the add menu under the bar, and \"edit.bar\" is false");
-                return false;
-            }
-
-            // [S-11864] The add page as it stands once its pictures are drawn: a scene waits for them (a minute
-            // at most, then says so and shows the glyphs), over the work area, so the page ends above the taskbar.
-            var addPage = EditBarRender.AddMenu();
-            EditBarRender.HangAddMenu(canvas, addPage, bar, barRect.X, barRect.Y, width, job.Scene.WorkBottom(job.File.Screen));
-            canvas.UpdateLayout();
-            var shot = Path.GetFileName(job.OutPath);
-            await RenderHarness.SettleAsync(canvas, shot).ConfigureAwait(true);
-            await RenderSettle.SignalAsync(addPage.View.PicturesDrawn, $"scene {job.Scene.Name}: the add page's pictures", TimeSpan.FromMinutes(1)).ConfigureAwait(true);
-            await RenderHarness.SettleAsync(canvas, shot).ConfigureAwait(true);
+            Console.WriteLine($"scene: {job.Scene.Name}: \"edit.add\" drew the add page, which is gone (Add widget opens the widget gallery: --render gallery)");
+            return false;
         }
 
         if (selected.Count == 0)

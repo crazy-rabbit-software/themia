@@ -150,13 +150,13 @@ internal static partial class UiBench
             Click(root, "page:" + SettingsPageId.General);
             await probe.Settle().ConfigureAwait(true);
 
-            // The add page, opened and closed by Add; its subjects.
-            await probe.Pair("add page: open", "add page: close", () => Click(root, "add"), () => Click(root, "add"), repeat, Say).ConfigureAwait(true);
+            // [S-16728] The widget gallery, opened and closed by Add widget; its tabs.
+            await probe.Pair("gallery: open", "gallery: close", () => Click(root, "add"), () => Click(root, "add"), repeat, Say).ConfigureAwait(true);
             Click(root, "add");
             await probe.Settle().ConfigureAwait(true);
-            AddFolderId[] subjects = [AddFolderId.Time, AddFolderId.System, AddFolderId.Weather, AddFolderId.Start];
+            AddFolderId[] subjects = [AddFolderId.Time, AddFolderId.System, AddFolderId.Weather];
             var subject = 0;
-            await probe.Run("add page: switch subject", () => Find<AddPageView>(root, _ => true)?.ShowItem(subjects[subject++ % subjects.Length]), repeat * 2, Say).ConfigureAwait(true);
+            await probe.Run("gallery: switch tab", () => Find<WidgetGalleryView>(root, _ => true)?.ShowCategory(subjects[subject++ % subjects.Length]), repeat * 2, Say).ConfigureAwait(true);
             Click(root, "add");
             await probe.Settle().ConfigureAwait(true);
 

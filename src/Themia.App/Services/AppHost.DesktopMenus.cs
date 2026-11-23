@@ -619,7 +619,7 @@ internal sealed partial class AppHost
             case DesktopMenuCommand.AddWidget:
                 // [S-5551] Edit mode on, then the add page under that display's bar ([S-11707]).
                 SetEditMode(true);
-                if (!_dispatcher.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, surface.OpenAddPage))
+                if (!_dispatcher.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, surface.OpenWidgetGallery))
                 {
                     Log.Warn(Scope, "could not queue Add widget from the desktop's menu; edit mode is on, the bar's Add widget opens it");
                 }

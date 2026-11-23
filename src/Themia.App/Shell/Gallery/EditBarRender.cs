@@ -24,7 +24,7 @@ namespace Themia.App.Shell.Gallery;
 /// <c>Themia.exe --render editbar &lt;outDir&gt; [--theme light|dark] [--only bar|pages|appearance|display|select|marks|unplaced|follow] [--raster 100]</c> writes the bar
 /// (<c>editbar-&lt;theme&gt;.png</c>: nothing selected; <c>-widget</c>, one widget; <c>-many</c>, two of a kind;
 /// <c>-mixed</c>, three of several; <c>-errors</c>, the problems' button; <c>-open</c>, General's entry lit;
-/// <c>-narrow</c> and <c>-narrowest</c>, 900- and 640-wide displays; <c>-add</c>, the add menu; <c>-placing</c>,
+/// <c>-narrow</c> and <c>-narrowest</c>, 900- and 640-wide displays; <c>-gallery</c>, Add widget lit (the gallery open, [S-16728]); <c>-placing</c>,
 /// the placement line), every page's flyout hung from its entry and its pickers opened
 /// (<c>page-&lt;theme&gt;-&lt;page&gt;[-…].png</c>), and the selection's page beside real cards
 /// (<c>select-&lt;theme&gt;-….png</c>), over a busy stand-in wallpaper; and the edit markers (<c>marks-…</c>).
@@ -41,14 +41,15 @@ internal static partial class EditBarRender
     public static RenderCommand Command { get; } = new(
         RenderVerb.Render,
         "editbar",
-        "<outDir> [--theme light|dark] [--only bar|pages|appearance|display|select|marks|unplaced|follow] [--raster 100]",
+        "<outDir> [--theme light|dark] [--only bar|pages|appearance|display|select|marks|follow] [--case name] [--raster 100]",
         """
-        the edit bar (editbar-*: nothing, one, several selected, problems, an entry open, narrow), the add page (-add*), placing;
-        every page's flyout with its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*, -unplaced*);
+        the edit bar (editbar-*: nothing, one, several selected, problems, an entry open, Add widget lit, narrow), placing;
+        every page's flyout with its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*);
         the selection's page beside real cards (select-*) [S-2328]; the edit marks (marks-*) and a block resized by the
         selection's frame (marks-*-block*, [S-2460]); a flyout following its page as a card opens and closes (-follow-*, [S-2350]);
         each flyout's hit probe and press check said beside its picture [S-2346]. There is no settings window [S-3585]
-        --only: one group of pictures; --raster 100: drawn at 100 % whatever the display's scale [S-2377]
+        --only: one group of pictures; --case: with --only select, the one selection case of that name (weather-location-picked);
+        --raster 100: drawn at 100 % whatever the display's scale [S-2377]
         """,
         RunAsync);
 
@@ -57,6 +58,7 @@ internal static partial class EditBarRender
         var outDir = run.PathArg(0);
         var theme = run.App.RequestedTheme == ApplicationTheme.Light ? "light" : "dark";
         var only = run.Option("--only");
+        _case = run.Option("--case");
 
         // What went wrong while drawing is said with the pictures.
         Log.AddSink(static record =>
@@ -106,12 +108,6 @@ internal static partial class EditBarRender
             await DisplayShots(screen, outDir, theme).ConfigureAwait(true);
         }
 
-        // [S-13700] The Unplaced icons page and its entry's badge.
-        if (only is null or "pages" or "unplaced")
-        {
-            await UnplacedShots(screen, outDir, theme).ConfigureAwait(true);
-        }
-
         // [S-2350] A page's flyout following its page as a card opens and closes again.
         if (only is null or "pages" or "follow")
         {
@@ -132,7 +128,7 @@ internal static partial class EditBarRender
         return RenderCommandLine.Passed;
     }
 
-    /// <summary>[S-2320]..[S-2324] The bar in its states, and the add menu and the placement line.</summary>
+    /// <summary>[S-2320]..[S-2324] The bar in its states, and the placement line.</summary>
     private static async Task BarShots(Grid screen, string outDir, string theme)
     {
         var clockKind = ModuleCatalog.Of(new WidgetId("clock"));
@@ -151,18 +147,8 @@ internal static partial class EditBarRender
         await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 900 - (2 * ShellMetricsBarTop))), outDir, $"editbar-{theme}-narrow.png", room: 900).ConfigureAwait(true);
         await Shot(screen, Bar(new EditBarState(longName, 0, null, true, 640 - (2 * ShellMetricsBarTop))), outDir, $"editbar-{theme}-narrowest.png", room: 640).ConfigureAwait(true);
 
-        // [S-11712] The add page: Start, two subjects, a search with results and one with none, a narrow display, a tile pointed at.
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add.png"), ScreenWidth, OpenHeight, null, null).ConfigureAwait(true);
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-system.png"), ScreenWidth, OpenHeight, AddFolderId.System, null).ConfigureAwait(true);
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-weather.png"), ScreenWidth, OpenHeight, AddFolderId.Weather, null).ConfigureAwait(true);
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-family.png"), ScreenWidth, OpenHeight, AddFolderId.System, null, "family:Processor", "family:Processor").ConfigureAwait(true);
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-search.png"), ScreenWidth, OpenHeight, null, "music").ConfigureAwait(true);
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-none.png"), ScreenWidth, OpenHeight, null, "zzqx").ConfigureAwait(true);
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-narrow.png"), 900, OpenHeight, null, null).ConfigureAwait(true);
-
-        // [S-13602] The pointer resting on a tile: its preview beside the tiles (a widget, then a ready-made group).
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-hover.png"), ScreenWidth, OpenHeight, null, null, "kind:weatherForecast").ConfigureAwait(true);
-        await AddPageShot(screen, System.IO.Path.Combine(outDir, $"editbar-{theme}-add-hover-group.png"), ScreenWidth, OpenHeight, AddFolderId.System, null, "group:thisPc").ConfigureAwait(true);
+        // [S-16728] Add widget lit: the widget gallery open under it.
+        await Shot(screen, Bar(new EditBarState(null, 0, null, false, wide) { AddOpen = true }), outDir, $"editbar-{theme}-gallery.png").ConfigureAwait(true);
 
         var hint = new TextBlock
         {
@@ -356,6 +342,12 @@ internal static partial class EditBarRender
     private sealed record PropsCard(WidgetId Kind, double X, double Y, double W, double H, bool Selected, string? Style = null, string? ItemColor = null, double Scale = 1.0, string ItemText = "", FillChoice? Background = null, FillChoice? Items = null, ContentAlign? Align = null, string? Config = null);
 
     /// <summary>[S-2340]..[S-2343] The selection's page beside real cards, each case on the stand-in display.</summary>
+    /// <summary>[S-16720] <c>--case</c>: the one selection case drawn; null: every one.</summary>
+    private static string? _case;
+
+    /// <summary>[S-16720] What a case's typed words end with to have the first result picked after the search answers.</summary>
+    private const string PickFirst = ">pick";
+
     private static async Task SelectionShots(Grid screen, Ticker ticker, string outDir, string theme)
     {
         PropsCard[] clock = [new(new WidgetId("clock"), 140, 160, 300, 200, true, "flip", "#2A3248", 1.25, "#FFFFFF")];
@@ -444,6 +436,9 @@ internal static partial class EditBarRender
             (weather, "weather", null, null, null),
             (weather, "weather-location", "w/" + Str.Shell_Place_Location.Text(), "zur", null),
             (weather, "weather-location-open", "w/" + Str.Shell_Place_Location.Text(), null, null),
+
+            // [S-16720] A place picked from the search: its row dotted at once.
+            (weather, "weather-location-picked", "w/" + Str.Shell_Place_Location.Text(), "zur" + PickFirst, null),
             (weather, "weather-location-wait", "w/" + Str.Shell_Place_Location.Text(), PlaceRender.Unanswered, null),
             (weather, "weather-location-none", "w/" + Str.Shell_Place_Location.Text(), "qqqq", null),
             (stock, "stock-symbol", "w/" + Str.Stocks_Tab_Symbols.Text(), "micro", null),
@@ -479,12 +474,15 @@ internal static partial class EditBarRender
             (countdown, "vocabulary-rename", "w/Feeds/Blog feed/" + Str.Menu_Rename.Text(), null, Vocabulary),
         ];
 
-        foreach (var (layout, name, click, type, lines) in cases)
+        foreach (var (layout, name, click, type, lines) in cases.Where(c => _case is null || c.Name == _case))
         {
             await SelectionShot(screen, ticker, layout, System.IO.Path.Combine(outDir, $"select-{theme}-{name}.png"), click, type, lines, scrollToEnd: name.EndsWith("-end", StringComparison.Ordinal)).ConfigureAwait(true);
         }
 
-        await AdapterShots(screen, ticker, outDir, theme).ConfigureAwait(true);
+        if (_case is null)
+        {
+            await AdapterShots(screen, ticker, outDir, theme).ConfigureAwait(true);
+        }
     }
 
     /// <summary>
@@ -726,7 +724,7 @@ internal static partial class EditBarRender
 
             if (type is not null)
             {
-                page.DebugType(type);
+                page.DebugType(type.Replace(PickFirst, string.Empty, StringComparison.Ordinal));
             }
         }
 
@@ -737,6 +735,17 @@ internal static partial class EditBarRender
             ? () => page.DebugTyping
             : () => page.DebugSearching;
         await RenderHarness.SettleAsync(canvas, name, busy: searching, looks: false).ConfigureAwait(true);
+        if (type is not null && type.EndsWith(PickFirst, StringComparison.Ordinal))
+        {
+            // [S-16720] The first place found picked as a click picks it, the page drawn again with it.
+            if (!page.DebugPickFound(0))
+            {
+                Console.WriteLine($"editbar: nothing found to pick for {path}");
+            }
+
+            await RenderHarness.SettleAsync(canvas, name, busy: searching, looks: false).ConfigureAwait(true);
+        }
+
         canvas.UpdateLayout();
 
         flyout.Place(FlyoutPlacement.Place(bar.EntryBox(null, canvas) ?? barRect, barRect, area, flyout.ContentHeight));

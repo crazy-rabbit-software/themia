@@ -12,9 +12,10 @@ using Windows.Foundation;
 namespace Themia.App.Shell;
 
 /// <summary>
-/// [S-14910]..[S-14917] The widget gallery on this display: opened from its button beside Add widget (the add page stays
-/// as it is), a window flush under the bar hung from its button by a beak ([S-16558]), one of the bar's flyouts (one at a time); a drag off it is the one
-/// placement session, landing where the pointer lets go, the gallery stepping aside while it is aimed and coming back after.
+/// [S-14910]..[S-14917] [S-16728] The widget gallery on this display, the add page (owner, 2026-11-23: "the widget gallery
+/// will be the new add widget page"): opened from Add widget, a window flush under the bar hung from it by a beak ([S-16558]),
+/// one of the bar's flyouts (one at a time); a drag off it is the one placement session, landing where the pointer lets go,
+/// the gallery stepping aside while it is aimed and coming back after. Its last tab is Not on view ([S-16727]).
 /// </summary>
 internal sealed partial class DesktopWindow
 {
@@ -32,18 +33,24 @@ internal sealed partial class DesktopWindow
 
     private bool _galleryReleaseHooked;
 
+    /// <summary>[S-16727] A placement of icons dragged off the Not on view tab: the gallery steps aside for it and comes back after.</summary>
+    private bool _galleryIcons;
+
+    /// <summary>[S-13018] The lassoed area the gallery was opened for: Enter's widget goes into it; null for none.</summary>
+    private FracRect? _galleryArea;
+
 #if DEBUG
     /// <summary>Debug only: the gallery open here, for its render and its check.</summary>
     internal WidgetGalleryView? DebugGallery => _widgetGallery;
 
     /// <summary>Debug only: a flyout of the bar other than the gallery is open here (the selection's page over it would be).</summary>
-    internal bool BarMenuOpenOtherThanGallery => _flyout is not null || _addPage is not null;
+    internal bool BarMenuOpenOtherThanGallery => _flyout is not null;
 
     /// <summary>Debug only: the selection's page is open here (after a drop off the gallery, [S-16408]).</summary>
     internal bool SelectionPageOpen => _open.IsSelection && _flyout is not null;
 #endif
 
-    /// <summary>[S-14910] The bar's Widget gallery: the gallery opened, or closed again.</summary>
+    /// <summary>[S-14910] [S-16728] The bar's Add widget: the gallery opened, or closed again.</summary>
     private void ToggleWidgetGallery()
     {
         if (_widgetGallery is not null)
@@ -57,8 +64,9 @@ internal sealed partial class DesktopWindow
     }
 
     /// <summary>
-    /// [S-14910] [S-14912] The gallery's window on this display: every whole widget and ready-made group the add page
-    /// offers, by its subjects, built afresh each time it opens ([S-1109]). Only in edit mode and not while placing; any other flyout closes first.
+    /// [S-14910] [S-14912] The gallery's window on this display: every whole widget the add tree offers, by its subjects,
+    /// and [S-16727] the Not on view tab, built afresh each time it opens ([S-1109]). Only in edit mode and not while placing;
+    /// any other flyout closes first.
     /// </summary>
     internal void OpenWidgetGallery()
     {
@@ -68,8 +76,16 @@ internal sealed partial class DesktopWindow
         }
 
         CloseFlyout(focusEntry: false);
+        CloseWidgetGallery();
+        _galleryArea = null;
         var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(d => d.Id)], ReadyMadeGroups.Offered());
-        var gallery = new WidgetGalleryView(new WidgetGalleryCommands(BeginGalleryDrag, () => _ = _root.Focus(FocusState.Programmatic)), Backdrop, _host.State.Design, page);
+        var commands = new WidgetGalleryCommands(BeginGalleryDrag, () => _ = _root.Focus(FocusState.Programmatic))
+        {
+            PlaceHere = PlaceInArea,
+            Unplaced = UnplacedPart,
+            UnplacedTab = UnplacedTab,
+        };
+        var gallery = new WidgetGalleryView(commands, Backdrop, _host.State.Design, page);
         _widgetGallery = gallery;
         _galleryLayer.Children.Add(gallery);
         PlaceWidgetGallery();
@@ -80,10 +96,12 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-14910] Close the gallery, its cards and samples with it; never while its own drag is aimed.</summary>
     private void CloseWidgetGallery()
     {
-        if (_widgetGallery is not { } gallery || _galleryDragging)
+        if (_widgetGallery is not { } gallery || _galleryDragging || _galleryIcons)
         {
             return;
         }
+
+        _galleryArea = null;
 
         _galleryLayer.Children.Remove(gallery);
         gallery.Dispose();
@@ -103,6 +121,18 @@ internal sealed partial class DesktopWindow
         var area = WorkArea;
         var bar = EditBarRect(area);
         gallery.Place(metrics, RasterScale, area, bar.Y + bar.Height, GridGeometry.AllowedDips(metrics), SizesNow.Scale, _editBar.GalleryBox(_galleryLayer));
+    }
+
+    /// <summary>[S-13018] Enter's one widget into the lassoed area the gallery was opened for, at once; false: none, or it did not go.</summary>
+    private bool PlaceInArea(ViewState screen, IReadOnlyList<string> ids)
+    {
+        if (_galleryArea is not { } area || ids.Count != 1 || screen.Find(ids[0]) is not { } widget || !_host.PlaceWidgetIn(this, WidgetPick.Of(widget.Config), area))
+        {
+            return false;
+        }
+
+        CloseWidgetGallery();
+        return true;
     }
 
     /// <summary>
@@ -209,7 +239,20 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void GalleryAfterPlacing()
     {
-        if (!_galleryDragging || _host.Placing is not null)
+        if (_host.Placing is not null)
+        {
+            return;
+        }
+
+        // [S-16727] Icons dragged off the Not on view tab: placed or given up, the gallery is back on that tab.
+        if (_galleryIcons)
+        {
+            _galleryIcons = false;
+            _widgetGallery?.EndFollow();
+            _widgetGallery?.SyncUnplaced();
+        }
+
+        if (!_galleryDragging)
         {
             return;
         }

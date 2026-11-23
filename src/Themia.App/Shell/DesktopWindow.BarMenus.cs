@@ -86,8 +86,6 @@ internal sealed partial class DesktopWindow
             SettingsPageId.Display => () => PageRows.Of(SettingsPages.Display(display)),
             SettingsPageId.Views => () => PageRows.Of(SettingsPages.Views(views)),
 
-            // [S-13700] Its list: this display's view's unplaced desktop icons.
-            SettingsPageId.DesktopItems => () => PageRows.Of(SettingsPages.DesktopItems(), UnplacedPart),
             // [S-2311] Its preview: this display's wallpaper and real cards in the design as it stands; [S-2364] kept.
             _ => () => PageRows.Of(SettingsPages.Appearance(settings), KeptPreview),
         };
@@ -163,6 +161,14 @@ internal sealed partial class DesktopWindow
     {
         if (_closed || !EditMode || _host.Placing is not null)
         {
+            return;
+        }
+
+        // [S-16727] Unplaced icons is the widget gallery's Not on view tab now: a way to its page opens the gallery there.
+        if (page == SettingsPageId.DesktopItems)
+        {
+            OpenWidgetGallery();
+            _widgetGallery?.ShowUnplaced();
             return;
         }
 
@@ -251,8 +257,7 @@ internal sealed partial class DesktopWindow
 
     private void CloseFlyoutNow(bool focusEntry)
     {
-        // [S-11707] The add page is one of the bar's flyouts: one at a time, closed with the rest; [S-14910] the gallery too.
-        CloseAddPage(focusAdd: false);
+        // [S-14910] [S-16728] The gallery (Add widget's) is one of the bar's flyouts: one at a time, closed with the rest.
         CloseWidgetGallery();
         if (_flyout is not { } flyout)
         {
@@ -327,7 +332,7 @@ internal sealed partial class DesktopWindow
     /// </summary>
     private void OnPressForBarMenu(object sender, PointerRoutedEventArgs e)
     {
-        FrameworkElement? open = (FrameworkElement?)_flyout ?? _addPage;
+        FrameworkElement? open = _flyout;
         if (open is null || e.OriginalSource is not DependencyObject source || (_flyout is not null && _open.StaysOpen))
         {
             return;

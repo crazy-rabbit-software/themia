@@ -30,12 +30,9 @@ namespace Themia.App.Shell;
 /// <summary>Adding a widget: the picker, the ghost and the click that places it.</summary>
 internal sealed partial class DesktopWindow
 {
-    /// <summary>[S-11707] The add page, while it is open on this display.</summary>
-    private AddPageFlyout? _addPage;
-
     /// <summary>
-    /// [S-13018] Add widget here, from a lassoed area's menu: edit mode on, the add page opened; the widget picked there is
-    /// laid into <paramref name="area"/> at once (no ghost to aim). A ready-made group or a desktop item still follows the pointer.
+    /// [S-13018] [S-16728] Add widget here, from a lassoed area's menu: edit mode on, the widget gallery opened; a widget
+    /// placed from it with Enter is laid into <paramref name="area"/> at once (no ghost to aim); a drag lands where it is let go.
     /// </summary>
     internal void OpenAddPageFor(FracRect area)
     {
@@ -51,121 +48,12 @@ internal sealed partial class DesktopWindow
 
         Step(() =>
         {
-            OpenAddPage();
-            if (_addPage is not null)
+            OpenWidgetGallery();
+            if (_widgetGallery is not null)
             {
-                Become(OpenFlyout.Adding(area));
+                _galleryArea = area;
             }
         });
-    }
-
-    /// <summary>[S-11707] The bar's Add: the add page opened, or closed again.</summary>
-    private void ToggleAddPage() => Step(() =>
-    {
-        if (_addPage is not null)
-        {
-            CloseAddPage(focusAdd: false);
-        }
-        else
-        {
-            OpenAddPage();
-        }
-    });
-
-    /// <summary>
-    /// [S-11700] [S-11707] The add page under the bar, the caret in its search box so typing searches at
-    /// once. Built from the catalogue, the ready-made groups and this view's unplaced desktop items each
-    /// time it opens, so a language switch, a new kind and a placed item are followed ([S-1109]). Only in
-    /// edit mode and not while placing: the bar is not there otherwise. Any other flyout closes first.
-    /// </summary>
-    internal void OpenAddPage() => Step(OpenAddPageNow);
-
-    private void OpenAddPageNow()
-    {
-        if (_closed || !EditMode || _host.Placing is not null)
-        {
-            return;
-        }
-
-        if (_addPage is null)
-        {
-            CloseFlyout(focusEntry: false);
-            var itemKind = ModuleCatalog.Widgets.FirstOrDefault(d => typeof(IDesktopItemConfig).IsAssignableFrom(d.ConfigType))?.Id;
-            var page = AddPage.Of([.. ModuleCatalog.Widgets.Select(d => d.Id)], ReadyMadeGroups.Offered(), itemKind, _host.UnplacedDesktopItems(CurrentViewId));
-            _addPage = new AddPageFlyout(page, new AddPageCommands(PickFromAddPage, () => CloseAddPage(focusAdd: true), tile => _host.WouldRefuse(Creates(tile))));
-            UiLanguage.ApplyFlow(_addPage);
-            _addPage.View.Drawn += PlaceAddPage;
-            _flyoutLayer.Children.Add(_addPage);
-            Become(OpenFlyout.Adding());
-        }
-
-        ShowEditBar();
-        PlaceAddPage();
-        _addPage.View.FocusSearch();
-    }
-
-    /// <summary>[S-11707] Close the add page; the keyboard back on Add where it was closed from the keyboard.</summary>
-    private void CloseAddPage(bool focusAdd)
-    {
-        if (_addPage is not { } page)
-        {
-            return;
-        }
-
-        _flyoutLayer.Children.Remove(page);
-        _addPage = null;
-        Become(OpenFlyout.None);
-        if (focusAdd)
-        {
-            _editBar.FocusAdd();
-        }
-    }
-
-    /// <summary>[S-11707] Hung flush under the bar, as wide, inside the work area.</summary>
-    private void PlaceAddPage()
-    {
-        if (_closed || _addPage is not { } page || !Metrics.IsUsable)
-        {
-            return;
-        }
-
-        var area = WorkArea;
-        page.Place(EditBarRect(area), area);
-    }
-
-    /// <summary>[S-1065] How many widgets placing a tile creates: the licence's question before the ghost.</summary>
-    private static int Creates(AddTile tile) => tile is AddGroupTile group ? group.Group.Widgets.Count : 1;
-
-    /// <summary>
-    /// [S-11702] [S-421] A tile was picked: the page closes and the placement session starts, the ghost
-    /// of the widget, of every widget of the recipe, or of the desktop item's widget under the pointer.
-    /// The licence gate is the session's own ([S-1065]).
-    /// </summary>
-    private void PickFromAddPage(AddTile tile)
-    {
-        var area = _open.AddArea;
-        CloseAddPage(focusAdd: false);
-
-        // [S-13018] Opened for a lassoed area: the widget goes into it.
-        if (area is { } into && tile is AddWidgetTile kindTile && _host.PlaceWidgetIn(this, kindTile.Pick, into))
-        {
-            return;
-        }
-
-        switch (tile)
-        {
-            case AddWidgetTile one:
-                _host.BeginPlacement(one.Pick);
-                break;
-            case AddGroupTile group:
-                // [S-2471] One click places the recipe: loose widgets, selected together ([S-2475]).
-                _host.BeginPlacement(PlacementPayload.ForReadyMade(group.Group));
-                break;
-            case AddItemTile item:
-                // [S-5523] Its widget, placed like any widget.
-                _host.BeginPlacement([item.Item], Metrics);
-                break;
-        }
     }
 
     /// <summary>
@@ -409,7 +297,6 @@ internal sealed partial class DesktopWindow
         PlaceFlyout();
         HideGhost();
         DropIconGhosts();
-        ReopenUnplacedAfterPlacing();
         GalleryAfterPlacing();
     }
 

@@ -10,8 +10,8 @@ namespace Themia.Core.Tests;
 
 /// <summary>
 /// [S-14911]..[S-14913] [S-16400]..[S-16408] [S-16550]..[S-16555] The widget gallery's arrangement: a category as a column
-/// bento of whole cells, one cell between two pieces and no hole in a column; a piece in focus that stays where it stood with
-/// its words and styles round it; its scrolling, its keys, its window under the bar.
+/// bento of whole cells, one cell between two pieces and no hole in a column, each piece's title counted; Quick settings in
+/// sections under headings; its scrolling, its keys, its window under the bar.
 /// </summary>
 public sealed class WidgetGalleryTests
 {
@@ -25,15 +25,10 @@ public sealed class WidgetGalleryTests
     /// <summary>
     /// Sizes by the piece's name: "w30x20" is 30 × 20 cells and stretches both ways (least 3 each way); "m30x20" too, up to
     /// twice that; "f30x20" keeps that size; "g30x20" may be wider (to every third width) but neither smaller nor taller (a ready-made group); a letter
-    /// after the height tells two of a size apart. Its words' card is 12 × 8, any size over it.
+    /// after the height tells two of a size apart.
     /// </summary>
     private static PieceSize Size(GalleryPiece piece)
     {
-        if (piece.Role == GalleryRole.About)
-        {
-            return new PieceSize(12, 8, 12, 8, true, true);
-        }
-
         var name = piece.Kind!.Value.Value;
         var x = name.IndexOf('x', StringComparison.Ordinal);
         var tall = new string([.. name[(x + 1)..].TakeWhile(char.IsAsciiDigit)]);
@@ -196,63 +191,58 @@ public sealed class WidgetGalleryTests
         Assert.Equal(0, none.Rows);
     }
 
-    [Fact]
-    public void S16555_a_piece_in_focus_has_its_words_and_its_other_styles_round_it_nothing_else()
-    {
-        var category = Category("w20x10", "w30x12", "w14x8", "w18x9", "w16x8");
-        var picked = category.Pieces[1];
-
-        var focus = WidgetGallery.Focus(category, picked, otherStyles: [1, 2, 3]);
-
-        Assert.Equal([GalleryRole.Picked, GalleryRole.About, GalleryRole.Style, GalleryRole.Style, GalleryRole.Style], focus.Pieces.Select(p => p.Role));
-        Assert.Equal(picked.Kind, focus.Pieces[0].Kind);
-        Assert.Equal([1, 2, 3], focus.Pieces.Where(p => p.Role == GalleryRole.Style).Select(p => p.Style!.Value));
-        Assert.All(focus.Pieces.Where(p => p.Role == GalleryRole.Style), p => Assert.Equal(picked.Kind, p.Kind));
-        Assert.Equal(focus.Pieces.Count, focus.Pieces.Select(p => p.Key).Distinct().Count());
-
-        // One style: its words alone. A group: its words alone, whatever styles are said.
-        Assert.Equal([GalleryRole.Picked, GalleryRole.About], WidgetGallery.Focus(category, category.Pieces[0], []).Pieces.Select(p => p.Role));
-        var group = new GalleryPiece("group:g", null, null);
-        Assert.Equal([GalleryRole.Picked, GalleryRole.About], WidgetGallery.Focus(category with { Pieces = [group, .. category.Pieces] }, group, [1, 2]).Pieces.Select(p => p.Role));
-    }
-
     [Theory]
-    [InlineData(0, 0)]
-    [InlineData(20, 10)]
-    [InlineData(40, 30)]
-    [InlineData(0, 40)]
-    public void S16554_the_piece_in_focus_never_moves_its_words_and_styles_stand_round_it(int x, int y)
+    [InlineData(0)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void S16721_each_title_takes_rows_over_its_card_inside_its_tile_and_the_columns_count_it(int title)
     {
-        var category = Category("w20x10", "w24x12", "w14x8");
-        var focus = WidgetGallery.Focus(category, category.Pieces[1], otherStyles: [1, 2, 3, 4]);
-        var stays = new CellBox(x, y, 20, 12);
+        var category = Category("w20x10", "w24x12", "w14x8", "f10x6", "f10x6b", "m16x9");
 
-        var sheet = WidgetGallery.LayFocus(focus, stays, Wide, rows: 50, Size);
+        var sheet = WidgetGallery.Lay(category, Wide, Size, title);
 
-        Assert.Equal(new GalleryTile(focus.Pieces[0], stays), sheet.Tiles[0]);
-        Assert.Equal(focus.Pieces, sheet.Tiles.Select(t => t.Piece));
+        Assert.Equal(title, sheet.Title);
         AssertTidy(sheet, Wide);
-        Assert.True(sheet.Rows >= 50);
+        Assert.Equal(0, WidgetGallery.Holes(sheet));
+        foreach (var tile in sheet.Tiles)
+        {
+            var card = sheet.CardOf(tile);
+            Assert.Equal(tile.Box.Y + title, card.Y);
+            Assert.Equal(tile.Box.Bottom, card.Bottom);
+            Assert.Equal(tile.Box.W, card.W);
 
-        // Its words stand next to it: beside it from its top, or under it.
-        var about = sheet.Tiles[1].Box;
-        Assert.True(about.Y == stays.Y || about.Y == stays.Bottom + WidgetGallery.Gap, $"its words at {about}, it at {stays}");
+            // A card that keeps its size keeps it under its title.
+            if (tile.Piece.Kind!.Value.Value[0] == 'f')
+            {
+                Assert.Equal(6, card.H);
+            }
+        }
     }
 
     [Fact]
-    public void S16554_a_card_too_wide_for_the_room_round_the_piece_stands_under_everything_never_over_another()
+    public void S16725_sections_stand_under_their_headings_in_order_never_interleaved()
     {
-        // Regression: on a narrow sheet the words' card (least 12) fitted no column beside or under the piece and was laid
-        // wider than its column, over the cards beside it.
-        var category = Category("w8x8", "w8x8b");
-        var focus = WidgetGallery.Focus(category, category.Pieces[0], otherStyles: [1, 2]);
-        var stays = new CellBox(10, 5, 10, 8);
+        var toggles = new GallerySection(LocalText.Fixed("Tile"), [.. new[] { "f6x6", "f4x4", "f6x6b", "f4x4b", "f6x6c" }.Select(Piece)]);
+        var power = new GallerySection(LocalText.Fixed("Power"), [.. new[] { "f6x6d", "f4x4d" }.Select(Piece)]);
+        var category = Category() with { Sections = [toggles, power], Pieces = [.. toggles.Pieces, .. power.Pieces] };
 
-        var sheet = WidgetGallery.LayFocus(focus, stays, 30, rows: 20, Size);
+        var sheet = WidgetGallery.Lay(category, 20, Size, title: 3, heading: 2);
 
-        Assert.Equal(stays, sheet.Tiles[0].Box);
-        AssertTidy(sheet, 30);
-        Assert.True(sheet.Tiles[1].Box.W >= 12, $"its words at {sheet.Tiles[1].Box}");
+        Assert.Equal(0, sheet.Title);
+        Assert.Equal(["Tile", "Power"], sheet.Headings.Select(h => h.Text.Text()));
+        Assert.Equal([.. toggles.Pieces, .. power.Pieces], sheet.Tiles.Select(t => t.Piece));
+        AssertTidy(sheet, 20);
+        var (first, second) = (sheet.Headings[0].Box, sheet.Headings[1].Box);
+        Assert.Equal((0, 2, 20), (first.Y, first.H, first.W));
+        Assert.All(sheet.Tiles.Take(5), t => Assert.True(t.Box.Y >= first.Bottom && t.Box.Bottom < second.Y, $"{t.Piece.Key} at {t.Box}"));
+        Assert.All(sheet.Tiles.Skip(5), t => Assert.True(t.Box.Y >= second.Bottom, $"{t.Piece.Key} at {t.Box}"));
+
+        // In their order, left to right, a new row where the width ends; each at the size it asks.
+        Assert.Equal([0, 7, 12, 0, 5], sheet.Tiles.Take(5).Select(t => t.Box.X));
+        Assert.Equal(sheet.Tiles[0].Box.Y, sheet.Tiles[2].Box.Y);
+        Assert.Equal(sheet.Tiles[0].Box.Y + 7, sheet.Tiles[3].Box.Y);
+        Assert.Equal(new CellBox(0, sheet.Tiles[0].Box.Y, 6, 6), sheet.Tiles[0].Box);
+        Assert.Equal(sheet.Tiles.Max(t => t.Box.Bottom), sheet.Rows);
     }
 
     [Theory]

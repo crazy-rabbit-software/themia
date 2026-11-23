@@ -1222,8 +1222,7 @@ with the widget's sample data. Rules for a sample:
   shows its final state (a switch where it is, not animating) and waits for its own asynchronous
   pictures itself (the gallery's decodes).
 
-`Themia.exe --check add-pictures <out.png>` ([S-11854]) runs in a Release build and says how many of the
-Start tab's pictures it drew.
+The widget gallery (Add widget's page, [S-16728]) draws its cards on these samples; `--render gallery` shows them.
 
 ## 7. Building a service widget (the recipe)
 

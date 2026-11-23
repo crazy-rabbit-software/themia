@@ -27,7 +27,17 @@ namespace Themia.App.Shell;
 /// <summary>[S-14916] What the gallery asks of its surface.</summary>
 /// <param name="Drag">Widgets of the screen shown (<c>screen</c>, a view of new widgets on their cells) picked up at a point of the surface (DIPs): the placement starts.</param>
 /// <param name="TakeKeys">[S-16557] The keyboard taken out of the search box back to the surface (a press on the cards): the arrows, Enter and Escape are the gallery's again.</param>
-internal sealed record WidgetGalleryCommands(Action<ViewState, IReadOnlyList<string>, Point> Drag, Action TakeKeys);
+internal sealed record WidgetGalleryCommands(Action<ViewState, IReadOnlyList<string>, Point> Drag, Action TakeKeys)
+{
+    /// <summary>[S-13018] Enter's pick put where the gallery was opened for (a lassoed area) at once; false: it is placed as a drag is.</summary>
+    public Func<ViewState, IReadOnlyList<string>, bool>? PlaceHere { get; init; }
+
+    /// <summary>[S-16727] The Not on view tab's page: the desktop's icons this display's view does not place (null: no such tab).</summary>
+    public Func<UnplacedPageView>? Unplaced { get; init; }
+
+    /// <summary>[S-16727] The Not on view tab's words and count.</summary>
+    public Func<(string Title, int Count)>? UnplacedTab { get; init; }
+}
 
 /// <summary>
 /// [S-14910]..[S-14917] [S-16400]..[S-16410] The widget gallery (owner, 2026-11-21: "on the independent page it should
@@ -39,10 +49,9 @@ internal sealed record WidgetGalleryCommands(Action<ViewState, IReadOnlyList<str
 /// the display's edit bar (<see cref="WidgetGallery.Frame"/>): the categories' tabs and the search box over a well, the
 /// display's blurred wallpaper dimmed with the display's own grid on it, in which the category (or what the search finds)
 /// stands as a bento of real cards on their samples (<see cref="SampleWorld"/>, <see cref="SampleCards"/>;
-/// <see cref="WidgetGallery.Lay"/>), every card on the display's cells: a cell of the gallery is a cell of the desktop. A
-/// click on a card puts its piece in focus (<see cref="WidgetGallery.Focus"/>): the others fade, and round it stand its
-/// words as a card of their own, its other styles (or sizes) and its neighbours, every one a real card to drag; a click
-/// away or Escape brings the category back. The edit mode's selection rules pick (a press, Ctrl or Shift, the lasso; a
+/// <see cref="WidgetGallery.Lay"/>), every card on the display's cells: a cell of the gallery is a cell of the desktop, its
+/// name a small title over it ([S-16721]). [S-16722] A click on a card picks it and does nothing more: nothing moves,
+/// fades or appears. The edit mode's selection rules pick (a press, Ctrl or Shift, the lasso; a
 /// group is picked whole), the arrows move the pick, Enter places it. Dragging the pick hands it to the surface
 /// (<see cref="WidgetGalleryCommands.Drag"/>), which starts the one placement session; while it is aimed the gallery
 /// steps aside and the cards picked up follow the ghost (<see cref="Follow"/>) from exactly where they stood.
@@ -130,8 +139,20 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
     private readonly List<WidgetCard> _cards = [];
 
-    /// <summary>[S-16404] The words' cards of the sheet shown, by their tile.</summary>
-    private readonly List<(int Tile, Border Card)> _abouts = [];
+    /// <summary>[S-16721] [S-16725] The titles and headings of the sheet shown, each on its box of the sheet.</summary>
+    private readonly List<(FrameworkElement Label, CellBox Box)> _labels = [];
+
+    /// <summary>[S-16727] The Not on view tab (last), its page while it is shown, and the room it stands in.</summary>
+    private readonly PageTabButton? _unplacedTab;
+    private readonly ScrollViewer _unplacedRoom = new()
+    {
+        HorizontalScrollMode = ScrollMode.Disabled,
+        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+        Visibility = Visibility.Collapsed,
+    };
+
+    private UnplacedPageView? _unplaced;
     private readonly Host _host;
 
     private ScreenMetrics _metrics;
@@ -146,16 +167,8 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// <summary>[S-14913] The category chosen (its place in <see cref="_categories"/>).</summary>
     private int _at;
 
-    /// <summary>[S-16402] What the bento shows when nothing is in focus: the category chosen, or what the search finds.</summary>
+    /// <summary>[S-16402] What the bento shows: the category chosen, or what the search finds.</summary>
     private GalleryCategory? _base;
-
-    /// <summary>[S-16404] The focus shown (<see cref="WidgetGallery.Focus"/>), or null: the base is shown.</summary>
-    private GalleryCategory? _focus;
-
-    /// <summary>[S-16554] The base laid (what a focus leaves back to, as it stood), and the tile of it in focus.</summary>
-    private GallerySheet? _baseSheet;
-
-    private int _focusFrom;
 
     private GallerySheet? _laid;
     private int _scroll;
@@ -218,6 +231,15 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             _tabs.Children.Add(new PageTabButton(id.ToString(), category.Title.Text(), () => ShowCategory(id)));
         }
 
+        // [S-16727] The desktop's icons this view does not place, the last tab (owner, 2026-11-23: "not on home should be a tab
+        // in the widget gallery now").
+        if (commands.Unplaced is not null && commands.UnplacedTab is not null)
+        {
+            _unplacedTab = new PageTabButton(UnplacedKey, string.Empty, ShowUnplaced);
+            _tabs.Children.Add(_unplacedTab);
+            SyncUnplacedTab();
+        }
+
         AutomationProperties.SetName(_tabs, Str.WidgetGallery_Categories.Text());
         var tabScroll = _tabScroll = new ScrollViewer
         {
@@ -273,6 +295,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         _stage.Children.Add(_cardLayer);
         _stage.Children.Add(_markPlates);
         _stage.Children.Add(_input);
+        _stage.Children.Add(_unplacedRoom);
         _stage.Children.Add(_band);
         _stage.Children.Add(_wellRim);
         _stage.Children.Add(_scrollBar);
@@ -300,10 +323,17 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// <summary>[S-14912] The sheet shown: its tiles.</summary>
     internal GallerySheet? Sheet => _laid;
 
-    /// <summary>[S-16404] Whether a piece is in focus, and which (its key).</summary>
-    internal bool Focused => _focus is not null;
+    /// <summary>[S-16727] The Not on view tab's key.</summary>
+    internal const string UnplacedKey = "unplaced";
 
-    internal string? FocusKey => _focus?.Pieces[0].Key;
+    /// <summary>[S-16727] Whether the Not on view tab is shown.</summary>
+    internal bool UnplacedShown => _unplaced is not null;
+
+    /// <summary>[S-16727] The Not on view tab's page while it is shown; null otherwise.</summary>
+    internal UnplacedPageView? UnplacedPart => _unplaced;
+
+    /// <summary>[S-16727] The room the Not on view tab's page stands in (surface DIPs); null while it is not shown.</summary>
+    internal DipRect? UnplacedRoom => _unplaced is not null && _frame is { } frame ? frame.Well : null;
 
     /// <summary>[S-16402] Whether what the search finds is shown in place of a category.</summary>
     internal bool Searching => AddPage.Searching(_search.Text);
@@ -334,8 +364,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     /// <summary>The card of a widget of the screen shown, for a check.</summary>
     internal WidgetCard? CardOf(string id) => _cards.Find(c => string.Equals(c.Model.Id, id, StringComparison.Ordinal));
 
-    /// <summary>[S-16404] The words' cards shown, for a check.</summary>
-    internal int Abouts => _abouts.Count;
+    /// <summary>[S-16721] [S-16725] The titles and headings shown, for a check: each one's words and its box (surface DIPs).</summary>
+    internal IReadOnlyList<(string Text, DipRect Box)> Labels
+        => [.. _labels.Select(l => (((l.Label as Border)?.Child as TextBlock)?.Text ?? string.Empty, new DipRect(Canvas.GetLeft(l.Label), Canvas.GetTop(l.Label), l.Label.Width, l.Label.Height)))];
 
     /// <summary>[S-16557] [S-16560] Where the search box, the hint and the tabs' line stand now (surface DIPs; null: not shown), for a check.</summary>
     internal DipRect? SearchBoxShown => Shown(_search);
@@ -431,15 +462,18 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         _view = frame.View;
         _sizes = null;
-        if (_base is null)
+        SetBox(_unplacedRoom, frame.Well);
+        if (_unplaced is not null)
+        {
+            _unplaced.Width = Math.Max(0, frame.Well.Width);
+        }
+        else if (_base is null)
         {
             Show(_at);
         }
         else
         {
-            // Laid again for the display: a focus is left, the base laid afresh.
-            _focus = null;
-            Present(_base, Lay(_base), keep: null);
+            Present(_base, Lay(_base));
         }
     }
 
@@ -552,9 +586,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
 
         _base = _categories[_at];
-        _focus = null;
         _scroll = 0;
-        Present(_base, Lay(_base), keep: null);
+        LeaveUnplaced();
+        Present(_base, Lay(_base));
     }
 
     /// <summary>[S-16401] A category's bento (its tab).</summary>
@@ -568,6 +602,98 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
                 return;
             }
         }
+    }
+
+    /// <summary>
+    /// [S-16727] The Not on view tab (owner, 2026-11-23: "not on home should be a tab in the widget gallery now. it should be
+    /// removed from the topbar root"): the well holds the desktop's icons this display's view does not place, as the page under
+    /// the bar held them ([S-13700]..[S-13713]: dragged onto the desktop they are placed, desktop icons moved onto it leave the
+    /// view); the cards, their grid and the search's finds go.
+    /// </summary>
+    internal void ShowUnplaced()
+    {
+        if (_disposed || _commands.Unplaced is not { } make || _frame is not { } frame)
+        {
+            return;
+        }
+
+        if (_unplaced is null)
+        {
+            Settle();
+            foreach (var card in _cards)
+            {
+                LetGo(card);
+            }
+
+            foreach (var (label, _) in _labels)
+            {
+                _cardLayer.Children.Remove(label);
+            }
+
+            _cards.Clear();
+            _labels.Clear();
+            _placed.Clear();
+            _selection.Clear();
+            _selected.Clear();
+            _screen = Empty();
+            _laid = null;
+            _marks.Frame.Hide();
+            _unplaced = make();
+            _unplaced.Width = Math.Max(0, frame.Well.Width);
+            _unplacedRoom.Content = _unplaced;
+        }
+
+        _unplacedRoom.Visibility = Visibility.Visible;
+        _input.Visibility = Visibility.Collapsed;
+        _grid.Visibility = Visibility.Collapsed;
+        _scrollBar.Visibility = Visibility.Collapsed;
+        foreach (PageTabButton tab in _tabs.Children)
+        {
+            tab.Chosen = ReferenceEquals(tab, _unplacedTab);
+        }
+
+        SyncUnplacedTab();
+    }
+
+    /// <summary>[S-16727] Off the Not on view tab: its page goes, the cards' room is back.</summary>
+    private void LeaveUnplaced()
+    {
+        if (_unplaced is not { } page)
+        {
+            return;
+        }
+
+        _unplacedRoom.Content = null;
+        _unplacedRoom.Visibility = Visibility.Collapsed;
+        _unplaced = null;
+        page.Dispose();
+        _input.Visibility = Visibility.Visible;
+        _grid.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>[S-13706] [S-16727] The state or the desktop's listing changed: the tab's count, and its page when shown, follow.</summary>
+    internal void SyncUnplaced()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        SyncUnplacedTab();
+        _unplaced?.Refresh();
+    }
+
+    /// <summary>[S-16727] The tab's words, "Not on" the view's name, and its count (none while every icon is placed).</summary>
+    private void SyncUnplacedTab()
+    {
+        if (_unplacedTab is not { } tab || _commands.UnplacedTab is not { } read)
+        {
+            return;
+        }
+
+        var (title, count) = read();
+        tab.Title = title;
+        tab.Count(Themia.Core.Desktop.UnplacedItems.Badge(count), count > 0 ? Str.Unplaced_Badge.Plural(count) : null);
     }
 
     /// <summary>[S-16402] Search for <paramref name="text"/> as typing into the box does (a render's, a check's): at once.</summary>
@@ -616,18 +742,18 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             return;
         }
 
-        _focus = null;
         _searched = _search.Text;
         _base = WidgetGallery.Find(_page, _categories, _search.Text) ?? _categories[Math.Clamp(_at, 0, _categories.Count - 1)];
         _scroll = 0;
-        Present(_base, Lay(_base), keep: null);
+        LeaveUnplaced();
+        Present(_base, Lay(_base));
     }
 
     /// <summary>[S-16550] A category (or search) laid as the column bento in the view's width.</summary>
     private GallerySheet Lay(GalleryCategory content)
     {
         var clock = Stopwatch.StartNew();
-        var sheet = WidgetGallery.Lay(content, _view.W, Size);
+        var sheet = WidgetGallery.Lay(content, _view.W, Size, Sizes.TitleRows, Sizes.HeadingRows);
         LastLay = clock.Elapsed;
         return sheet;
     }
@@ -636,53 +762,12 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     internal TimeSpan LastLay { get; private set; }
 
     /// <summary>
-    /// [S-16554] [S-16555] [S-16556] Put the piece of the card <paramref name="id"/> in focus (owner, 2026-11-23: "when
-    /// clicking on a widget in the gallery it should not move when the preview of the different styles appears"; "it should
-    /// now only show the styles"): the card stays exactly where it stands, the others fade out, and in the room they leave its
-    /// words and its other styles fade in round it. Nothing for a card of no piece, or while a piece is in focus already: a
-    /// click then picks (owner: "when you click through further after you selected a widget it should not navigate anymore").
+    /// [S-14912] [S-16721] [S-16725] Stand <paramref name="content"/>, laid as <paramref name="sheet"/>, on the display's
+    /// cells, scrolled as it stands, nothing picked: the cards shown before fade out and the new ones fade in (a tab or a
+    /// search changed), each under its title, or a section's under its heading. Every piece is built, the ones under the
+    /// well's foot too: scrolling moves cards, it builds none.
     /// </summary>
-    internal void FocusOn(string id)
-    {
-        if (_disposed || _base is null || _focus is not null || _laid is not { } sheet || !_placed.TryGetValue(id, out var at) || CardOf(id) is not { } card)
-        {
-            return;
-        }
-
-        var whole = sheet.Tiles[at.Tile].Piece;
-        IReadOnlyList<int> styles = [];
-        if (whole.Kind is { } kind && whole.Group is null)
-        {
-            var current = WidgetStyles.Current(card.Model.Config);
-            styles = [.. WidgetStyles.For(kind).Select(o => o.Value).Where(v => v != current)];
-        }
-
-        _baseSheet = sheet;
-        _focusFrom = at.Tile;
-        _focus = WidgetGallery.Focus(_base, whole, styles);
-        Present(_focus, WidgetGallery.LayFocus(_focus, sheet.Tiles[at.Tile].Box, _view.W, sheet.Rows, Size), keep: (at.Tile, 0));
-    }
-
-    /// <summary>[S-16554] Leave the focus: the category (or search) back as it stood, the piece in focus never moving.</summary>
-    internal void LeaveFocus()
-    {
-        if (_disposed || _focus is null || _base is null || _baseSheet is not { } back)
-        {
-            return;
-        }
-
-        _focus = null;
-        Present(_base, back, keep: (0, _focusFrom));
-    }
-
-    /// <summary>
-    /// [S-14912] [S-16404] [S-16554] Stand <paramref name="content"/>, laid as <paramref name="sheet"/>, on the display's
-    /// cells, scrolled as it stands, nothing picked but the piece in focus: the cards shown before fade out and the new ones
-    /// fade in, but the cards of the tile <paramref name="keep"/> names (its tile shown now, its tile in the new sheet) stay
-    /// as they are, the same cards on the same cells: a piece put in focus, or left, never moves. Every piece is built, the
-    /// ones under the well's foot too: scrolling moves cards, it builds none.
-    /// </summary>
-    private void Present(GalleryCategory content, GallerySheet sheet, (int From, int To)? keep)
+    private void Present(GalleryCategory content, GallerySheet sheet)
     {
         if (_disposed || !_metrics.IsUsable)
         {
@@ -690,10 +775,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
 
         Settle();
-        var kept = keep is { } k ? _placed.Where(p => p.Value.Tile == k.From).Select(p => (Card: CardOf(p.Key), p.Value.Box)).Where(c => c.Card is not null).Select(c => (Card: c.Card!, c.Box)).ToList() : [];
-        var leaving = _cards.Where(c => !kept.Exists(k => ReferenceEquals(k.Card, c))).Cast<FrameworkElement>().Concat(_abouts.Select(a => a.Card)).ToList();
+        var leaving = _cards.Cast<FrameworkElement>().Concat(_labels.Select(l => l.Label)).ToList();
         _cards.Clear();
-        _abouts.Clear();
+        _labels.Clear();
         _marks.Frame.Hide();
         _selection.Clear();
         _selected.Clear();
@@ -703,11 +787,6 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         var (cols, rows) = GridGeometry.GridDims(_metrics);
         _laid = sheet;
-        if (keep is null)
-        {
-            _baseSheet = sheet;
-        }
-
         _scroll = Math.Clamp(_scroll, 0, MostScroll);
 
         var view = Empty();
@@ -715,38 +794,17 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         for (var t = 0; t < sheet.Tiles.Count; t++)
         {
             var tile = sheet.Tiles[t];
-            if (keep is { } into && t == into.To && kept.Count > 0)
+            var room = sheet.CardOf(tile);
+            if (sheet.Title > 0)
             {
-                foreach (var (card, box) in kept)
-                {
-                    // On its cells as the sheet is scrolled: where it stood, unless a shorter sheet held the scroll back.
-                    var rect = RectOf(box);
-                    if (!Lattice.Same(rect, card.Model.Rect))
-                    {
-                        card.Model.Rect = rect;
-                        card.SetLiveRect(rect);
-                        card.FollowMove(GridGeometry.PaintedCell(rect, _metrics, _raster));
-                    }
-
-                    _placed[card.Model.Id] = (t, box);
-                    view.Widgets.Add(card.Model);
-                    _cards.Add(card);
-                }
-
-                continue;
-            }
-
-            if (tile.Piece.Role == GalleryRole.About)
-            {
-                _abouts.Add((t, AboutCard(tile.Piece)));
-                continue;
+                _labels.Add((Label(Title(tile.Piece), FamilyType.Caption, "TextFillColorSecondaryBrush"), tile.Box with { H = sheet.Title }));
             }
 
             if (tile.Piece.Group is { } group)
             {
                 // [S-2471] A ready-made group as it is placed: its widgets with their own settings, laid as one block; [S-2460]
                 // made as wide as its box as one block, every member in its own sizing and every edge on a cell.
-                var laid = Sizes.Widen(group, tile.Box.W) ?? ReadyMadeGroups.Laid(group, _metrics, new PlacementSizes(_contentScale));
+                var laid = Sizes.Widen(group, room.W) ?? ReadyMadeGroups.Laid(group, _metrics, new PlacementSizes(_contentScale));
                 if (ReadyMadeGroups.Build(group, _metrics) is not { } members || members.Count != laid.Count)
                 {
                     continue;
@@ -754,7 +812,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
                 for (var i = 0; i < members.Count; i++)
                 {
-                    var box = new CellBox(tile.Box.X + (int)Math.Round(laid[i].X * cols), tile.Box.Y + (int)Math.Round(laid[i].Y * rows),
+                    var box = new CellBox(room.X + (int)Math.Round(laid[i].X * cols), room.Y + (int)Math.Round(laid[i].Y * rows),
                         Math.Max(1, (int)Math.Round(laid[i].W * cols)), Math.Max(1, (int)Math.Round(laid[i].H * rows)));
                     members[i].Rect = RectOf(box);
                     _placed[members[i].Id] = (t, box);
@@ -765,20 +823,20 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             else if (tile.Piece.Pick is { } kind)
             {
                 // [S-16685] A preset's card is its kind with the preset applied.
-                var widget = WidgetInstance.Create(kind, RectOf(tile.Box));
+                var widget = WidgetInstance.Create(kind, RectOf(room));
                 if (tile.Piece.Style is { } style)
                 {
                     WidgetStyles.Set(widget.Config, style);
                 }
 
                 // Its box, held to what its sizing takes on this display: what placing it then keeps.
-                var held = tile.Box;
+                var held = room;
                 if (SizeFit.Limits(widget, _metrics, _contentScale) is { } limits)
                 {
                     held = held with
                     {
-                        W = Math.Max(1, (int)Math.Round(limits.Width.Range(tile.Box.W / (double)cols) * cols)),
-                        H = Math.Max(1, (int)Math.Round(limits.Height.Range(tile.Box.H / (double)rows) * rows)),
+                        W = Math.Max(1, (int)Math.Round(limits.Width.Range(room.W / (double)cols) * cols)),
+                        H = Math.Max(1, (int)Math.Round(limits.Height.Range(room.H / (double)rows) * rows)),
                     };
                     widget.Rect = RectOf(held);
                 }
@@ -787,6 +845,11 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
                 view.Widgets.Add(widget);
                 made.Add(widget);
             }
+        }
+
+        foreach (var heading in sheet.Headings)
+        {
+            _labels.Add((Label(heading.Text.Text(), FamilyType.BodyStrong, "TextFillColorPrimaryBrush"), heading.Box));
         }
 
         _screen = view;
@@ -813,10 +876,10 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             }
         }
 
-        foreach (var (t, about) in _abouts)
+        foreach (var (label, box) in _labels)
         {
-            PlaceAbout(about, sheet.Tiles[t].Box);
-            _cardLayer.Children.Add(about);
+            PlaceLabel(label, box);
+            _cardLayer.Children.Add(label);
         }
 
         // [S-2240] Cards that touch are one panel: a group's own; pieces stand a cell apart and never join.
@@ -824,7 +887,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         for (var i = 0; i < _tabs.Children.Count; i++)
         {
             var tab = (PageTabButton)_tabs.Children[i];
-            tab.Chosen = !Searching && i == _at;
+            tab.Chosen = !Searching && i == _at && _unplaced is null;
 
             // [S-16566] On a line that scrolls (a small display) the chosen tab is scrolled into sight.
             if (tab.Chosen && !AllTabsShown)
@@ -833,114 +896,48 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             }
         }
 
-        // [S-16404] In focus the piece is picked.
-        if (_focus is not null && sheet.Tiles.Count > 0)
-        {
-            _cursor = 0;
-            _selection.Replace(ScreenViewId, _placed.Where(p => p.Value.Tile == 0).Select(p => p.Key));
-        }
-
         ShowScroll();
         Sync();
-        Animate(leaving, [.. fresh.Cast<FrameworkElement>().Concat(_abouts.Select(a => a.Card))]);
-        _ = SampleCards.ShowAsync(fresh, () => _disposed || !fresh.TrueForAll(_cards.Contains), Scope);
+        Animate(leaving, [.. fresh.Cast<FrameworkElement>().Concat(_labels.Select(l => l.Label))]);
+
+        // [S-16724] A quick toggle shows this PC's own state, as a placed card does: no sample over it.
+        var samples = fresh.Where(c => !Live(c)).ToList();
+        _ = SampleCards.ShowAsync(samples, () => _disposed || !samples.TrueForAll(_cards.Contains), Scope);
     }
+
+    /// <summary>[S-16724] Whether the card reads what it shows live (a quick toggle: Windows' own state), never a sample.</summary>
+    private static bool Live(WidgetCard card) => card.Model.Config is Themia.Core.Model.QuickToggleConfig;
+
+    /// <summary>[S-16721] A widget's (its preset's, [S-16685]; or a ready-made group's) name, its title in the gallery.</summary>
+    private static string Title(GalleryPiece piece)
+        => piece.Group is { } group ? group.Name.Text() : piece.Pick is { } pick ? pick.Name : string.Empty;
 
     /// <summary>
-    /// [S-16404] A piece's words as a card of the bento, as a widget stands (Windows' card fill and rim, its radius): its
-    /// glyph and name, what it is, its styles' count or how many widgets land together, what it needs (an account), and how
-    /// to place it.
+    /// [S-16721] [S-16725] A title over a card (Caption, secondary: subtle and small, owner, 2026-11-23: "give the widgets a
+    /// header above them that is their title. it should be subtile and small") or a section's heading (BodyStrong): one line
+    /// at the foot of its box, cut with an ellipsis, a step in from the card's corner.
     /// </summary>
-    private Border AboutCard(GalleryPiece piece)
+    private static Border Label(string text, TypeStep type, string brush)
     {
-        var body = new StackPanel { Spacing = Fluent.Space2 };
-        AddTileWords words;
-        var lines = new List<string>();
-        if (piece.Group is { } group)
-        {
-            words = AddTileWords.Of(new AddGroupTile(group));
-            lines.Add(Str.WidgetGallery_Group.Plural(group.Widgets.Count));
-        }
-        else
-        {
-            var pick = piece.Pick!.Value;
-            var kind = pick.Kind;
-            words = AddTileWords.Of(new AddWidgetTile(pick));
-            var styles = WidgetStyles.For(kind).Count;
-            if (styles > 1)
-            {
-                lines.Add(Str.WidgetGallery_Styles.Plural(styles));
-            }
-
-            var services = ModuleCatalog.Of(kind).Providers
-                .Select(id => ProviderCatalog.Offered.FirstOrDefault(p => p.Id == id)?.Label.Text())
-                .OfType<string>()
-                .ToList();
-            if (services.Count > 0)
-            {
-                lines.Add(Str.WidgetGallery_Needs.Format(("services", string.Join(", ", services))));
-            }
-        }
-
-        var head = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2 };
-        head.Children.Add(Fluent.Icon(words.Glyph, "TextFillColorPrimaryBrush", P.IconGlyph));
-        var name = Fluent.Text(FamilyType.BodyStrong);
-        name.Text = words.Name;
-        name.TextTrimming = TextTrimming.CharacterEllipsis;
-        head.Children.Add(name);
-        body.Children.Add(head);
-        Add(Fluent.Text(FamilyType.Body, "TextFillColorSecondaryBrush"), words.About);
-        foreach (var line in lines)
-        {
-            Add(Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush"), line);
-        }
-
-        var drag = Fluent.Text(FamilyType.Caption, "TextFillColorSecondaryBrush");
-        drag.Margin = new Thickness(0, Fluent.Space2, 0, 0);
-        Add(drag, Str.WidgetGallery_Drag.Text());
-
-        // A card standing on the well as the widgets do: Windows' card fill over its solid base, so the grid does not show through.
-        var card = new Border
-        {
-            Background = ShellBrush.Of(ShellRole.CardBase),
-            CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius),
-            IsHitTestVisible = false,
-            Child = new Border
-            {
-                Background = ShellBrush.Of(ShellRole.CardFill),
-                BorderBrush = ShellBrush.Of(ShellRole.CardStroke),
-                BorderThickness = new Thickness(FamilyShape.Hairline),
-                CornerRadius = new CornerRadius(ShellMetrics.OverlayRadius),
-                Padding = new Thickness(G.AboutPad),
-                Child = body,
-            },
-        };
-        UiLanguage.ApplyFlow(card);
-        AutomationProperties.SetName(card, words.Name);
-        return card;
-
-        void Add(TextBlock text, string said)
-        {
-            if (said.Length == 0)
-            {
-                return;
-            }
-
-            text.Text = said;
-            text.TextWrapping = TextWrapping.Wrap;
-            text.TextTrimming = TextTrimming.CharacterEllipsis;
-            body.Children.Add(text);
-        }
+        var words = Fluent.Text(type, brush);
+        words.Text = text;
+        words.TextWrapping = TextWrapping.NoWrap;
+        words.TextTrimming = TextTrimming.CharacterEllipsis;
+        words.VerticalAlignment = VerticalAlignment.Bottom;
+        words.Margin = new Thickness(Fluent.Space1, 0, Fluent.Space1, Fluent.Space1);
+        var label = new Border { Child = words, IsHitTestVisible = false };
+        UiLanguage.ApplyFlow(label);
+        return label;
     }
 
-    /// <summary>A words' card on its box of the sheet, as it stands scrolled.</summary>
-    private void PlaceAbout(Border about, CellBox box)
+    /// <summary>A title or heading on its box of the sheet, as it stands scrolled.</summary>
+    private void PlaceLabel(FrameworkElement label, CellBox box)
     {
         var cell = GridGeometry.PaintedCell(RectOf(box), _metrics, _raster);
-        about.Width = cell.Width;
-        about.Height = cell.Height;
-        Canvas.SetLeft(about, cell.X);
-        Canvas.SetTop(about, cell.Y);
+        label.Width = cell.Width;
+        label.Height = cell.Height;
+        Canvas.SetLeft(label, cell.X);
+        Canvas.SetTop(label, cell.Y);
     }
 
     /// <summary>[S-14912] A box of the sheet as it stands on the display now: from the view's corner, scrolled.</summary>
@@ -1075,9 +1072,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             card.FollowMove(GridGeometry.PaintedCell(rect, _metrics, _raster));
         }
 
-        foreach (var (t, about) in _abouts)
+        foreach (var (label, box) in _labels)
         {
-            PlaceAbout(about, _laid.Tiles[t].Box);
+            PlaceLabel(label, box);
         }
 
         EndPress();
@@ -1112,13 +1109,13 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
     /// <summary>
     /// [S-14913] [S-16407] The gallery's keys: the arrows move the pick from piece to piece (the sheet scrolled to show it),
-    /// Enter places the pick (or the piece in focus), Page Up/Down scroll by a page, Home and End to the top and the foot,
-    /// Ctrl+A picks every piece, Escape leaves the focus, then lets the pick go, then empties the search (with nothing of that
-    /// it is not the gallery's: it closes). While the search box has the keys they are its own but Escape.
+    /// Enter places the pick, Page Up/Down scroll by a page, Home and End to the top and the foot, Ctrl+A picks every piece,
+    /// Escape lets the pick go, then empties the search (with nothing of that it is not the gallery's: it closes). While the
+    /// search box has the keys they are its own but Escape. [S-16727] On the Not on view tab the keys are its page's.
     /// </summary>
     public bool HandleKey(VirtualKey key, bool ctrl)
     {
-        if (_disposed || _following is not null)
+        if (_disposed || _following is not null || _unplaced is not null)
         {
             return false;
         }
@@ -1158,9 +1155,6 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
                 _selection.Replace(ScreenViewId, SelectionRules.All(_screen));
                 Sync();
                 return true;
-            case VirtualKey.Escape when _focus is not null:
-                LeaveFocus();
-                return true;
             case VirtualKey.Escape when !_selection.IsEmpty:
                 _selection.Clear();
                 _cursor = null;
@@ -1182,15 +1176,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             return false;
         }
 
-        // The cards that can be picked: the words' card is no widget, the pick goes past it.
-        var pickable = Enumerable.Range(0, sheet.Tiles.Count).Where(i => sheet.Tiles[i].Piece.Role != GalleryRole.About).ToList();
-        if (pickable.Count == 0)
-        {
-            return false;
-        }
-
-        var from = pickable.IndexOf(_cursor ?? CursorOfPick() ?? -1);
-        var to = pickable[WidgetGallery.Next(sheet with { Tiles = [.. pickable.Select(i => sheet.Tiles[i])] }, from < 0 ? null : from, move)];
+        var to = WidgetGallery.Next(sheet, _cursor ?? CursorOfPick(), move);
         _cursor = to;
         _selection.Replace(ScreenViewId, _placed.Where(p => p.Value.Tile == to).Select(p => p.Key));
         ScrollTo(WidgetGallery.Reveal(_scroll, sheet.Tiles[to].Box, _view.H, MostScroll));
@@ -1200,13 +1186,21 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
     private int? CursorOfPick() => _selection.Ids.Count > 0 && _placed.TryGetValue(_selection.Ids[^1], out var at) ? at.Tile : null;
 
-    /// <summary>[S-16407] Enter: the pick (or the piece in focus) placed, held at its middle: the ghost follows the pointer from there.</summary>
+    /// <summary>
+    /// [S-16407] Enter: the pick placed, held at its middle: the ghost follows the pointer from there; [S-13018] opened for a
+    /// lassoed area, it goes into it at once where it can.
+    /// </summary>
     internal bool PlacePick()
     {
         var ids = SelectionRules.InView(_screen, _selection.Ids);
         if (ids.Count == 0)
         {
             return false;
+        }
+
+        if (_commands.PlaceHere is { } here && here(_screen, ids))
+        {
+            return true;
         }
 
         var last = _screen.Find(ids[^1])!.Rect;
@@ -1250,9 +1244,9 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             card.Opacity = _following.Contains(card) ? 1 : 0;
         }
 
-        foreach (var (_, about) in _abouts)
+        foreach (var (label, _) in _labels)
         {
-            about.Opacity = 0;
+            label.Opacity = 0;
         }
     }
 
@@ -1295,14 +1289,14 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             card.Opacity = 1;
         }
 
-        foreach (var (_, about) in _abouts)
+        foreach (var (label, _) in _labels)
         {
-            about.Opacity = 1;
+            label.Opacity = 1;
         }
     }
 
     /// <summary>[S-14916] Everything of the gallery but its cards: what steps aside while a drag off it is aimed.</summary>
-    private UIElement[] Chrome => [_window, _head, _wellBox, _wellRim, _grid, _markPlates, _scrollBar, _band];
+    private UIElement[] Chrome => [_window, _head, _wellBox, _wellRim, _grid, _markPlates, _scrollBar, _band, _unplacedRoom];
 
     public void Dispose()
     {
@@ -1327,6 +1321,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
 
         _cards.Clear();
+        LeaveUnplaced();
         _samples.Dispose();
         _ticker.Dispose();
     }
@@ -1399,10 +1394,6 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     private string? CardAt(Point at)
         => SelectionRules.PressTarget([.. _cards.Select(c => (c.Model.Id, new DipRect(Canvas.GetLeft(c), Canvas.GetTop(c), c.Width, c.Height)))], _selected, at.X, at.Y, 0);
 
-    /// <summary>Whether <paramref name="at"/> is on a words' card.</summary>
-    private bool OnAbout(Point at)
-        => _abouts.Exists(a => at.X >= Canvas.GetLeft(a.Card) && at.X < Canvas.GetLeft(a.Card) + a.Card.Width && at.Y >= Canvas.GetTop(a.Card) && at.Y < Canvas.GetTop(a.Card) + a.Card.Height);
-
     private void OnPressed(object sender, PointerRoutedEventArgs e)
     {
         var point = e.GetCurrentPoint(_stage);
@@ -1440,7 +1431,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
             _cursor = _placed.TryGetValue(card, out var tile) ? tile.Tile : null;
         }
-        else if (!extending && !OnAbout(at))
+        else if (!extending)
         {
             _selection.Clear();
         }
@@ -1521,39 +1512,19 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     }
 
     /// <summary>
-    /// [S-16404] [S-16556] A click (a press let go where it was) on the card <paramref name="card"/> (null: empty room at
-    /// <paramref name="at"/>): with nothing in focus, a piece's card puts it in focus; in focus, a card is picked and nothing
-    /// more (its style is what a drag or Enter places: no focus moves, nothing navigates); a click of a pick of several
-    /// narrows it (<paramref name="kept"/>); empty room (not the words' card) leaves the focus. <paramref name="now"/>: at once,
-    /// not after the pointer's own event (a check's).
+    /// [S-16722] A click (a press let go where it was) on the card <paramref name="card"/> (null: empty room at
+    /// <paramref name="at"/>): the press picked it, and that is all (owner, 2026-11-23: "when i click a widget it should
+    /// bascially not do anything to it"): nothing moves, fades or appears. A click of a pick of several narrows it
+    /// (<paramref name="kept"/>, [S-1593]). <paramref name="now"/>: kept for a check's click, which is the pointer's.
     /// </summary>
     private void Clicked(string? card, bool kept, Point at, bool now)
     {
-        void Run(Action act, string what)
+        _ = at;
+        _ = now;
+        if (card is { } narrowed && kept)
         {
-            if (now)
-            {
-                act();
-            }
-            else if (!DispatcherQueue.TryEnqueue(() => act()))
-            {
-                Log.Warn(Scope, what);
-            }
-        }
-
-        if (card is { } id && _focus is null && PieceAt(id) is not null)
-        {
-            Run(() => FocusOn(id), "a piece of the gallery could not be put in focus");
-        }
-        else if (card is { } narrowed && kept)
-        {
-            // [S-1593] A click on a card of a pick of several narrows it to that card.
             _selection.Click(_screen, narrowed);
             Sync();
-        }
-        else if (card is null && _focus is not null && !OnAbout(at))
-        {
-            Run(LeaveFocus, "the gallery's focus could not be left");
         }
     }
 
@@ -1582,7 +1553,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
         }
     }
 
-    /// <summary>[S-16554] A click on empty room of the well, at once: a check's.</summary>
+    /// <summary>[S-16722] A click on empty room of the well, at once: a check's.</summary>
     internal void ClickEmptyForCheck() => Clicked(null, kept: false, new Point(-1, -1), now: true);
 
     private void EndPress()
@@ -1662,9 +1633,12 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
     }
 
     /// <summary>The gallery's cards' host: the display's screen and blurred wallpaper, the pick as the cards' selection, nothing persisted.</summary>
-    private sealed class Host(Services.Ticker ticker, WidgetGalleryView gallery) : PreviewCardHost(ticker)
+    private sealed class Host(Services.Ticker ticker, WidgetGalleryView gallery) : PreviewCardHost(ticker), IWidgetCardHost
     {
         protected override ScreenMetrics? Screen => gallery._metrics.IsUsable ? gallery._metrics : null;
+
+        /// <summary>[S-16724] The quick toggles show this PC's own state.</summary>
+        public bool ReadsLive => true;
 
         public override Backdrop? Backdrop => gallery._backdrop;
     }

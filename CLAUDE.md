@@ -38,8 +38,7 @@ JSON) and exits; `Themia.exe --check <name> …` runs a check, prints and writes
 (an unknown name, a missing argument: nothing ran). `Themia.exe --render list` prints every command of the build with its
 usage, generated from the registry (`Shell/RenderCommands.cs`, the Debug ones in `Shell/Gallery/RenderCommands.Gallery.cs`:
 a new render adds its line there); `--render states <Kind>` prints one kind's catalog entry. Look at the PNGs; they are how
-UI work is verified. One check exists in every build, Release and the Store's included ([S-11854]): `Themia.exe --check
-add-pictures <out.png>` draws the add page's Start tab through the shipped path and says how many pictures it drew.
+UI work is verified. A Release build knows `--render list` alone ([S-11854] retired with the add page, [S-16728]).
 
 ```
 Themia.exe --render widget <Kind> <out.png> [w h] [--theme light|dark] [--state name] [--style name] [--sizes WxH,..|range] [--keys k1,k2|text:abc]
@@ -62,7 +61,6 @@ Themia.exe --render widget <Kind> <out.png> [w h] [--theme light|dark] [--state 
 Themia.exe --render widget-batch <jobs.json> [--theme dark] [--timeout s]   # many --render widget renders in one process [S-14340]:
            # {"jobs": [{"id", "args": [<what follows --render widget>]}]}; the checks' renders go through it (scripts/renders.py)
 Themia.exe --render catalog <out.json>   # every kind of the build: id, project, traits, styles, states [S-14342]
-Themia.exe --render picker <out.png> [--tab Id] [--search t] [--width w] [--height h]   # the add page under the bar [S-11712]
 Themia.exe --render iconpicker <out.png> [--search t] [--initials]
 Themia.exe --render viewbar|notices|menu|motion|grid <outDir>   # notices takes --theme: every notice shape [S-881a]
 Themia.exe --render desktop <outDir> [--icon-size small|medium|large] [--icon-layout below|beside|icononly]   # a stand-in desktop
@@ -81,12 +79,12 @@ Themia.exe --check first-drag <out.txt> [--locked] [--kinds a,b]   # every kind'
            # a thumb, a text box, a chart, an empty spot, dragged through the card's own steps off-screen, PASS or FAIL [S-13060]
 Themia.exe --check drag-bench <out.txt> [--frames n] [--events n]   # what each stage of a move's pointer step costs on a real
            # surface of 21 widgets, locked and edit mode, solid and Liquid glass [S-11890]
-Themia.exe --render editbar <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|unplaced|follow]   # the edit bar (editbar-*: nothing,
-           # one, several selected, problems, an entry open, narrow), the add page (-add*), placing; every page's flyout with
-           # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*, -unplaced*); the selection's page
+Themia.exe --render editbar <outDir> [--theme light|dark] [--only bar|pages|appearance|select|marks|follow]   # the edit bar (editbar-*: nothing,
+           # one, several selected, problems, an entry open, Add widget lit (-gallery), narrow), placing; every page's flyout with
+           # its pickers open (page-*-general*, -accounts*, -display*, -views*, -appearance*); the selection's page
            # beside real cards (select-*) [S-2328]; the edit marks (marks-*) and a block resized by the selection's frame
            # (marks-*-block*, [S-2460]); a flyout following its page as a card opens and closes (-follow-*, PASS or
-           # FAIL, [S-2350]). --render picker takes --theme too. There is no settings window [S-3585]
+           # FAIL, [S-2350]). There is no settings window [S-3585]
 Themia.exe --check displays <outDir>   # one view on two stand-in displays, the taskbar left on one and right on the other,
            # through a real host and surfaces: every card clear of both taskbars, placement at the far edges, a widget dragged
            # over each taskbar staying there (the visible minimum kept), a view shown on the other display, PASS or FAIL [S-855]
@@ -103,10 +101,10 @@ Themia.exe --check family <out.json> [--theme light|dark] [--kinds a,b]   # the 
            # scripts/family-check.ps1 over both themes against its baseline
 Themia.exe --check switch|startup|drop|ui-bench|clock-style|desktop-items|desktop-menu …   # the rest: --render list says each
 Themia.exe --render gallery <outDir> [--theme light|dark] [--category Id] [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]
-           # the widget gallery: every tab, searches, a widget in focus (its styles), one without and a group, several picked, a drag
+           # the widget gallery: every tab, searches, a widget clicked, the Not on view tab, several picked, a drag
            # under way; --displays small monitors after it (three tabs, a search, a focus) [S-14917] [S-16410] [S-16564]
 Themia.exe --check gallery <out.txt> [--width w --height h] [--displays WxH,..] [--wallpaper <picture>] [--raster 100]   # under the bar (its beak), the head,
-           # column bentos (no hole, feet), search (first 8, keystroke ms), focus (never moves, styles only, clicks pick), keys, quick
+           # column bentos (no hole, feet, titles), search (first 8, keystroke ms), a click (picks only), the Not on view tab, keys, quick
            # settings' two sizes, drag and drop (no jump, whole cells, settings open), each display of --displays; PASS or FAIL
 Any render: [--lang <code>]   # any of the forty (en, de, … zh-Hant, … my)
            [--icon-census]   # beside each PNG <png>.icons.json: every icon drawn and its box; then
@@ -162,7 +160,7 @@ src/Themia.Core/   pure logic, no UI types, no Windows dependency. The host's ru
   routing by rules, making and removing one, laying its icons on the icon grid, the one drop cell; FenceCells, its rect on the grid), DesktopDeleteUndo and DesktopFileUndo (Explorer's undo of the desktop's file steps))
   Services/ (the service sync's engine: ServiceClient, ServiceMemory, ServiceEntries, FixtureReplay; Sync/ServiceShelf)
   Model/FirstRunDesktop.cs (the first-run seed as data: ids and config fragments)
-  Model/ReadyMadeGroups.cs (the add page's ready-made groups as data: kinds, boxes in DIPs, config fragments, starters)
+  Model/ReadyMadeGroups.cs (the ready-made groups as data: kinds, boxes in DIPs, config fragments, starters; the gallery hides them, [S-16723])
   Model/WidgetSelection.cs (the edit-mode selection of widgets; SelectionRules: lasso, Tab, PressTarget)
 src/Themia.Sdk.WinUI/  the widget SDK, WinUI: IWidgetModule, IWidgetHost (+ IShellLauncher), WidgetMenuLines, view
                    Kit/ (KitList, the look-agnostic list shell, over an IKitLook: KitRichLook, KitTableLook, KitScheduleLook, KitCheckLook or
@@ -413,11 +411,11 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   seen through it instead, [S-2344]): the pages' entries (General, Accounts, Display, Views, Appearance;
   `SettingsPages.Entries`), the divider and the selection's entry in its kept room, no toggle (the grid is always on,
   no Snap to grid, [S-06]; widgets always go over the screen edge, no Over the edge, [S-2330]; widgets may always
-  overlap, no Keep widgets from overlapping, [S-11959] retired), the problems' room, the Widget gallery's button
-  ([S-14910]), Add widget, Unplaced icons right after Add (its icon alone and a count badge, [S-13700], [S-13701]), Done. Each entry opens
+  overlap, no Keep widgets from overlapping, [S-11959] retired), the problems' room, Add widget (it opens
+  the widget gallery, [S-16728]; the Unplaced icons page is the gallery's Not on view tab, [S-16727]), Done. Each entry opens
   its own flyout hung from it by a beak (580 wide, at most 70 % of the work area, Windows' ground and cards,
-  never the widgets' look), one at a time; the Unplaced icons page alone has no light dismiss and takes desktop icons moved
-  onto it off the view, the view's All/Chosen kept (`SettingsPages.StaysOpen`, `UnplacedItems.Unplace`, [S-13713], [S-13715]). No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
+  never the widgets' look), one at a time; the gallery's Not on view tab takes desktop icons moved onto it off the view, the
+  view's All/Chosen kept (`UnplacedItems.Unplace`, [S-13713]). No trail, no Undo/Redo buttons (the keys stay). Layout rules are Core's (`EditBarLayout`, `FlyoutPlacement`), metrics
   `ShellMetrics.Bar`, `.Flyout`, `.Page`, `.Inline`. **One setting, one level** ([S-3590]..[S-3592]): a setting
   is a widget's (its page), a view's (Views), a display's (Display) or Themia's (General, Accounts,
   Appearance), and that page alone sets it; a lower level that follows it just follows it: no copy and no
@@ -479,32 +477,23 @@ bar's pages ([S-2300]); there is no settings window ([S-3585]) and a widget has 
   ([S-2457]). Everything that produces or moves widgets is the one placement session (`PlacementPayload`: a new
   widget, a ready-made group, a copy, a move); a ready-made group lands as loose widgets laid as one block
   (`ReadyMadeGroups.Laid`) and selected ([S-2471], [S-2475]).
-- **The add page** ([S-13610]..[S-13617], [S-11701]..[S-11712], [S-3510], [S-3511], [S-2473]; Karpo's §593; owner,
-  2026-11-19: the library will hold hundreds of kinds): Add opens a flyout as wide as the bar, flush under it: a
-  **rail** (the search box, then Start, each subject and More with its count, Karpo's side list) and the chosen
-  subject's content (its ready-made groups, its own widgets, then each **family** of two or more as a **stack**: a
-  head with name, count and chevron over one row of tiles ending in "+N"; the head or "+N" opens it in place).
-  Search is flat over every widget and group. Compact tiles of at least 200 (icon, name, caption: Karpo's) and
-  beside them a preview pane of the tile or family head pointed at or focused ([S-13600]..[S-13604]): a picture of
-  the thing itself (`AddPictures`: real cards on sample data, in every build; a glyph until drawn), drawn lazily,
-  the previewed first. The model is Core's (`AddTree` the subjects and families, `AddRail`, `AddPage` the
-  sections, stacks and search, `AddPageKeys`, `AddPageLayout`), drawn by `Shell/Pages/AddPageView`; a widget
-  places itself in the tree through its descriptor; a recipe is data only. Picking a tile starts the placement
-  session. **The widget gallery** ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16565]; owner, 2026-11-21 and
-  2026-11-23) is a second page beside it (its own bar button): a window flush under the bar hung from its button by a beak,
-  its categories as tabs at the top (a tab tall, little room round them), a hint and the always-open search box (its first 8
-  finds, whole pieces only) at the line's end, over a well that shows the desktop's own wallpaper (`Backdrop.PlainAsync`);
-  whole widgets and ready-made groups only (never a family's small parts; Quick settings each toggle and power button at its size and its
-  least, no Power group) as real sample cards on the display's own grid, a category one **column bento** (`WidgetGallery.Lay` with
-  `GallerySizes`, Core, tested: columns of different widths first, every piece as wide as its column or side by side at one
-  height filling it, as tall as its sizing makes it there, one cell between cards, no hole in a column (`Holes`), the feet
-  evened (`Ragged`)); a click puts a piece in focus where it stands, never moving it (`Focus`/`LayFocus`: the others fade,
-  round it its words as a card and its other styles only, every one draggable; in focus a click picks, it never navigates; a
-  click away or Escape back), the arrows move the pick, Enter places it; a drag is the one placement session
-  (`PlacementPayload.ForGallery`, held where the pointer held it: no jump) and a drop closes the gallery and opens the placed
-  widgets' settings page.
+- **The widget gallery is the add page** ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16729];
+  owner, 2026-11-21 and 2026-11-23): Add widget (every way in: the bar, the menus, Ctrl+N, a lassoed area) opens a window flush
+  under the bar hung from Add widget by a beak; the old add page (rail, stacks, preview, pictures) is gone. Its categories are
+  tabs at the top, the last **Not on <view>** (the Unplaced icons page, `UnplacedPageView`, with its count badge; [S-16727]), a hint
+  and the always-open search box (its first 8 finds) at the line's end, over a well that shows the desktop's own wallpaper
+  (`Backdrop.PlainAsync`); whole widgets only (no ready-made group while `WidgetGallery.ShowsGroups` is off, [S-16723]; never a
+  family's small parts) as real sample cards on the display's own grid, each under a small title (Caption, secondary,
+  [S-16721]), a category one **column bento** (`WidgetGallery.Lay` with `GallerySizes`, Core, tested: columns of different widths
+  first, every piece as wide as its column or side by side at one height filling it, as tall as its sizing makes it there plus
+  its title's rows, one cell between cards, no hole in a column (`Holes`), the feet evened (`Ragged`)); Quick settings is
+  sections under headings instead (`LaySections`: the toggles in each style, square, in this PC's real state, then the power
+  buttons, [S-16724]..[S-16726]). A click only picks ([S-16722]), the arrows move the pick, Enter places it; a drag is the one
+  placement session (`PlacementPayload.ForGallery`, held where the pointer held it: no jump) and a drop closes the gallery and
+  opens the placed widgets' settings page. The model it reads is Core's (`AddTree` the subjects and families, `AddPage` the
+  sections and search); a widget places itself in the tree through its descriptor; a recipe is data only.
 - **Samples and previews** ([S-11850]..[S-11854]; docs/WIDGET-KIT.md 6.8): **a widget's sample ships, its
-  render-only states do not, by folder.** The sample (the add page's picture, on the sample day's data in
+  render-only states do not, by folder.** The sample (the gallery's card, on the sample day's data in
   `Themia.Sdk/Samples`) is `IWidgetSample.ShowSampleAsync` in the module's `Samples/<Name>View.Sample.cs`,
   compiled in every configuration; error, loading, empty, hovered and edge-case states are
   `IWidgetPreviewState` in `Preview/`, removed outside Debug by `src/Widgets/Directory.Build.targets`, and

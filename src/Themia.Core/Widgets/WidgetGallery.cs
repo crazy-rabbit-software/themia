@@ -24,33 +24,14 @@ public readonly record struct CellBox(int X, int Y, int W, int H)
     public (double X, double Y) Middle => (X + (W / 2.0), Y + (H / 2.0));
 }
 
-/// <summary>[S-16404] What a card of the gallery is: a piece of a category, or one of what stands round a piece in focus.</summary>
-public enum GalleryRole
-{
-    /// <summary>A whole widget or ready-made group of a category (or of a search).</summary>
-    Piece,
-
-    /// <summary>[S-16554] The piece in focus: it stays where it stood.</summary>
-    Picked,
-
-    /// <summary>[S-16404] The piece's words: its name, what it is, what it needs. A card of its own, no widget.</summary>
-    About,
-
-    /// <summary>[S-16555] The widget in focus in another of its styles.</summary>
-    Style,
-}
-
 /// <summary>
 /// [S-14912] One whole thing of the gallery: a widget that stands alone (<see cref="Kind"/>) or a ready-made group
 /// (<see cref="Group"/>: several widgets laid as one panel). Never a small part of a family: those are the add page's.
-/// [S-16404] Round a piece in focus, the same thing in another <see cref="Role"/>: its words or a style.
 /// </summary>
 /// <param name="Key">The same in every language: the add page's tile key (<c>kind:clock</c>, <c>group:nowPlaying</c>).</param>
 public sealed record GalleryPiece(string Key, WidgetId? Kind, ReadyMadeGroup? Group)
 {
-    public GalleryRole Role { get; init; }
-
-    /// <summary>[S-16555] A <see cref="GalleryRole.Style"/> card's style.</summary>
+    /// <summary>[S-16726] The widget in this style (Quick settings shows the toggles in each); null: the style it has new.</summary>
     public int? Style { get; init; }
 
     /// <summary>[S-16562] A quick setting shown at its least (beside it at the size it has new): kept at that size.</summary>
@@ -61,10 +42,23 @@ public sealed record GalleryPiece(string Key, WidgetId? Kind, ReadyMadeGroup? Gr
 
     /// <summary>[S-16685] What it shows and places: the kind or its preset; null for a group or the words' card.</summary>
     public WidgetPick? Pick => Kind is { } kind ? new WidgetPick(kind, Preset) : null;
+
+    /// <summary>[S-16724] Drawn square (a quick setting's tile, a power button): as many DIPs down as across, kept at that size.</summary>
+    public bool Square { get; init; }
 }
 
+/// <summary>[S-16725] A section of a category (Quick settings' toggles in each style, its power actions): its heading over its pieces.</summary>
+public sealed record GallerySection(LocalText Heading, IReadOnlyList<GalleryPiece> Pieces);
+
+/// <summary>[S-16725] A section's heading on a sheet: its words and its line, in cells from the sheet's corner.</summary>
+public sealed record GalleryHeading(LocalText Text, CellBox Box);
+
 /// <summary>[S-14912] A category of the gallery: an add page subject (or More), its whole pieces in the add page's order.</summary>
-public sealed record GalleryCategory(AddFolderId Id, LocalText Title, string Glyph, IReadOnlyList<GalleryPiece> Pieces);
+public sealed record GalleryCategory(AddFolderId Id, LocalText Title, string Glyph, IReadOnlyList<GalleryPiece> Pieces)
+{
+    /// <summary>[S-16725] Its pieces in sections under headings, laid in their order (Quick settings); null: one column bento.</summary>
+    public IReadOnlyList<GallerySection>? Sections { get; init; }
+}
 
 /// <summary>
 /// [S-14912] [S-16551] What a piece asks of the bento, in whole cells of the display's grid: its natural size, the least
@@ -91,6 +85,19 @@ public sealed record GalleryTile(GalleryPiece Piece, CellBox Box);
 public sealed record GallerySheet(AddFolderId Category, LocalText Name, int Rows, IReadOnlyList<GalleryTile> Tiles)
 {
     public IReadOnlyList<CellBox> Columns { get; init; } = [];
+
+    /// <summary>[S-16721] Rows over each card its title takes, inside its tile's box (0: no titles, Quick settings).</summary>
+    public int Title { get; init; }
+
+    /// <summary>[S-16725] Its sections' headings (Quick settings); none for a column bento.</summary>
+    public IReadOnlyList<GalleryHeading> Headings { get; init; } = [];
+
+    /// <summary>[S-16721] The box a tile's card stands in: its tile's box under its title.</summary>
+    public CellBox CardOf(GalleryTile tile)
+    {
+        ArgumentNullException.ThrowIfNull(tile);
+        return tile.Box with { Y = tile.Box.Y + Title, H = Math.Max(1, tile.Box.H - Title) };
+    }
 }
 
 /// <summary>
@@ -136,8 +143,8 @@ public enum GalleryAfter
 /// (<see cref="Find"/>), laid as one column bento (<see cref="Lay"/>): columns first, of whole cells and different widths,
 /// filling the width; every piece in a column, as wide as it (or, side by side with others at one height, a share of it),
 /// as tall as its sizing makes it there; the cards of a column one cell apart from its top to its foot, so a column has no
-/// hole (<see cref="Holes"/>), and the columns' feet as even as the pieces' heights let them (<see cref="Ragged"/>). A piece
-/// in focus (<see cref="Focus"/>, <see cref="LayFocus"/>) stays where it stood; its words and its other styles stand round it.
+/// hole (<see cref="Holes"/>), and the columns' feet as even as the pieces' heights let them (<see cref="Ragged"/>), each
+/// piece under its title ([S-16721]); Quick settings in sections under headings (<see cref="LaySections"/>, [S-16725]).
 /// Deterministic; no two pieces share or touch a cell.
 /// </summary>
 public static class WidgetGallery
@@ -164,22 +171,33 @@ public static class WidgetGallery
     public const int MostSide = 16;
 
     /// <summary>
-    /// [S-14912] The categories of <paramref name="page"/>: every subject on its rail (and More), each its ready-made
-    /// groups and then its own widgets, as the add page has them ([S-13611]). A family's small parts (a fact, a button,
-    /// a line of text) are left out: they are shown whole, in their groups. Start and desktop items stay the add page's.
-    /// A subject with no whole piece is left out. [S-16562] Quick settings shows each toggle twice: at the size it has new,
-    /// and right after it at its least. [S-16565] The power buttons (a family elsewhere, <see cref="InQuickSettings"/>) stand
-    /// there too, each alone and twice the same way, after the toggles; the ready-made group of them (its Header over them)
-    /// is not shown.
+    /// [S-16723] Whether the gallery shows the ready-made groups (owner, 2026-11-23: "remove all widget compositions for now
+    /// and only show the individual widgets that are available"): off, the one switch; their data stays (<see cref="ReadyMadeGroups"/>).
     /// </summary>
-    public static IReadOnlyList<GalleryCategory> Of(AddPage page)
+    public static readonly bool ShowsGroups = false;
+
+    /// <summary>[S-16726] The power actions' order in Quick settings: lock first, the screen off last.</summary>
+    public static readonly IReadOnlyList<string> PowerOrder = ["lock", "signOut", "sleep", "hibernate", "restart", "shutdown", "screenOff"];
+
+    /// <summary>
+    /// [S-14912] The categories of <paramref name="page"/>: every subject on its rail (and More), each its own widgets as the
+    /// add page has them ([S-13611]); [S-16723] its ready-made groups only while <see cref="ShowsGroups"/>. A family's small
+    /// parts (a fact, a button, a line of text) are left out. Start and desktop items stay the add page's. A subject with no
+    /// whole piece is left out. [S-16724]..[S-16726] Quick settings is in sections under headings, never one bento: its
+    /// toggles in each of their <paramref name="styles"/> (the first, the style a toggle has new, each at the size it has new
+    /// and at its least, [S-16562]; each other style once), then the power actions (<see cref="InQuickSettings"/>, a family
+    /// elsewhere, in <see cref="PowerOrder"/>, each at its two sizes), every one square where its sizing lets it be.
+    /// </summary>
+    public static IReadOnlyList<GalleryCategory> Of(AddPage page, Func<WidgetId, IReadOnlyList<StyleOption>>? styles = null)
     {
         ArgumentNullException.ThrowIfNull(page);
+        styles ??= WidgetStyles.For;
         var categories = new List<GalleryCategory>();
         var moved = page.Rail.SelectMany(r => page.Sections(r.Id))
             .Where(s => s.Kind == AddSectionKind.Family && s.Family is { } f && InQuickSettings.Contains(f.Id))
             .SelectMany(s => s.Tiles.OfType<AddWidgetTile>())
             .DistinctBy(t => t.Key)
+            .OrderBy(t => PowerRank(t.Kind.Value))
             .ToList();
         foreach (var item in page.Rail)
         {
@@ -193,39 +211,75 @@ public static class WidgetGallery
             {
                 switch (section.Kind)
                 {
-                    case AddSectionKind.ReadyMade:
+                    case AddSectionKind.ReadyMade when ShowsGroups:
                         pieces.AddRange(section.Tiles.OfType<AddGroupTile>().Where(t => !InQuickSettings.Contains(t.Group.Home)).Select(t => new GalleryPiece(t.Key, null, t.Group)));
                         break;
                     case AddSectionKind.Widgets:
-                        foreach (var tile in section.Tiles.OfType<AddWidgetTile>())
-                        {
-                            pieces.Add(new GalleryPiece(tile.Key, tile.Kind, null) { Preset = tile.Preset });
-                            if (item.Id == AddFolderId.QuickSettings)
-                            {
-                                pieces.Add(new GalleryPiece("least:" + tile.Key, tile.Kind, null) { Least = true, Preset = tile.Preset });
-                            }
-                        }
-
+                        pieces.AddRange(section.Tiles.OfType<AddWidgetTile>().Select(tile => new GalleryPiece(tile.Key, tile.Kind, null) { Preset = tile.Preset }));
                         break;
                 }
             }
 
             if (item.Id == AddFolderId.QuickSettings)
             {
-                foreach (var tile in moved)
-                {
-                    pieces.Add(new GalleryPiece(tile.Key, tile.Kind, null) { Preset = tile.Preset });
-                    pieces.Add(new GalleryPiece("least:" + tile.Key, tile.Kind, null) { Least = true, Preset = tile.Preset });
-                }
+                categories.Add(QuickSettings(item, pieces, moved, styles));
             }
-
-            if (pieces.Count > 0)
+            else if (pieces.Count > 0)
             {
                 categories.Add(new GalleryCategory(item.Id, item.Title, item.Glyph, pieces));
             }
         }
 
         return categories;
+    }
+
+    /// <summary>[S-16726] Where a power action stands in <see cref="PowerOrder"/>; any other after them.</summary>
+    private static int PowerRank(string id)
+    {
+        for (var i = 0; i < PowerOrder.Count; i++)
+        {
+            if (string.Equals(PowerOrder[i], id, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        return int.MaxValue;
+    }
+
+    /// <summary>[S-16724]..[S-16726] Quick settings' sections: the toggles by style, then the power actions.</summary>
+    private static GalleryCategory QuickSettings(AddRailItem item, List<GalleryPiece> toggles, List<AddWidgetTile> power, Func<WidgetId, IReadOnlyList<StyleOption>> styles)
+    {
+        var sections = new List<GallerySection>();
+        var looks = toggles.Count == 0 ? [] : styles(toggles[0].Kind!.Value);
+        if (looks.Count == 0)
+        {
+            sections.Add(new GallerySection(item.Title, [.. toggles.SelectMany(Twice)]));
+        }
+        else
+        {
+            for (var i = 0; i < looks.Count; i++)
+            {
+                var look = looks[i];
+                sections.Add(new GallerySection(look.Label, i == 0
+                    ? [.. toggles.SelectMany(Twice)]
+                    : [.. toggles.Select(t => new GalleryPiece($"style:{t.Key}:{look.Value}", t.Kind, null) { Style = look.Value, Square = true, Preset = t.Preset })]));
+            }
+        }
+
+        if (power.Count > 0)
+        {
+            sections.Add(new GallerySection(Str.AddMenu_Family_PowerButtons.Local(), [.. power.Select(t => new GalleryPiece(t.Key, t.Kind, null) { Preset = t.Preset }).SelectMany(Twice)]));
+        }
+
+        sections.RemoveAll(s => s.Pieces.Count == 0);
+        return new GalleryCategory(item.Id, item.Title, item.Glyph, [.. sections.SelectMany(s => s.Pieces)]) { Sections = sections };
+
+        static IEnumerable<GalleryPiece> Twice(GalleryPiece piece)
+        {
+            yield return piece with { Square = true };
+            yield return new GalleryPiece("least:" + piece.Key, piece.Kind, null) { Least = true, Square = true, Preset = piece.Preset };
+        }
     }
 
     /// <summary>
@@ -278,15 +332,26 @@ public static class WidgetGallery
     /// (<see cref="Divide"/>), and the rows are made taller or shorter, within what their pieces take, so the columns' feet come
     /// as even as they can (<see cref="Even"/>).
     /// </summary>
-    public static GallerySheet Lay(GalleryCategory category, int width, Func<GalleryPiece, PieceSize> size)
+    /// <para>
+    /// [S-16721] Every piece's title stands over its card inside its tile: <paramref name="title"/> rows more down, its width
+    /// the card's, so the columns count it and no card stands over another's title. [S-16725] A category in sections is laid
+    /// by <see cref="LaySections"/> (its headings, <paramref name="heading"/> rows each, and no titles).
+    /// </para>
+    public static GallerySheet Lay(GalleryCategory category, int width, Func<GalleryPiece, PieceSize> size, int title = 0, int heading = 1)
     {
         ArgumentNullException.ThrowIfNull(category);
         ArgumentNullException.ThrowIfNull(size);
+        if (category.Sections is { } sections)
+        {
+            return LaySections(category, sections, width, size, heading);
+        }
+
         var cols = Math.Max(1, width);
-        var shapes = category.Pieces.Select(p => new Shape(size(p), cols)).ToList();
+        title = Math.Max(0, title);
+        var shapes = category.Pieces.Select(p => new Shape(size(p), cols, title)).ToList();
         if (shapes.Count == 0)
         {
-            return new GallerySheet(category.Id, category.Title, 0, []);
+            return new GallerySheet(category.Id, category.Title, 0, []) { Title = title };
         }
 
         // Every way filled and its feet evened; the few that cost least settled (rows moved between columns) and evened again.
@@ -311,76 +376,60 @@ public static class WidgetGallery
             }
         }
 
-        return Sheet(category, best!, 0);
+        return Sheet(category, best!, 0) with { Title = title };
     }
 
     /// <summary>
-    /// [S-16554] [S-16555] What stands in focus with <paramref name="picked"/>, a piece of <paramref name="category"/>: the
-    /// piece itself (<see cref="GalleryRole.Picked"/>), its words (<see cref="GalleryRole.About"/>) and, for a widget, the
-    /// widget in each of its <paramref name="otherStyles"/> (owner, 2026-11-23: "when clicking on a widget it should now only
-    /// show the styles, not related widgets actually"): no neighbour, no other size. A kind of one style shows its words alone.
+    /// [S-16725] A category in sections (Quick settings, owner, 2026-11-23: "you should just add headers to the columns or
+    /// individual sections there ... order them as well so that the actions dont interweave with the toggle buttons"): each
+    /// section its heading's line (<paramref name="heading"/> rows, the sheet's width) and under it its pieces in their order,
+    /// left to right one cell apart, a new row where the width ends (a row as tall as its tallest), every piece at the size it
+    /// asks; one cell between a section's last row and the next heading. No piece of one section among another's.
     /// </summary>
-    public static GalleryCategory Focus(GalleryCategory category, GalleryPiece picked, IReadOnlyList<int> otherStyles)
+    public static GallerySheet LaySections(GalleryCategory category, IReadOnlyList<GallerySection> sections, int width, Func<GalleryPiece, PieceSize> size, int heading)
     {
         ArgumentNullException.ThrowIfNull(category);
-        ArgumentNullException.ThrowIfNull(picked);
-        ArgumentNullException.ThrowIfNull(otherStyles);
-        var key = picked.Key;
-        List<GalleryPiece> pieces =
-        [
-            picked with { Role = GalleryRole.Picked, Style = null },
-            new GalleryPiece("about:" + key, picked.Kind, picked.Group) { Role = GalleryRole.About, Preset = picked.Preset },
-        ];
-        if (picked.Pick is { } pick && picked.Group is null)
-        {
-            // [S-16685] A preset's styles are that preset's: Wi-Fi round is still Wi-Fi.
-            pieces.AddRange(otherStyles.Select(style => new GalleryPiece($"style:{pick.Key}:{style}", pick.Kind, null) { Role = GalleryRole.Style, Style = style, Preset = pick.Preset }));
-        }
-
-        return new GalleryCategory(category.Id, category.Title, category.Glyph, pieces);
-    }
-
-    /// <summary>
-    /// [S-16554] A focus (<see cref="Focus"/>) on a sheet <paramref name="width"/> cells wide whose picked piece stands at
-    /// <paramref name="stays"/>, where it stood: it does not move. The rest stand in the room the faded cards leave round it,
-    /// in their order (its words first): in columns beside it from its top down (to its left and its right) and under it as
-    /// wide as it, the shortest column first, one cell apart. At least <paramref name="rows"/> tall (the sheet it came from), so
-    /// the scroll it stood at still holds.
-    /// </summary>
-    public static GallerySheet LayFocus(GalleryCategory focus, CellBox stays, int width, int rows, Func<GalleryPiece, PieceSize> size)
-    {
-        ArgumentNullException.ThrowIfNull(focus);
+        ArgumentNullException.ThrowIfNull(sections);
         ArgumentNullException.ThrowIfNull(size);
         var cols = Math.Max(1, width);
-        var rest = focus.Pieces.Skip(1).ToList();
-        var shapes = rest.Select(p => new Shape(size(p), cols)).ToList();
-        var least = shapes.Count == 0 ? 1 : shapes.Min(s => s.LeastW);
-        var typical = shapes.Count == 0 ? 1 : Math.Max(least, shapes.Select(s => s.W).Order().ElementAt(shapes.Count / 2));
-        var widest = shapes.Count == 0 ? 1 : shapes.Max(s => s.LeastW);
-
-        // The room round it: beside it (each side cut into columns about a typical piece wide), and under it.
-        var columns = new List<Col>();
-        void Side(int x, int w)
+        heading = Math.Max(1, heading);
+        var tiles = new List<GalleryTile>();
+        var headings = new List<GalleryHeading>();
+        var y = 0;
+        foreach (var section in sections)
         {
-            if (w < least)
+            if (section.Pieces.Count == 0)
             {
-                return;
+                continue;
             }
 
-            // About a typical piece wide each, and never narrower than the widest least (its words' card) where the side holds it.
-            var k = Math.Max(1, (int)Math.Round((w + Gap) / (double)(typical + Gap)));
-            k = w >= widest ? Math.Min(k, Math.Max(1, (w + Gap) / (widest + Gap))) : k;
-            columns.AddRange(Columns(Split(w, k), x, stays.Y));
+            if (headings.Count > 0)
+            {
+                y += Gap;
+            }
+
+            headings.Add(new GalleryHeading(section.Heading, new CellBox(0, y, cols, heading)));
+            y += heading;
+            var (x, tallest) = (0, 0);
+            foreach (var piece in section.Pieces)
+            {
+                var asked = size(piece);
+                var (w, h) = (Math.Clamp(asked.W, 1, cols), Math.Max(1, asked.H));
+                if (x > 0 && x + w > cols)
+                {
+                    y += tallest + Gap;
+                    (x, tallest) = (0, 0);
+                }
+
+                tiles.Add(new GalleryTile(piece, new CellBox(x, y, w, h)));
+                x += w + Gap;
+                tallest = Math.Max(tallest, h);
+            }
+
+            y += tallest;
         }
 
-        Side(0, stays.X - Gap);
-        Side(stays.Right + Gap, cols - stays.Right - Gap);
-        columns.Add(new Col(stays.X, stays.W, stays.Bottom + Gap));
-        var filled = Fill(new Solver(shapes), columns, ordered: true);
-        var tiles = new List<GalleryTile> { new(focus.Pieces[0], stays) };
-        tiles.AddRange(Tiles(rest, filled));
-        var foot = Math.Max(rows, Math.Max(stays.Bottom, filled.Columns.Count == 0 ? 0 : filled.Columns.Max(c => c.Foot)));
-        return new GallerySheet(focus.Id, focus.Title, foot, tiles) { Columns = [.. filled.Columns.Where(c => c.Rows.Count > 0).Select(c => c.Box)] };
+        return new GallerySheet(category.Id, category.Title, y, tiles) { Headings = headings };
     }
 
     // ---- [S-16550] the columns ------------------------------------------------------------------------------------------
@@ -1221,11 +1270,14 @@ public static class WidgetGallery
         private readonly int _minW;
         private readonly int _maxW;
 
-        public Shape(PieceSize size, int width)
+        private readonly int _title;
+
+        public Shape(PieceSize size, int width, int title = 0)
         {
             _size = size;
+            _title = title;
             W = Math.Clamp(size.W, 1, width);
-            H = Math.Max(1, size.H);
+            H = Math.Max(1, size.H) + title;
             if (size.Widths is { Count: > 0 } widths)
             {
                 var fit = widths.Where(w => w >= 1 && w <= width).Order().ToArray();
@@ -1261,9 +1313,13 @@ public static class WidgetGallery
 
         /// <summary>The height its sizing makes it at <paramref name="w"/> cells across.</summary>
         public int HeightAt(int w)
-            => _size.Taller ? Math.Clamp((int)Math.Round(H * w / (double)Math.Max(1, _size.W)), Math.Max(1, _size.MinH), Math.Max(_size.MinH, _size.MaxH)) : H;
+            => _size.Taller ? Card(w) + _title : H;
 
-        /// <summary>The heights it may stand at <paramref name="w"/> cells across.</summary>
+        /// <summary>[S-16551] The card's own height at <paramref name="w"/> cells across (its title not counted).</summary>
+        private int Card(int w)
+            => Math.Clamp((int)Math.Round((H - _title) * w / (double)Math.Max(1, _size.W)), Math.Max(1, _size.MinH), Math.Max(_size.MinH, _size.MaxH));
+
+        /// <summary>The heights it may stand at <paramref name="w"/> cells across, its title's rows counted.</summary>
         public (int Lo, int Hi) Heights(int w)
         {
             if (!_size.Taller)
@@ -1271,9 +1327,9 @@ public static class WidgetGallery
                 return (H, H);
             }
 
-            var at = HeightAt(w);
+            var at = Card(w);
             var most = Math.Max(_size.MinH, _size.MaxH);
-            return (Math.Clamp((int)Math.Ceiling(at * Shortest), Math.Max(1, _size.MinH), at), Math.Clamp((int)Math.Floor(at * Tallest), at, most));
+            return (Math.Clamp((int)Math.Ceiling(at * Shortest), Math.Max(1, _size.MinH), at) + _title, Math.Clamp((int)Math.Floor(at * Tallest), at, most) + _title);
         }
 
         /// <summary>The width it may be nearest <paramref name="want"/> (the narrower of two as near).</summary>

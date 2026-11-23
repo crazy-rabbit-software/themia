@@ -56,7 +56,7 @@ internal sealed class RenderRun(RenderCommand command, IReadOnlyList<string> arg
 /// <summary>
 /// [S-69] Every render and check the build has, by verb and name, and the one way they run: <see cref="TryRun"/> takes a
 /// start whose first argument is <c>--render</c> or <c>--check</c>, runs the command on the UI thread, and exits with its
-/// code (a usage error 64, a throw 2). A Release build has <c>--check add-pictures</c> and <c>--render list</c> only;
+/// code (a usage error 64, a throw 2). A Release build has <c>--render list</c> only ([S-11854] retired with the add page, [S-16728]);
 /// a Debug build every render of <c>Shell/Gallery</c> too. <c>--render list</c> prints them all: the generated list of
 /// flags.
 /// </summary>
@@ -70,7 +70,6 @@ internal static partial class RenderCommands
     private static IEnumerable<RenderCommand> Shipped() =>
     [
         new(RenderVerb.Render, "list", string.Empty, "every render and check of this build, with its usage", List),
-        AddPicturesCheck.Command,
     ];
 
     /// <summary>The Debug build's renders (Shell/Gallery); none in a Release build.</summary>

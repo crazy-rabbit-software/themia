@@ -125,7 +125,7 @@ internal sealed partial class DesktopWindow
     /// <summary>[S-1744] The entries for this surface; [S-11707] its Add widget opens the add page under the bar.</summary>
     private List<ItemMenuEntry> SurfaceMenu(SurfaceMenuFacts facts)
         => SurfaceEntries(facts, new SurfaceMenuActions(
-            AddWidget: OpenAddPage,
+            AddWidget: OpenWidgetGallery,
             View: () => OpenPage(Core.Settings.SettingsPageId.Views, []),
             Display: () => OpenPage(Core.Settings.SettingsPageId.Display, []),
             Settings: () => OpenPage(Core.Settings.SettingsPageId.General, []),
@@ -177,10 +177,10 @@ internal sealed partial class DesktopWindow
         {
             if (!TakeForeground())
             {
-                Log.Info(Scope, "could not take the foreground for the add page; typing will not reach its search");
+                Log.Info(Scope, "could not take the foreground for the widget gallery; typing will not reach its search");
             }
 
-            OpenAddPage();
+            OpenWidgetGallery();
         }
         catch (Exception ex)
         {

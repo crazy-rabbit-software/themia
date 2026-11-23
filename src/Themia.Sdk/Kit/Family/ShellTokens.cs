@@ -248,13 +248,11 @@ public static class ShellMetrics
         /// <summary>[S-16566] The least the search box is narrowed to for the short hint beside the tabs.</summary>
         public const double SearchLeast = 200;
 
-        /// <summary>[S-16404] A picked widget's words, a card of the bento: its natural box, DIPs.</summary>
-        public const double AboutWidth = 320;
+        /// <summary>[S-16721] A widget's title over its card (Caption, one line) and the room under it, DIPs: the bento counts it in whole cells.</summary>
+        public const double Title = 22;
 
-        public const double AboutHeight = 192;
-
-        /// <summary>[S-16404] Inside the words' card.</summary>
-        public const double AboutPad = 16;
+        /// <summary>[S-16725] A section's heading in Quick settings (BodyStrong, one line) and the room under it, DIPs.</summary>
+        public const double Heading = 28;
 
         /// <summary>[S-14911] Inside the well, from its edge to the cards' room.</summary>
         public const double WellPad = 8;

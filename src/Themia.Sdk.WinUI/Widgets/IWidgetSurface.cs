@@ -43,6 +43,12 @@ public interface IWidgetSurface
     bool IsPreview => false;
 
     /// <summary>
+    /// [S-16724] A preview whose views read what they show live (the widget gallery's quick toggles: this PC's own state, as a
+    /// placed card shows it); it still acts on nothing. False everywhere else.
+    /// </summary>
+    bool ReadsLive => false;
+
+    /// <summary>
     /// [S-1911] Whether the desktop is in edit mode right now. There a click on a widget selects and
     /// moves it; a view whose whole tile is a button (the power widgets) leaves the press to the card.
     /// </summary>

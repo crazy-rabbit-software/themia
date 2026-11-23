@@ -321,6 +321,9 @@ internal sealed partial class PageView
         }
 
         var shown = results.Take(I.Found).ToList();
+#if DEBUG
+        _shownFound[row.Key] = shown;
+#endif
         var list = new StackPanel { Height = I.Found * I.Option };
         foreach (var result in shown)
         {
@@ -465,6 +468,25 @@ internal sealed partial class PageView
     private int _typing;
 
 #if DEBUG
+    /// <summary>[S-16720] Debug renders: each lookup's results as last drawn, by its row's key.</summary>
+    private readonly Dictionary<string, List<PageRow>> _shownFound = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// [S-16720] Debug renders: the open lookup's result at <paramref name="index"/> picked as a click on it picks it (its row's
+    /// own action), then the page drawn again as a save draws it.
+    /// </summary>
+    internal bool DebugPickFound(int index)
+    {
+        if (_nav.Open is not { } open || !_shownFound.TryGetValue(open, out var shown) || index < 0 || index >= shown.Count || shown[index].Run is not { } pick)
+        {
+            return false;
+        }
+
+        Do(pick);
+        Redraw();
+        return true;
+    }
+
     /// <summary>[S-15900] Debug renders: a lookup's search still running, which a render's settle waits for; null when none.</summary>
     internal string? DebugSearching => _searches > 0 ? "a lookup's search" : null;
 

@@ -34,7 +34,6 @@ internal static partial class RenderCommands
 
         // pages
         EditBarRender.Command,
-        PickerRender.Command,
         IconPickerRender.Command,
         ViewBarRender.Command,
         MenuRender.Command,

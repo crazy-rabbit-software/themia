@@ -33,6 +33,21 @@ internal sealed partial class PageTabButton : Button
         IsHitTestVisible = false,
     };
 
+    /// <summary>[S-16727] Its count beside its words (the Not on view tab's): Windows' InfoBadge look, the accent pill.</summary>
+    private readonly Border _badge = new()
+    {
+        MinWidth = ShellMetrics.Bar.Badge,
+        Height = ShellMetrics.Bar.Badge,
+        Padding = new Thickness(ShellMetrics.Bar.BadgePad, 0, ShellMetrics.Bar.BadgePad, 0),
+        CornerRadius = new CornerRadius(ShellMetrics.Bar.BadgeRadius),
+        Background = Family.Brush(ColourRole.Accent),
+        VerticalAlignment = VerticalAlignment.Center,
+        Visibility = Visibility.Collapsed,
+        IsHitTestVisible = false,
+    };
+
+    private readonly TextBlock _count = Fluent.Text(FamilyType.Caption);
+
     public PageTabButton(string key, string title, Action choose)
     {
         ArgumentNullException.ThrowIfNull(choose);
@@ -40,8 +55,14 @@ internal sealed partial class PageTabButton : Button
         _words = Fluent.Text(FamilyType.Body);
         _words.Text = title;
         _words.VerticalAlignment = VerticalAlignment.Center;
-        _words.HorizontalAlignment = HorizontalAlignment.Center;
-        Content = new Grid { Children = { _words, _pill } };
+        _count.Foreground = ThemeBrush.Of("TextOnAccentFillColorPrimaryBrush", Colors.White);
+        _count.HorizontalAlignment = HorizontalAlignment.Center;
+        _count.VerticalAlignment = VerticalAlignment.Center;
+        _count.TextLineBounds = TextLineBounds.TrimToCapHeight;
+        _count.ClearValue(TextBlock.LineHeightProperty);
+        _badge.Child = _count;
+        var line = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Fluent.Space2, HorizontalAlignment = HorizontalAlignment.Center, Children = { _words, _badge } };
+        Content = new Grid { Children = { line, _pill } };
         Height = P.Tabs;
         Padding = new Thickness(P.TabPad, 0, P.TabPad, 0);
         VerticalContentAlignment = VerticalAlignment.Stretch;
@@ -54,6 +75,28 @@ internal sealed partial class PageTabButton : Button
 
     /// <summary>The tab's key.</summary>
     public string Key { get; }
+
+    /// <summary>[S-16727] Its words, said again (a tab whose words follow the state).</summary>
+    public string Title
+    {
+        get => _words.Text;
+        set
+        {
+            if (!string.Equals(_words.Text, value, StringComparison.Ordinal))
+            {
+                _words.Text = value;
+                AutomationProperties.SetName(this, value);
+            }
+        }
+    }
+
+    /// <summary>[S-16727] Its count's badge (<paramref name="count"/>, null: none) and what a screen reader hears of it.</summary>
+    public void Count(string? count, string? said)
+    {
+        _badge.Visibility = count is null ? Visibility.Collapsed : Visibility.Visible;
+        _count.Text = count ?? string.Empty;
+        AutomationProperties.SetHelpText(this, said ?? string.Empty);
+    }
 
     /// <summary>The tab shown: its words strong over the pill.</summary>
     public bool Chosen

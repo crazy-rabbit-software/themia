@@ -2833,6 +2833,10 @@ flyout opening once per selection and again on a click; a language switch with a
 
 ### The edit bar and its add page (EDITBAR)
 
+**2026-11-23: the add page is gone** ([S-16728]; owner: *"not on home should be a tab in the widget gallery now. it should be removed from the topbar root. the normal Add widget page should also be removed. the widget gallery will be the new add widget page"*): Add widget opens the widget gallery
+([S-14910]..). What still stands below is the model the gallery reads (the tree of subjects, `AddPage`'s sections and its search:
+`AddTree`, `AddPage`, `AddSearch`); the page's view, flyout, rail, tiles, preview pane, pictures, keys and renders are retired.
+
 The bar itself is EDITBAR-PAGES' ([S-2320]); what stays here is its add page (owner 2026-11-12: "when
 adding a widget there should also already be premade groups, not just those atoms, so that it is easier
 to get started"; after Karpo's add page, `karpo-app` docs/widgets.md §593, §578, §592). Owning files: Core
@@ -2848,11 +2852,11 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
 - **[S-3508]** *(Retired by [S-2343]: the selection's entry opens its page; there is no properties menu to put away.)*
 - **[S-3509]** *(Retired by [S-2320]: the bar has no Undo or Redo; Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z step the history ([S-885]).)*
 - **[S-3516]** *(Retired 2026-11-15: there is no Snap to grid; the grid is always on, [S-06].)*
-- **[S-3501]** **Add widget** opens the **add page** ([S-11700]): every widget kind in the catalogue (the
-  module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change) and
-  every ready-made group ([S-2470]) as tiles with pictures. Every way in opens the same page under that
-  display's bar: the bar's Add, the surface menu's Add widget ([S-1744]), the desktop's background menu's
-  ([S-5551]) and the keys ([S-1998]). Picking a tile starts the placement session of [S-421] unchanged.
+- **[S-3501]** **Add widget** opens the **widget gallery** ([S-16728]; before, the add page, [S-11700]): every widget kind
+  in the catalogue (the module registry, `ModuleCatalog.Widgets` [S-6902], so a new widget is listed with no other change).
+  Every way in opens it under that display's bar: the bar's Add widget, the surface menu's Add widget ([S-1744]), the
+  desktop's background menu's ([S-5551]), a lassoed area's ([S-13018]) and the keys ([S-1998]). A drag off it (or Enter) starts
+  the placement session of [S-421] unchanged.
 - **[S-3502]** *(Retired: the catalogue's sections no longer flow through columns as a newspaper's;
   the page is tabs of subjects, [S-11700].)*
 - **[S-3503]** *(Retired with it.)*
@@ -2929,58 +2933,17 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   view's unplaced desktop items are tiles of **On the desktop** in the same subject, none when nothing is
   unplaced. *(Retired 2026-11-14: "the desktop item kind is never a tile and
   has no home"; the kinds `shortcut` and `desktopItem` are one.)*
-- **[S-11710]** A tile's **picture** (shown in the preview pane, [S-13602]) is the thing itself (`AddPictures`): its widget at its natural size, or
-  its recipe's widgets at their boxes joined as one panel ([S-2240]), built as real cards on a preview host
-  with the design applied, so the user sees their look, and with **sample data only**, in every build
-  ([S-11850]): the sample world handed to those cards alone ([S-11851]: the sample PC's hub for the system
-  readings, [S-1931], a gallery service of their own); each view's own sample ([S-11852]); a kit list reads
-  no account (the providers' recordings in Debug, [S-9929]); never this PC's readings, files or accounts.
-  Drawn to a bitmap off the UI's hot path (one at a time at low priority after the page shows, the cards on
-  a stage under the page's ground and detached once drawn; the previewed tile's first, [S-13604]), then fitted
-  into the preview's box, scaled down and never up, centred. Cached per look (the design as stored, light or dark, the language) and tile, within a
-  bound ([S-11853]); a new look starts the cache again. A picture not yet drawn shows the tile's glyph on
-  its box, never a blank. *(Until 2026-11-19 each tile carried its picture in a 120-tall box: [S-13600].)*
+- **[S-11710]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
 - **[S-11711]** *(Retired by [S-11850]: the samples ship, and every build draws the pictures.)*
-- **[S-11712]** Debug renders: `--render picker <out.png> [--tab Id] [--search text] [--width w] [--height h]
-  [--hover key] [--open family:Id] [--theme light|dark] [--lang xx]` draws the page open under the real bar on a stand-in display (1920 ×
-  1032 unless sized), every picture drawn before the shot (a minute at most, said when cut short);
-  `--render editbar`'s add shots are the same path (`AddPageShot`): `editbar-<theme>-add` (Start), `-add-system`,
-  `-add-weather`, `-add-family` (System, the CPU family open and its head pointed at), `-add-search` ("music"),
-  `-add-none` (nothing found), `-add-narrow` (a 900-wide display), `-add-hover` (the pointer on Forecast) and
-  `-add-hover-group` (on This PC in System). `--tab <Id>` shows that rail item; `--hover <key>` (a tile's key:
-  `kind:clock`, `group:thisPc`; a family's: `family:Processor`) rests the pointer on that tile or family head, its
-  preview shown ([S-13602], [S-13614]); `--open family:<Id>` opens that family in place ([S-13612]).
+- **[S-11712]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
 
 #### The tiles and the preview on hover ([S-13600]..[S-13604])
 
-- **[S-13600]** The owner (2026-11-19): *"rework the whole new widget menu. it should not show the preview like it does at
-  the moment. it should show the preview somewhere when hovering over it. make it similar to how karpo does it."* The
-  add page is Karpo's (`karpo-app`, docs/widgets.md §578, §593): compact tiles of an icon and a name, and the thing
-  itself shown only for the tile pointed at. Karpo shows its pick as a ghost where it will stand on the bar; a Themia
-  widget has no place until it is placed (the placement session follows the pointer, [S-421]), so the page shows it in
-  a **preview pane** beside its tiles. The tabs, sections, search, keys, homes, ready-made groups, desktop items, the
-  Pro hint and every way in ([S-3501], [S-13018]'s lassoed area, `PlaceWidgetIn`) are unchanged. *(The tabs became a
-  rail on 2026-11-19, [S-13610].)*
-- **[S-13601]** A **tile** (Karpo's `TileTwoLines`): 52 tall, at least 200 wide, 4 apart either way, filling the list's
-  width evenly; on a page card, the subtle fills under the pointer and pressed; the thing's icon (its kind's, its
-  group's, a desktop item's) 12 in, then 12, its name in Body over one Caption line (a widget: its description; a
-  group: "n widgets"; a desktop item: "On the desktop"), each cut short with an ellipsis; the Pro hint at its end.
-- **[S-13602]** The **preview pane** (`AddPreview`): a page card 360 wide, 16 off the tiles, at the top beside them
-  (it does not scroll with them), 16 in: a picture box 240 tall with the tile's picture ([S-11710]) fitted, scaled down
-  and never up, centred (its glyph, 48, until it is drawn), then its name in BodyStrong, a group's "n widgets" in
-  Caption, what it is in Body (a widget's description, a group's line), and the free plan's limit in the accent where
-  placing it would pass it ([S-1065]). It shows the tile **under the pointer or reached by the keys** (Tab, the
-  arrows) and a family's head too ([S-13614]); until one is, the **first tile shown** (the one Enter in the box picks),
-  and a new subject or search starts there again; the pointer leaving a tile leaves the pane as it is (no blink while crossing the gaps). Nothing matching
-  empties it. Nothing in it acts, and a screen reader is not told it twice (the tile says its name, caption and limit).
-  The page is as tall as its rail, its tiles or its pane, whichever is tallest ([S-11707]).
-- **[S-13603]** The pane stands beside the tiles while the list keeps two tiles across beside the rail and it
-  (`AddPageLayout.Split`: the page's width less the rail's 256 and the pane's 376 at least 404); narrower, there is
-  no pane and the tiles take its room (no preview); narrower still, the rail its glyphs alone ([S-13616]).
-- **[S-13604]** **Pictures** are drawn one at a time as before ([S-11710], [S-11853]), the **previewed tile's first**
-  (`AddPictures.Prefer`: to the front of what is waiting; the one being drawn finishes), then every other tile in
-  sight and a screen below it ([S-13613]), so pointing at one later shows it at once. `--check add-pictures` still
-  draws Start's every picture.
+- **[S-13600]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
+- **[S-13601]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
+- **[S-13602]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
+- **[S-13603]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
+- **[S-13604]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
 
 #### The rail and family stacks ([S-13610]..[S-13617])
 
@@ -3004,14 +2967,7 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   view's unplaced desktop items, in the subject the desktop icon kind is at home in), then **each family of two or
   more** as one stack ([S-13612]), in the tree's order. Every kind stands exactly once ([S-11705]): a family's in its
   stack alone.
-- **[S-13612]** A **family stack** (`AddFamily`): a **head** 36 tall over its tiles (a subtle row as wide as the list,
-  its fill reaching 8 past the tiles' start, its words where a heading's stand: the family's name in BodyStrong, its
-  count in Caption and secondary and a chevron, right while closed, down while open, at its end), then its **first
-  row** of tiles, the row's last cell a **"+N" tile** (a tile's card: "+N" in BodyStrong over "Show all" in Caption)
-  for the rest where they do not fit one row (`AddPageLayout.Stack`: one tile and "+N" where one stands across). The
-  head's click or the "+N" tile's opens the family **in place**, every tile of it, the "+N" gone; the head's click
-  closes it again. A family that fits one row shows whole, its head with no chevron and nothing to open. Several may be
-  open at once, in any subject, while the page is open; a new count across lays a closed stack again.
+- **[S-13612]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
 - **[S-13613]** **Hundreds of kinds** stay cheap: the rail and the homes are made as the page is (ids only); a
   subject's sections when it is first shown, then kept (`AddPage.Sections`); a closed family draws one row; only the
   tiles in sight and a screen below it ask for their pictures (`AddPageView.WantInSight`, as the content scrolls),
@@ -3025,25 +2981,14 @@ renders `Gallery/PickerRender.cs`, `EditBarRender.Parts.cs` (`AddPageShot`). Tes
   a tile of its own (a family never hides a result; its name finds all of them, [S-3513]); the rail shows no item
   chosen. Spaces alone search nothing; nothing matching shows the family's status row ("No results for “…”",
   [S-6714]); clearing the box returns to the subject. Choosing a rail item clears the box.
-- **[S-13616]** **Narrow pages** (`AddPageLayout.Split`): the preview pane drops first ([S-13603]); where even then
-  the rail leaves fewer than two tiles across, the rail shows its **glyphs alone**, 48 wide (NavigationView's compact
-  pane; the name and count in its tooltip), and the search box stands over the content instead. *(Under the bar's
-  own least width the first is what happens: the 900-wide display keeps its rail.)*
-- **[S-13617]** **Keys** (`AddPageKeys`): the caret is in the search box as the page opens; Tab walks the box, the rail
-  (one stop, its chosen item) and the content's stops. On the **rail** Up and Down walk it, the item reached shown;
-  Home and End go to its first and last; Up from the first goes to the box; Right or Enter goes into the content's
-  first stop. In the **content** the arrows walk the stops as they stand: each section a grid, a family's head a row
-  of its own over its stack; Right in reading order across sections, Left back within a row and at a row's start back
-  to the rail's chosen item, Up and Down to the same column of the row above or below, held to its stops; Up from the
-  first row back to the box, Down from the box to the first stop (mirrored right to left); Home and End go to the first
-  and last stop. Enter or Space picks a tile, opens or closes a family on its head or "+N"; Enter in the box picks the
-  first tile shown; typing anywhere on the page goes to the box; Ctrl+Tab and Ctrl+Shift+Tab step the rail round;
-  Escape empties the box first, then closes the page, the keyboard back on Add.
+- **[S-13616]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
+- **[S-13617]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
 
 #### The pictures in every build ([S-11850]..[S-11854])
 
-The pictures are the point of the page (the owner's "easy to get started"), so the Store's build draws them
-too. What they need at run time ships; the render tooling does not.
+The pictures were the point of the add page (the owner's "easy to get started"), so the Store's build drew them too; the
+add page is gone ([S-16728]) and the widget gallery's cards and the Appearance's preview are drawn on the same samples. What
+they need at run time ships; the render tooling does not.
 
 - **[S-11850]** **Samples ship, previews do not, by folder.** A view's sample is `IWidgetSample.ShowSampleAsync`
   (`Themia.Sdk.WinUI/Samples`): the sample day's data (`Themia.Sdk/Samples`, [S-2050]..[S-2056]) in place of
@@ -3067,22 +3012,9 @@ too. What they need at run time ships; the render tooling does not.
   so nothing of it reaches search, the clipboard or another widget. Only `AppHost`
   (the app) and the Debug render tooling, which runs instead of the app (`RenderMachine.Install`, `--machine
   sample`), set the app's hub.
-- **[S-11852]** **A picture shows a view's own sample**, never a state chosen by position: a view without one
-  draws what its host hands it (the meters, the details and Top processes read the sample PC; the power
-  buttons are drawn at rest). Before, the meters' first state, `unavailable`, drew the GPU and battery
-  groups as "--". The gallery decodes through the sample world's service (it was blank where the app's
-  was not running). A picture waits for its rows' icons (`AppIconSource.Quiet`, at most 2 s) and a switch
-  is drawn where it is, not on its way.
-- **[S-11853]** **The cache is bounded**: at most 160 pictures and 48 MB of their pixels (`AddPictureCache`,
-  Core: the least recently shown go first; one larger than the budget is not kept), dropped a minute after
-  the last page closed; the next opening draws them again (measured 2026-11-12: the Start tab's eighteen
-  in about 4.3 s in the Native AOT build, 13 MB of pixels; every tab's 152 about 64 MB, so the bound
-  drops the oldest; at low priority, the glyphs meanwhile).
-- **[S-11854]** `Themia.exe --check add-pictures <out.png>`, in **every build**, the one check a Release build
-  knows ([S-68], [S-69]): draws the page's Start off-screen through the shipped path,
-  writes it to the PNG, says how many pictures of how many, their bytes and the time, and exits with its verdict (0
-  when every picture was drawn). Only as the first argument, with a `.png` path; it reads and writes no state
-  and never reaches the hand-off.
+- **[S-11852]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
+- **[S-11853]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
+- **[S-11854]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
 
 Needs a live pass: the page under the bar on every display at mixed DPI and with a top taskbar (as wide as
 the bar, 70 % of a short display); the pointer (hover fills, a press outside closing it, a tile's click
@@ -3092,6 +3024,11 @@ packaged Store build, their cache across openings, after a design or language ch
 after closing; a screen reader on the rail, the family heads and the tiles.
 
 #### Unplaced icons ([S-13700]..[S-13715])
+
+**2026-11-23: the page is the widget gallery's Not on view tab** ([S-16727]; owner: *"not on home should be a tab in the widget gallery now. it should be removed from the topbar root. the normal Add widget page should also be removed. the widget gallery will be the new add widget page"*): no entry on
+the bar; its icons, their drag onto the desktop, desktop icons dropped onto it, its search, title and grid are the tab's, in the
+gallery's well. Where an entry below says "the page" it is that tab; "under the bar, as wide as the bar" and "its entry" are
+retired with it.
 
 The owner (2026-11-19): *"in edit mode there should be a page with the desktop icons that are on the physical desktop
 folder but are not placed on the given view, this should be a page in the settings too, own entry in the topbar."*
@@ -3130,15 +3067,10 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
   owner, 2026-11-21: "it should not show the place on this view button": none, and nothing in its place). A view
   that shows no desktop icons (None, [S-5525]) lists none and says so, pointing at Views › Desktop icons; with every
   icon placed the page says that.
-- **[S-13701]** **Its entry** on the edit bar stands **right beside Add widget** (after it, the Widget gallery's button
-  before it, [S-14910]), not among the pages' (owner,
-  2026-11-21: "the selector settings page should be moved next to add widget and given another icon";
-  `BarPartKind.Unplaced`, `SettingsPages.Entries` the pages without it): its icon alone at every width (its name
-  "Unplaced icons" the tooltip and the screen reader's), an app's icon with a plus (`Glyphs.UnplacedIcons`, Segoe
-  "AppIconDefaultAdd"; until 2026-11-21 the grid of "Tiles", among the pages after Views); while the display's view
-  leaves any icon unplaced, a count badge (Windows' InfoBadge look: the accent pill
-  over the icon's top end corner, at most "99+", `UnplacedItems.Badge`; the screen reader hears "n desktop icons are
-  not on this view"). It opens the page under the bar like every entry ([S-2327]).
+- **[S-13701]** *(Its entry on the bar is retired 2026-11-23 with the bar's Unplaced icons button, [S-16727].)* Its
+  **count badge** stands on the gallery's Not on view tab (Windows' InfoBadge look: the accent pill beside the tab's words, at
+  most "99+", `UnplacedItems.Badge`; the screen reader hears "n desktop icons are not on this view"), while the display's view
+  leaves any icon unplaced.
 - **[S-13702]** **Search**: from nine items on (`UnplacedItems.SearchFrom`) a search box over the icons narrows them to
   the names holding every typed word, any case (`UnplacedItems.Matching`); nothing matching says so.
 - **[S-13703]** **Selection and placing**: the icons are selected as files are (`ItemSelection`, [S-6620]: click,
@@ -3252,7 +3184,8 @@ icons' desktop), `Shell/IconPreviewHost.cs` (the icons' host), `Shell/IconMarks.
 - **[S-13715]** **The page stays open** (owner, 2026-11-21: "it should not close when i click outside of it"): the one
   flyout with no light dismiss (`SettingsPages.StaysOpen`, [S-2327]): a press outside it does what it does and the page
   stays; it closes by its entry, Escape, Done (leaving edit mode), opening another page or the add page, and for a placement
-  (its drag off, [S-13705], after which it opens again). While it is open **the desktop stays usable** beside it: widgets and
+  (its drag off, [S-13705], after which it opens again). Since 2026-11-23 it is the gallery's tab ([S-16727]): the gallery
+  steps aside for its drag and comes back on the tab, and the desktop stays usable beside the gallery as it was beside the page. While it is open **the desktop stays usable** beside it: widgets and
   icons are selected and moved, and a selection made there does not open the selection's page over it on its own (the
   selection's entry on the bar opens it, closing this one). Tests `UnplacedItemsTests.S13715_`.
 
@@ -3263,7 +3196,7 @@ band drawn on the page with the real pointer (Ctrl and Shift too), placing by a 
 Enter with the real listing, the badge following files
 added to and deleted from the desktop folder with the page open and shut, and a screen reader on the list.
 
-#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566])
+#### The widget gallery ([S-14910]..[S-14917], [S-16400]..[S-16410], [S-16550]..[S-16566], [S-16721]..[S-16729])
 
 The owner (2026-11-21): *"the add widget menu should be reworked: -dont delete anything of the current settings view yet,
 build a second independent page. -on the independent page it should bascially be a dashboard that you show with the
@@ -3315,13 +3248,20 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
 `Shell/SampleCards.cs`, the gallery's button in `EditBar.cs` (`GalleryBox`, where its beak points), `Shell/Backdrops.cs`
 (`Backdrop.PlainAsync`, the desktop's wallpaper unblurred); render and check `Gallery/WidgetGalleryRender.cs`. Tests
 `WidgetGalleryTests`, `WidgetGalleryPlacementTests`, `WallpaperTests.S16563_`, `EditBarLayoutTests.S2320_`, `SearchRulesTests.S16409_`.
+Then, the third round (2026-11-23): *"the widget gallery should not show the different styles when clicking on a widget, the
+other widgets should also not hide. when i click a widget it should bascially not do anything to it."*; *"in the widget gallery
+give the widgets a header above them that is their title. it should be subtile and small."*; *"remove all widget compositions
+for now and only show the individual widgets that are available."*; *"not on home should be a tab in the widget gallery now. it should be removed from the topbar root. the normal Add widget page should also be removed. the widget gallery will be the new add widget page"*; and for its Quick settings tab:
+*"all the widgets in the quick settings should be shown squared. they should also have their proper state, so if airplane mode
+is on or off for example it should properly show. the other styles should also be shown in the quick settings view as well. in
+the quick settings you dont have to add a header to every widget, actually i dont want that at all. you should just add headers
+to the columns or individual sections there. remove the quick settings premade group as well. order them as well so that the
+actions dont interweave with the toggle buttons."* The focus ([S-16404], [S-16554]..[S-16556]) is retired; [S-16721]..[S-16729].
 
-- **[S-14910]** **Its own page, beside the add page.** The edit bar has a **Widget gallery** button (an icon alone, Segoe's
-  ViewDashboard, its words its tooltip) between the problems' room and Add widget ([S-2320]: 4 either side); the add page
-  ([S-3501], [S-13610]..) is unchanged. The gallery is one of the bar's flyouts ([S-2327]): one at a time (it closes as
-  another opens, and the others close as it opens), its button marked with the accent's pill while it is open, and its
-  button, Escape (a pick first, [S-14914]), another entry, Done and leaving edit mode close it. Only in edit mode and not
-  while placing.
+- **[S-14910]** **Add widget's page** ([S-16728]; before 2026-11-23 its own button beside the add page): the edit bar's Add
+  widget opens the gallery. It is one of the bar's flyouts ([S-2327]): one at a time (it closes as another opens, and the
+  others close as it opens), Add widget marked with the accent's pill while it is open, and Add widget, Escape (a pick first,
+  [S-14914]), another entry, Done and leaving edit mode close it. Only in edit mode and not while placing.
 - **[S-14911]** **A window, its cards on the display's grid.** The gallery is a window under the bar on the display it was
   opened on (`WidgetGallery.Frame`; where: [S-16400]): four fifths of the work area each way, never under 1200 by 640 where
   the work area holds that, 24 from the work area's sides and foot at the least; the desktop shows round it and takes its own
@@ -3344,7 +3284,7 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   and keeps its height (taller, its rows would grow unevenly and its lines of text with them). Quick settings shows each
   toggle twice ([S-16562]), and the power buttons ([S-16565]).
 - **[S-14913]** **A tab is scrolled, never the tabs.** Only a click on a tab ([S-16401]) changes the category, which shows
-  from its top with nothing picked and nothing in focus. A sheet taller than the well is **scrolled** in it
+  from its top with nothing picked. A sheet taller than the well is **scrolled** in it
   (`WidgetGallery.Scroll`, `MaxScroll`): the **wheel** over the well by 8 rows a notch, **Page Up/Down** by a page (the
   view less a step), **Home** and **End** to its top and its foot, and the well's **scroll bar** (there while it scrolls)
   by its thumb. It moves by whole cells, so a card stands on the desktop's cells wherever it is scrolled to; a card that
@@ -3354,7 +3294,7 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
 - **[S-14914]** **Picking** is edit mode's (`WidgetSelection`, `SelectionRules`, [S-1580]..[S-1593]): a press picks the piece
   alone or keeps a pick that holds it, Ctrl or Shift+press toggles one, a band from empty room picks what it touches (added
   to the pick with Ctrl or Shift), Ctrl+A the sheet's every piece, a press on empty room or Escape lets go; a click (a press
-  let go where it was) puts the piece in focus ([S-16404]; in focus a click picks and nothing more, [S-16556]). A ready-made
+  let go where it was) picks and does nothing more ([S-16722]). A ready-made
   group is picked **whole**: by any one of its
   widgets, all of them, and let go the same way. Marked as the locked desktop marks a selection: one card its four corners,
   several the frame's corners round them and none of their own ([S-14310]).
@@ -3388,20 +3328,16 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   it; Escape (nothing in focus, nothing picked) empties it; emptied, the tab chosen is back.
 - **[S-16403]** *(Retired: the packing bento, its pieces packed largest first and grown into the room left, is gone; a
   category is a column bento, [S-16550]..[S-16553].)*
-- **[S-16404]** **A click puts a piece in focus** (`WidgetGallery.Focus`): the sheet's other cards fade out, and round the
-  piece, where it stands ([S-16554]), stand its **words**, a card of the bento of its own drawn as a widget stands (Windows'
-  card fill and rim; the piece's glyph and name, what it is, how many styles it has or how many widgets a group places, what
-  it needs, "Needs an account: …", and how to place it), and for a widget the widget in **each of its other styles**
-  ([S-6000], [S-16555]); every one a real card on its sample that drags out as any ([S-14916]). A click on empty room (not
-  on the words) or Escape leaves the focus: the sheet is back as it stood.
+- **[S-16404]** *(Retired 2026-11-23 by [S-16722]: a click picks and does nothing more; no focus, no words' card, no styles round it)*
 - **[S-16405]** *(Retired: the piece in focus no longer moves to the top in the middle; it stays where it stood, [S-16554].)*
 - **[S-16406]** **Changing what is shown fades** (the shell's one glide, `PageReveal.Glide` over `PageReveal.Ms`, eased out;
-  at once while Windows' animations are off): the cards that go fade out, the new ones fade in; the piece put in focus, or
-  left, does neither: it never moves ([S-16554]).
+  at once while Windows' animations are off): a tab or a search changed, the cards that go fade out and the new ones fade in.
+  A click fades nothing ([S-16722]).
 - **[S-16407]** **Keys.** The arrows move the pick from piece to piece (`WidgetGallery.Next`: the nearest whose middle lies
-  that way; in focus between the piece and its styles, the focus staying), the sheet scrolled as little as it takes to show
-  it (`WidgetGallery.Reveal`); **Enter** places the pick (or the piece in focus) as a drag of it does, held at its middle;
-  Escape leaves the focus, then lets the pick go, then empties the search; with none of that it closes the gallery. While the
+  that way), the sheet scrolled as little as it takes to show it (`WidgetGallery.Reveal`); **Enter** places the pick as a
+  drag of it does, held at its middle (opened for a lassoed area, one widget goes into it at once, [S-13018]); Escape lets the
+  pick go, then empties the search; with none of that it closes the gallery. On the Not on view tab the keys are its page's
+  ([S-16727]). While the
   search box has the keys it keeps those it edits with (Left, Right, Home, End, Enter, Ctrl+A); Up, Down, Page Up, Page Down
   and Escape are the gallery's; a press on the cards takes the keys out of the box.
 - **[S-16408]** **A drop opens the settings, not the gallery again** (`WidgetGallery.AfterPlacing`): when a placement the
@@ -3409,16 +3345,15 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   display they landed on ([S-2343]: one widget's page, several's the page of several, [S-11754]). Given up, the gallery is
   back as it stood.
 - **[S-16410]** The render and the check ([S-14917]): `--render gallery` draws, besides every tab, searches
-  (`-search-weather`, `-search-clock`, `-search-e`), a widget before and in focus (`-focus-before`, `-focus-styles`), a style
-  of it picked (`-focus-style-picked`), one without styles (`-focus-plain`) and a ready-made group in focus (`-focus-group`),
-  several picked (`-select-several`) and a drag under way (`-drag`); the rest is [S-16564]. `--check gallery` says the pieces
+  (`-search-weather`, `-search-clock`, `-search-e`), a widget clicked (`-click`, [S-16722]), the Not on view tab
+  (`-unplaced`, [S-16727]), several picked (`-select-several`) and a drag under way (`-drag`); the rest is [S-16564] and [S-16729]. `--check gallery` says the pieces
   and the columns per category, and checks: the window flush under the bar and inside the work area; every category's cards
   on whole cells inside the view and apart, at its top and scrolled to its foot; no family's small part; a scroll step by
   whole cells keeping the category; a search showing whole pieces and the category back when emptied; a group picked whole;
   Enter starting the placement; one widget and then three dragged and dropped (the ghost on their cells where the pointer held
   them, moved by whole cells with their offsets kept, landed where it was, selected, the gallery closed and their settings page
-  open); a drag given up (the gallery back); a style shown in focus picked and dragged out landing in that style; the rest is
-  [S-16564]; PASS or FAIL (`<out>.png`, `<out>.dropped.png`).
+  open); a drag given up (the gallery back); a toggle in another style ([S-16726]) picked and dragged out landing in that style;
+  the rest is [S-16564] and [S-16729]; PASS or FAIL (`<out>.png`, `<out>.dropped.png`).
 - **[S-16550]** **A column bento** (`WidgetGallery.Lay`, pure, tested over every category and search of the build at 1920 by
   1080, 1366 by 768, 1280 by 720 and 1024 by 768). **Columns come first**: a few (from three fifths to half as many again as
   pieces of the middle width fill the view, never more than eight nor than the pieces), of whole cells and of different
@@ -3450,18 +3385,9 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
 - **[S-16553]** **Ready-made groups in columns.** A group takes its column's width where its block resize lands there
   (`GallerySizes.GroupWidths`, [S-2460]) and keeps its height; where none of the widths tried is one it may be, a column of
   its own width is among the ways tried ([S-16550]).
-- **[S-16554]** **The piece in focus never moves** (owner: *"when clicking on a widget in the gallery it should not move when
-  the preview of the different styles appears"*; `WidgetGallery.LayFocus`): clicked, its cards stay the same cards on the
-  same cells (no glide, no new layout of it, the sheet scrolled as it was), the others fade out, and in the room they leave
-  its words and its styles fade in round it, in that order: in columns beside it from its top down (to its left and its
-  right, each side cut into columns about a piece wide) and under it as wide as it, the shortest first, one cell apart. Left
-  (a click on empty room, Escape), the sheet is back as it stood, the piece on the same cells again.
-- **[S-16555]** **Only its styles** (owner: *"when clicking on a widget it should now only show the styles, not related
-  widgets actually"*): round a widget in focus its words and the widget in each of its other styles; no neighbour, no other
-  size. A kind of one style, and a ready-made group, have their words alone round them.
-- **[S-16556]** **No navigating after a pick** (owner: *"when you click through further after you selected a widget it should
-  not navigate anymore"*): in focus a click on a card (a style, or the piece itself) picks it, for Enter or a drag to place
-  it in that style, and nothing else: the focus, the cards and the sheet stay. Only a click on empty room or Escape leaves.
+- **[S-16554]** *(Retired 2026-11-23 by [S-16722]: a click picks and does nothing more; there is no focus)*
+- **[S-16555]** *(Retired 2026-11-23 by [S-16722]: a click picks and does nothing more; there is no focus)*
+- **[S-16556]** *(Retired 2026-11-23 by [S-16722]: a click picks and does nothing more; there is no focus)*
 - **[S-16557]** **The search always open, its first finds** (owner: *"the search on the topright should always be expanded"*;
   *"the search box lags, maybe only show the first X matches"*): the box stands at the head's end at all times (a quarter of
   the line at the most on a narrow window), no magnifier to open it. A search shows the first `WidgetGallery.MostFound` (8)
@@ -3473,8 +3399,8 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   106 to 181, most 413), laying 1 to 27 ms of it, building the cards the rest; the worst keystroke ("w", 79 pieces, 1060 ms)
   is gone. Twelve pieces measured 113 to 252 (middle 202): eight it is.
 - **[S-16558]** **The beak** (owner: *"the angle on the top is missing"*): the window and a flyout's beak (8 tall, 16 across)
-  are one outline with one rim and one shadow (`PageFlyout.Outline`), the beak's tip over the Widget gallery button's middle
-  (`EditBar.GalleryBox`; held to the straight of the top, `FlyoutPlacement.Tip`), in the flyouts' gap under the bar.
+  are one outline with one rim and one shadow (`PageFlyout.Outline`), the beak's tip over Add widget's middle
+  ([S-16728], `EditBar.GalleryBox`; held to the straight of the top, `FlyoutPlacement.Tip`), in the flyouts' gap under the bar.
 - **[S-16559]** **Tabs with less room round them** (owner: *"the design of the tabs should have a little less spacing on the top
   and bottom"*): the head is a tab tall (40), 8 under the window's top and 4 over the well (16 and 8 before).
 - **[S-16560]** **A hint** (owner: *"there should be a hint on the topright somewhere that says drag widget to add or similar"*):
@@ -3485,17 +3411,16 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   work area under the bar, the tabs scroll across in their room, the hint and the search fit at the line's end, and the view
   holds fewer columns (two or three at 1024, four or five at 1920), nothing cut and no hole.
 - **[S-16562]** **Quick settings in two sizes** (owner: *"the quick settings should show in two sizes, the small size that we
-  have right now and then even a smaller size"*): in the Quick settings tab every toggle stands at the size it has new and,
-  right after it, at its least (`GalleryPiece.Least`: its sizing's least, kept), both real cards that drag out at their size;
-  the least ones make rows of their own in a column as wide as the row ([S-16551]). No other tab, and no search, doubles a
-  widget.
+  have right now and then even a smaller size"*): in the Quick settings tab every toggle in its first style (Tile) stands at the
+  size it has new and, right after it, at its least (`GalleryPiece.Least`: its sizing's least, kept), both real cards that drag
+  out at their size, square ([S-16724]); the power buttons the same ([S-16565]). No other tab, and no search, doubles a widget.
 - **[S-16565]** **The power buttons in Quick settings** (owner: *"the power widgets like restart shutdown etc, should be
   shown without the header bar and should be shown in two different sizes. the same sizes that the quick settings are
-  shown"*; *"the power actions should be moved to the quick settings page"*): the Power buttons family's widgets (Shut down,
-  Restart, Sleep, Hibernate, Lock, Sign out, Screen off; `WidgetGallery.InQuickSettings`) are whole pieces of the gallery's
-  Quick settings tab, after the toggles, each alone at the size it has new and right after it at its least, as the toggles
-  ([S-16562]); the ready-made Power group (its Header over four of them) is not in the gallery, and no other tab shows them.
-  The add page is unchanged. A search finds them as the whole pieces they are.
+  shown"*; *"the power actions should be moved to the quick settings page"*): the Power buttons family's widgets (Lock, Sign
+  out, Sleep, Hibernate, Restart, Shut down, Screen off; `WidgetGallery.InQuickSettings`) are whole pieces of the gallery's
+  Quick settings tab, in a section of their own after the toggles ([S-16725], [S-16726]), each alone at the size it has new and
+  right after it at its least; no ready-made group ([S-16723]) and no other tab shows them. A search finds them as the whole
+  pieces they are.
 - **[S-16566]** **The tabs first, the hint in what is left** (`WidgetGallery.Head`, tested; of the first build of [S-16560],
   whose hint cut "Devices & power" and Quick settings out of sight on a 1920 by 1080 display): the head's line is the search
   box at its end, then all the tabs; the hint stands only in the room left between them: the whole sentence where it fits,
@@ -3510,16 +3435,77 @@ metrics `ShellMetrics.WidgetGallery`; App `Shell/Pages/WidgetGalleryView.cs`, `S
   it), so the cards stand on the gallery as they will on the desktop (their frost over the real picture). The window's ground
   (the edit bar's) keeps the tabs, hint and search readable; with no picture the well is Windows' sheet.
 - **[S-16564]** The render and the check for the second round: `--render gallery` and `--check gallery` take
-  `--displays WxH,..` (more stand-in displays after the first: each draws its Time, System and Quick settings tabs, a search
-  and a focus, and is checked for its window, head, bentos, quick settings, a search and the focus) and `--wallpaper
+  `--displays WxH,..` (more stand-in displays after the first: each draws its Time, System and Quick settings tabs and a search,
+  and is checked for its window, head, bentos, quick settings and a search) and `--wallpaper
   <picture>` (the stand-in displays' wallpaper, [S-2119]). `--check gallery` says each category's columns (count, widths,
   how ragged) and a keystroke's search time (in all and laying), and checks: the beak over the gallery's button; the head a tab
   tall, 8 under the window's top and 4 over the well; the hint and the search box shown inside the window, the tabs clear of
   them; the well showing the wallpaper (with `--wallpaper`); no hole in any category's columns; the quick settings' toggles at
-  their size and at their least; a search for "e" showing its first 8; a styled widget clicked staying the same card on the
-  same cells in focus, its words and its other styles alone round it, a style clicked (twice) picked with the focus, cards and
-  sheet staying, the piece clicked again still in focus, a click on empty room leaving with the card where it stood; one of one
-  style with its words alone; an arrow moving the pick in focus, the focus staying.
+  their size and at their least; a search for "e" showing its first 8; an arrow moving the pick; the rest is [S-16729].
+- **[S-16721]** **A small title over every widget** (owner: *"in the widget gallery give the widgets a header above them that
+  is their title. it should be subtile and small"*): over each card of a column bento its name (the kind's label), Caption and
+  the secondary text colour, one line cut with an ellipsis, a step in from the card's corner and a step over its top. The title
+  is part of the bento: each tile is its title's rows (`ShellMetrics.WidgetGallery.Title`, 22 DIPs, in whole rows of the
+  display's grid, `GallerySizes.TitleRows`) over its card (`GallerySheet.CardOf`), as wide as the card; the columns count it
+  (`WidgetGallery.Lay`'s `title`: a piece's height its card's at that width and its title's), so no card stands over another's
+  title and no column has a hole. A search's finds have their titles too. Quick settings has none ([S-16725]). Tests
+  `WidgetGalleryTests.S16721_`.
+- **[S-16722]** **A click does nothing but pick** (owner: *"the widget gallery should not show the different styles when
+  clicking on a widget, the other widgets should also not hide. when i click a widget it should bascially not do anything to
+  it"*): a press picks the card ([S-14914]: its corners, for Enter or a drag), and that is all: nothing moves, fades or
+  appears, no words' card and no other styles stand round it, the other cards stay. A click on empty room lets the pick go.
+  The focus ([S-16404], [S-16554]..[S-16556]) and its layout (`WidgetGallery.Focus`, `LayFocus`) are gone. Drag to place,
+  the keys, the search and the tabs stay as they were.
+- **[S-16723]** **No ready-made groups for now** (owner: *"remove all widget compositions for now and only show the individual
+  widgets that are available"*): the gallery shows each widget alone, never a ready-made group or a group's piece, in every tab
+  and search. One switch (`WidgetGallery.ShowsGroups`, off) brings them back; their data stays (`ReadyMadeGroups`: the store's
+  scenes, `--render recipe` and the first-run seed still read it). The Quick settings group (Wi-Fi, Bluetooth, Do not disturb
+  and Night light in a row) is hidden with the rest, its data kept for the store scene that draws it. Tests
+  `WidgetGalleryPlacementTests.S14912_`, `.S16724_`.
+- **[S-16724]** **Quick settings square, in their real state** (owner: *"all the widgets in the quick settings should be shown
+  squared. they should also have their proper state, so if airplane mode is on or off for example it should properly
+  show"*): every toggle and power button of the tab is square on the display's cells (`GalleryPiece.Square`,
+  `GallerySizes.Squared`: as many DIPs down as across, to a cell, held to its sizing; a Switch, whose height its sizing keeps,
+  stays a line) at both sizes it is shown, and kept at that size (no column stretches it). A quick toggle there reads this PC's
+  own state as a placed card does (the gallery's preview host `ReadsLive`: `IWidgetSurface.ReadsLive`, the toggle's source
+  read, never switched; no sample over it): airplane mode, Wi-Fi, Bluetooth and the rest as they are now. The power buttons
+  have no state. Tests `WidgetGalleryPlacementTests.S16724_`.
+- **[S-16725]** **Sections under headings, no titles** (owner: *"in the quick settings you dont have to add a header to every
+  widget, actually i dont want that at all. you should just add headers to the columns or individual sections there"*): the
+  Quick settings tab is sections (`GalleryCategory.Sections`), each its heading (BodyStrong, primary, `ShellMetrics.WidgetGallery.Heading`
+  in whole rows) over its pieces in their order, left to right one cell apart and a new row where the width ends, each at the
+  size it asks (`WidgetGallery.LaySections`); one cell between a section and the next heading; no title over a card. Tests
+  `WidgetGalleryTests.S16725_`.
+- **[S-16726]** **The toggles in every style, the actions apart** (owner: *"the other styles should also be shown in the quick
+  settings view as well ... remove the quick settings premade group as well. order them as well so that the actions dont
+  interweave with the toggle buttons"*): the sections are the toggles in each of their styles, headed by the style's name (Tile:
+  each toggle at its two sizes; Round and Switch: each once), in the add page's order of the toggles (Windows' quick settings
+  run by run), then **Power buttons**: lock, sign out, sleep, hibernate, restart, shut down, screen off
+  (`WidgetGallery.PowerOrder`), each at its two sizes. A toggle shown in a style drags out in it. No toggle among the
+  actions, no action among the toggles. Tests `WidgetGalleryPlacementTests.S16724_`.
+- **[S-16727]** **Not on view is the gallery's last tab** (owner: *"not on home should be a tab in the widget gallery now. it should be removed from the topbar root. the normal Add widget page should also be removed. the widget gallery will be the new add widget page"*): the Unplaced icons page ([S-13700]..)
+  is the last tab of the gallery's head, named as the page's title was ("Not on Home", `UnplacedItems.Title`), with its count
+  badge ([S-13701]); the bar's Unplaced icons button is gone. Chosen, the well holds the page (`UnplacedPageView`, as wide as
+  the well, scrolling down) in place of the cards: its icons as the desktop draws them on its grid, its search and its
+  selection; dragged onto the desktop they are placed ([S-13705], the gallery stepping aside meanwhile and back on the tab
+  after); desktop icons moved onto the well leave the view ([S-13713], `DesktopWindow.OverUnplacedPage`: the well while the
+  tab is shown). The tab and its page follow the state and the desktop's listing ([S-13706]). A way to the page
+  (`OpenPage(DesktopItems)`, a deep link) opens the gallery on the tab. Another tab or a search brings the cards back.
+- **[S-16728]** **The widget gallery is the add page** (owner, quoted above): the bar's Add widget opens and closes the gallery
+  (its beak under Add widget, [S-16558]; Add widget marked while it is open); the gallery's own button and the add page are
+  gone, the bar being the pages' entries, the selection, the problems, Add widget and Done (`EditBarLayout`). Every way that
+  opened the add page opens the gallery: the surface menu's and the desktop's Add widget, Ctrl+N and Ctrl+Alt+Shift+W
+  ([S-1998]), and a lassoed area's Add widget here ([S-13018]: Enter's one widget goes into the area). The add page's code is
+  removed (its view, flyout, rail, preview, pictures and their cache, keys and layout, `--render picker`, `--render editbar`'s
+  `-add*`, `--check add-pictures`); the gallery reads its model (`AddPage`, `AddTree`, the search). Tests
+  `EditBarLayoutTests.S16728_`.
+- **[S-16729]** The render and the check of the third round: `--render gallery` draws a widget clicked (`-click`) and the Not on
+  view tab (`-unplaced`) in place of the focus pictures; `--check gallery` checks a title over every card (Quick settings its
+  headings alone), no ready-made group, a click picking with every card on its cells and none faded (and a click on empty room
+  changing nothing), Quick settings' least sizes, square tiles and sections (the power buttons apart, last), the Not on view tab
+  (its page in the well, the cards gone, a desktop icon let go there leaving the view; another tab bringing the cards back),
+  and a toggle in another style dragged out landing in it. `--render editbar` draws Add widget lit (`-gallery`); its
+  Unplaced icons pictures are gone with the bar's entry.
 
 Needs a live pass: the real drag with the mouse (the cards under the pointer from the press, the ghost on other displays and
 the release landing there, mixed DPI, a top or side taskbar), the wheel and the keys, a screen reader on the tabs, the
@@ -7949,8 +7935,8 @@ there: Themia never takes a key from the app the user is typing in.
 
 - **[S-1998]** The add page straight from the keyboard (issue #120). **Ctrl+Alt+Shift+W** anywhere
   (a second global hotkey: Ctrl+Alt+W with Shift for "and add") and **Ctrl+N** in edit mode take one
-  path, `AppHost.OpenAddMenu`: edit mode on, a placement in progress dropped, and the add page
-  ([S-3501]) opened under the bar of the display under the pointer (as a paste lands there, [S-74]), [S-11707].
+  path, `AppHost.OpenAddMenu`: edit mode on, a placement in progress dropped, and the widget gallery
+  ([S-3501], [S-16728]; before, the add page) opened under the bar of the display under the pointer (as a paste lands there, [S-74]).
   The surface takes the foreground (the hotkey press is what lets it)
   so typing reaches the page's search ([S-13617]). Both hotkeys are rows of one table, Core
   `ShellHotkeys`, registered `MOD_NOREPEAT` and unregistered on shutdown by the command window's one
@@ -10689,9 +10675,7 @@ makes a composition one thing. Several widgets selected together are arranged an
   fits it to 3840 x 2160 under `store/wallpapers/`, which is git-ignored, and `store/capture.ps1` draws
   every scene at 3840 pixels wide whatever the scenes' display is. The checked-in scenes are held to the
   list, not to the files (`SceneWidgetsTests.S1078_S2210_`).
-- **[S-11864]** A scene whose `edit` opens the add page (`"add": true`) is drawn once the page's
-  pictures are ([S-11707]), a minute at most (then the scene says so and shows the glyphs); the page
-  hangs over the scene's work area, ending above its taskbar.
+- **[S-11864]** *(Retired 2026-11-23 with the add page, [S-16728]: Add widget opens the widget gallery)*
 
 **The group's page.** Owner's decision 2026-11-12: the atoms each hold their own setting of what they are
 about (their place, account, drive, host, pair, symbol, period, Size), so a group acts as a container: one
@@ -13753,7 +13737,8 @@ module's `FenceTests`.
   show the option to add a widget over that area or add a fence over that area"): a lasso let go over empty desktop,
   locked (the band, [S-5544]) or in edit mode ([S-1581]), that touched no widget and spans at least two grid cells each
   way (`LassoArea.Offered`, `MinCells`) opens at the release a one-column menu (`AppHost.LassoEntries`): **Add widget
-  here** turns edit mode on and opens the add page; a widget picked there is laid into the area at once, no ghost to aim:
+  here** turns edit mode on and opens the widget gallery ([S-16728]; before, the add page); a widget placed from it with Enter is
+  laid into the area at once, no ghost to aim (a drag lands where it is let go):
   the config that box means for its kind, then the area fitted into its sizing on the grid from the area's corner
   (`LassoArea.Fill`; a ready-made group or a desktop item picked there is placed as usual); **Create fence here** makes a
   fence on the area snapped out to whole cells and at least the kind's minimum, taking in the free icons whose middle is

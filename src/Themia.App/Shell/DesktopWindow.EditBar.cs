@@ -12,12 +12,11 @@ internal sealed partial class DesktopWindow
 
     /// <summary>What this display's edit bar does: everything goes through the host, for this display.</summary>
     private EditBarCommands BarCommands() => new(
-        Add: ToggleAddPage,
+        Add: ToggleWidgetGallery,
         Page: TogglePage,
         Selection: ToggleSelectionPage,
         IntoFlyout: FocusFlyout,
-        Done: () => _host.SetEditMode(false),
-        Gallery: ToggleWidgetGallery);
+        Done: () => _host.SetEditMode(false));
 
     /// <summary>
     /// [S-2320] What this display's bar shows now: the selection's entry, the problems (Themia keeps no
@@ -36,9 +35,7 @@ internal sealed partial class DesktopWindow
         var widest = metrics.IsUsable ? WorkArea.Width - (2 * Sdk.Kit.ShellMetrics.Bar.Top) : double.PositiveInfinity;
         return new EditBarState(selection, 0, _open.PageId, _open.IsSelection, widest)
         {
-            AddOpen = _open.IsAdd,
-            GalleryOpen = _open.IsGallery,
-            Unplaced = UnplacedCount(),
+            AddOpen = _open.IsGallery,
         };
     }
 
@@ -51,6 +48,9 @@ internal sealed partial class DesktopWindow
         SyncProperties();
         ShowEditBar();
         SyncBarMenu();
+
+        // [S-13706] [S-16727] The gallery's Not on view tab follows the state too.
+        _widgetGallery?.SyncUnplaced();
     });
 
     /// <summary>[S-2320] The bar's entries as they are now; nothing while it is not built.</summary>
