@@ -58,8 +58,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
     {
         _brightness = host.Brightness;
 
-        // [S-17184] One row in the side insets, centred: the sun, 8, the level, 12, the slider across what is left.
-        Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, 0);
+        // [S-17184] One row, centred between the card's top inset and the view's own at its foot, in the side insets: the sun,
+        // 8, the level, 12, the slider across what is left.
+        Padding = new Thickness(FamilySpace.Inset, 0, FamilySpace.Inset, FamilySpace.Inset);
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -82,6 +83,9 @@ internal sealed partial class BrightnessView : Grid, IWidgetView, IWidgetOpens, 
         _slider.StepFrequency = 1;
         _slider.IsTabStop = false;
         _slider.ValueChanged += (_, args) => OnSliderChanged(args.NewValue);
+
+        // The template's own height (32) is no taller than its thumb's ink here: the row is the thumb's height, never cut.
+        _slider.Resources["SliderHorizontalHeight"] = ControlsRules.SliderThumb;
         SetColumn(_slider, 2);
         Children.Add(_slider);
 
