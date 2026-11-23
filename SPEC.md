@@ -5718,7 +5718,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   boxes stay the desktop's ([S-14501]). Tests `ItemSizeTests.S14810_`, `FixedItemTests.S14810_`,
   `FixedItemKindsTests.S14810_` (the forecast's days, a feed's rows at every cell on several displays),
   `KitTests.S12807_S14810_`, `TaskLayoutTests.S781_S14810_`, the modules' (`ContactsPitchTests`, `FolderPitchTests`,
-  `RemovableDrivesTests`, `WeatherLayoutTests`, `ForecastCurveTests`, `CalendarSizingTests`, `WeekPlannerTests`).
+  `RemovableDrivesTests`, `ForecastItemsTests`, `ForecastCurveTests`, `CalendarSizingTests`, `WeekPlannerTests`).
 - **[S-14811]** **An add row keeps its size under rows that keep theirs** ([S-14810], [S-3850]). A list that adds in
   place (Tasks, Habits) stands its rows from the card's top edge and its add row right under the last of them, each at
   its optimal (`ItemSize.RowsAbove`: the rows' room the card less the add row's, `RowReach.Foot` the add row's own): a
@@ -5737,7 +5737,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   its optimal, `CalendarFit.HoursOf` takes the hour's size, not the room), the week planner's days (200 each, from the
   card's left edge) and lines, the stopwatch's laps, screen time's apps, the contacts grid's lines (its cells their own
   size, every column the width reaches, the last cut, [S-14816]). The month's seven columns share the card's width
-  (`ItemSize.Columns`, [S-12832]). Tests `WeatherLayoutTests.S11146_S14502_S14810_`, `ForecastCurveTests`,
+  (`ItemSize.Columns`, [S-12832]). Tests `ForecastItemsTests.S16974_S11146_`, `ForecastCurveTests`,
   `WeekPlannerTests.S14410_S14502_S14810_`, `CalendarSizingTests`, `ContactsPitchTests.S12450_S14810_`.
 - **[S-14813]** **The item check judges the fixed size** (docs/WIDGET-RULES.md WR-1..WR-6 as of 2026-11-20).
   `scripts/item-check.py` holds the items of a group alike and at their fixed size (a family row's `o` in the dump, to
@@ -5776,7 +5776,7 @@ side); tests `WidgetSizingTests` (Core: the rules; module host: every kind), `Si
   every card width, touching from the card's left and top edges; across only the whole columns the width holds, so the
   last item the card reaches is the last line's, cut by the foot, and the room past the last whole column (less than a
   cell) stays empty at the right edge. The gap check takes exactly that right band as no WR-3 finding (`wrapped`, its
-  self-test). A grid of cells that is no list run into lines keeps [S-14816]. Tests `ItemSizeTests.S16438_`, `ForecastDaysTests.S14815_S16438_`,
+  self-test). A grid of cells that is no list run into lines keeps [S-14816]. Tests `ItemSizeTests.S16438_`, `ItemBaseTests.S16944_`,
   `CalendarSizingTests.S15780_S16438_`.
 - **[S-14818]** **The cores' cells share the card from edge to edge** (owner, 2026-11-21: "the weather forecast widget
   grid view items do not go from edge to edge, they have space everywhere. same for the columns view and maybe also other
@@ -15225,7 +15225,7 @@ view (current bluetooth))". The device items below became the item base; their r
 - **[S-16956]** **A table's columns line up** ([S-16590] for every table, `ItemTable.Columns`): every row's columns are the
   same: the lead its 16, each text column its widest text on any row (its title's too), the end on the row's end in tabular
   figures, the bar what the row leaves and never under its share (32 % of the row, at most 140); with no bar the title takes
-  what is left. Where the texts do not fit they give way together, each in proportion to its width (cut with its ellipsis).
+  what is left. Where the texts do not fit the widest give way first, each held to one width (cut with its ellipsis), so a short one (a day) stays whole.
   Tests `ItemBaseTests.S16956_`.
 - **[S-16957]** **One item's face** (`ItemFace`): a kind that shows one item (Drive, a Bluetooth device, the Meeting, the
   Contact) draws one List item from the card's top edge, its card one item tall (`ItemLayout.Face`), so an item looks the

@@ -578,11 +578,16 @@
           "scale": 1,
           "config": {
             "kind": "weatherForecast",
-            "lines": 1,
             "showPrecipitation": true,
-            "style": "rows",
+            "style": "table",
             "locationName": "",
-            "useDeviceLocation": false
+            "useDeviceLocation": false,
+            "hiddenParts": [
+              "Subtitle"
+            ],
+            "partOrder": [],
+            "gap": 0,
+            "columnTitles": false
           }
         },
         {

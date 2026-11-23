@@ -1,10 +1,21 @@
 {
-  "$englishOnly": [],
+  "$englishOnly": [
+    "forecast.part.lead",
+    "forecast.part.title",
+    "forecast.part.subtitle",
+    "forecast.part.bar",
+    "forecast.part.end"
+  ],
   "forecast.layoutColumns": "Columns",
   "forecast.layoutRows": "Rows",
   "styles.forecast.curve": "Temperature curve",
   "styles.forecast.grid": "Grid",
   "widgetsA.catalog.forecast.description": "The next few days",
   "widgetsA.catalog.forecast.label": "Forecast",
-  "widgetsC.weather.settings.showPrecipitation.label": "Show precipitation"
+  "widgetsC.weather.settings.showPrecipitation.label": "Show precipitation",
+  "forecast.part.lead": "Sky",
+  "forecast.part.title": "Day",
+  "forecast.part.subtitle": "Conditions",
+  "forecast.part.bar": "Range",
+  "forecast.part.end": "Low and high"
 }

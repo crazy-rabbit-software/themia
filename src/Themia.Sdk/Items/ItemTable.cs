@@ -14,7 +14,7 @@ public readonly record struct ItemColumn(ItemPart Part, double X, double Width)
 /// the parts' order, every row's the same, so a bar starts and ends at the same x on every row ("the temperature bars should
 /// be aligned to each other"). The lead its glyph's 16, every text column its widest text, the bar what the row leaves and
 /// never under its floor (a share of the row); with no bar the title takes what is left, so the end stands on the row's end.
-/// Where the texts do not fit, they give way together, each in proportion to its width (cut with its ellipsis). The
+/// Where the texts do not fit, the widest give way first, each held to one width (cut with its ellipsis), so a short one stays whole. The
 /// family's column gap between two columns, the glyph gap after the lead. Pure.
 /// </summary>
 public static class ItemTable
@@ -64,18 +64,16 @@ public static class ItemTable
             rest = 0;
         }
 
-        // The texts give way where the row cannot hold them, each in proportion to its width, so every one stays (cut).
+        // The texts give way where the row cannot hold them, the widest first: every text column is held to one width, the
+        // most that lets them all fit, so a short one (a day's name) stays whole while a long one is cut.
         if (rest < 0)
         {
             var texts = Enumerable.Range(0, parts.Count).Where(i => parts[i].Part is ItemPart.Title or ItemPart.Subtitle or ItemPart.Note).ToList();
-            var room = texts.Sum(i => widths[i]);
-            if (room > 0)
+            var room = texts.Sum(i => widths[i]) + rest;
+            var cap = Cap([.. texts.Select(i => widths[i])], Math.Max(0, room));
+            foreach (var i in texts)
             {
-                var keep = Math.Max(0, room + rest) / room;
-                foreach (var i in texts)
-                {
-                    widths[i] = Math.Floor(widths[i] * keep);
-                }
+                widths[i] = Math.Floor(Math.Min(widths[i], cap));
             }
         }
 
@@ -93,6 +91,25 @@ public static class ItemTable
         }
 
         return columns;
+    }
+
+    /// <summary>The width every one of <paramref name="widths"/> is held to so that together they take <paramref name="room"/>.</summary>
+    private static double Cap(IReadOnlyList<double> widths, double room)
+    {
+        var sorted = widths.OrderBy(w => w).ToList();
+        var left = room;
+        for (var i = 0; i < sorted.Count; i++)
+        {
+            var share = left / (sorted.Count - i);
+            if (sorted[i] > share)
+            {
+                return share;
+            }
+
+            left -= sorted[i];
+        }
+
+        return double.MaxValue;
     }
 
     private static int Index(IReadOnlyList<(ItemPart Part, double Widest)> parts, ItemPart part)

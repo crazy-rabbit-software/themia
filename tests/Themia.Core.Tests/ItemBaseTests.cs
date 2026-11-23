@@ -225,6 +225,10 @@ public sealed class ItemBaseTests
         Assert.Equal(260, narrow[^1].Right);
         Assert.True(narrow[0].Width < 200);
 
+        // The widest text gives way first: a short day's name stays whole beside a long sentence.
+        var squeezed = ItemTable.Columns([(ItemPart.Title, 40), (ItemPart.Subtitle, 300), (ItemPart.End, 52)], 260);
+        Assert.Equal((40.0, 260.0), (squeezed[0].Width, squeezed[^1].Right));
+
         // No bar: the title takes what is left, so the end stands on the row's end.
         var plain = ItemTable.Columns([(ItemPart.Title, 50), (ItemPart.End, 40)], 300);
         Assert.Equal((248.0, 300.0), (plain[0].Width, plain[1].Right));

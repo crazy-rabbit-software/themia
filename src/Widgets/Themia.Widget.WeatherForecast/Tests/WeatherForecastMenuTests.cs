@@ -25,7 +25,7 @@ public sealed class WeatherForecastMenuTests
 
         // [S-14410] How many days is the card's: no line sets it.
         Assert.Equal(
-            ["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text()],
+            ["-", Str.Shell_Place_UseDevice.Text(), Str.Shell_Place_Location.Text(), "-", WeatherForecastStr.WidgetsC_Weather_Settings_ShowPrecipitation_Label.Text(), Str.Items_Parts.Text(), Str.Items_ColumnTitles.Text()],
             lines.Lines.Select(l => l.IsSeparator ? "-" : l.Text));
         foreach (var style in Enum.GetValues<ForecastStyle>())
         {
@@ -44,14 +44,14 @@ public sealed class WeatherForecastMenuTests
     }
 
     [Fact]
-    public void S11147_lines_per_row_stand_under_style_in_the_rows_style_only_and_a_pick_stores_it()
+    public void S16974_the_item_styles_offer_a_days_parts_and_the_gap_or_the_tables_titles()
     {
-        var config = new WeatherForecastConfig();
-        var lines = Assert.Single(Build(config).StyleLines);
-        Assert.Equal(Str.Kit_Lines.Text(), lines.Text);
-        lines.Children![1].Action!();
-        Assert.Equal(2, config.Lines);
+        var table = Build(new WeatherForecastConfig()).Lines.Select(l => l.Text).ToList();
+        Assert.Contains(Str.Items_Parts.Text(), table);
+        Assert.Contains(Str.Items_ColumnTitles.Text(), table);
+        Assert.Contains(Str.Items_Gap.Text(), Build(new WeatherForecastConfig { Style = ForecastStyle.Grid }).Lines.Select(l => l.Text));
 
-        Assert.Empty(Build(new WeatherForecastConfig { Style = ForecastStyle.Columns }).StyleLines);
+        // The curve is the forecast's own chart: no parts, no gap.
+        Assert.DoesNotContain(Str.Items_Parts.Text(), Build(new WeatherForecastConfig { Style = ForecastStyle.Curve }).Lines.Select(l => l.Text));
     }
 }

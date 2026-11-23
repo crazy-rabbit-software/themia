@@ -11,19 +11,20 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.Items;
+using Themia.Sdk.WinUI.Items;
 using Themia.Widget.WeatherForecast;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The next few days, from open-meteo's daily block, in one of four styles ([S-6163]), drawn from the
-/// family's blocks: the days as rows (the Row block with its range bar), side by side as columns, the
-/// highs and lows as a temperature curve (the Chart block), or as cells in a grid shaped to the tile
-/// ([S-6171]).
+/// The next few days, from open-meteo's daily block ([S-6163], [S-16974]): on the item base (<see cref="ItemList"/>) as a table
+/// (what Rows was: the sky, the day, the range bar, "low high", aligned on every row), a row list (what Columns was), a grid, a
+/// list or a column list, every fetched day laid at its one size and scrolled to by whole days ([S-16591], [S-16955]); or as
+/// the temperature curve, the forecast's own chart (the Chart block).
 /// <para>
-/// [S-11145] The days are the config's in every style and at every size; each style's plan
-/// (<see cref="WeatherForecastLayout"/>, <see cref="ForecastCurve"/>, <see cref="ForecastGrid"/>) only
-/// shares the box among them: a bar or a chart longer, a column wider.
+/// [S-11145] The days are the card's in every style and at every size; the base and the curve's plan only share the box
+/// among them: a bar or a chart longer.
 /// </para>
 /// <para>
 /// The bar on each day is scaled against the whole forecast rather than that day's own range: a
@@ -38,7 +39,7 @@ namespace Themia.App.Widgets;
 /// </para>
 /// </summary>
 internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOpens,
-    IWidgetSizeAware, IWidgetContextActions
+    IWidgetSizeAware, IWidgetContextActions, IWidgetKeys, IWidgetGrounds
 {
     /// <inheritdoc />
     public CardOpen? Opens => WeatherForecastModule.Opens(_config, RegionFormat.Current.Temperature, Strings.Current);
@@ -48,6 +49,9 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     /// <summary>[S-7064] The status's problem glyph ([S-7042]): the one stale rule, no age.</summary>
     private readonly KitStatus _mark;
     private readonly Grid _body = new();
+
+    /// <summary>[S-16974] The days on the item base, in every style but the curve.</summary>
+    private readonly ItemList _list;
 
     /// <summary>[S-16440] Without a forecast: why, the Status block's one row on the card's top edge, the face under it.</summary>
     private readonly StatusBlock _state = StatusBlock.Line();
@@ -98,6 +102,20 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
             () => WeatherInterests.For(_config),
             Render);
         _days = new LinkLights<DateLink>(_links, LinkTopics.HoveredDate, LinkTopics.SelectedDate);
+        _list = new ItemList(host)
+        {
+            Cells = ForecastItems.Cells,
+            PartTitle = part => ForecastItems.PartName(part, Strings.Current),
+            Decorate = (item, view) =>
+            {
+                if (DateOnly.TryParse(item.Id, System.Globalization.CultureInfo.InvariantCulture, out var day))
+                {
+                    LinkDay(view, day);
+                }
+            },
+            Redrawing = () => _days.Clear(),
+        };
+        _list.GroundsChanged += () => GroundsChanged?.Invoke();
 
         RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -107,6 +125,21 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         Children.Add(_body);
         _mark.Place(this);
     }
+
+    /// <inheritdoc />
+    public event Action? GroundsChanged;
+
+    /// <summary>[S-16640] With the gap on, every day's box (under the state's row where it shows).</summary>
+    public IReadOnlyList<Themia.Core.Geometry.DipRect>? Grounds
+        => _body.Children.Contains(_list) && _list.ViewGrounds is { } grounds
+            ? [.. grounds.Select(r => r with { Y = r.Y + _body.Margin.Top + (_state.Visibility == Visibility.Visible ? _state.ActualHeight : 0) })]
+            : null;
+
+    /// <summary>[S-16591] A click takes the keyboard where there are days to walk.</summary>
+    public bool WantsKeys => _body.Children.Contains(_list) && _list.WantsKeys;
+
+    /// <summary>[S-16591] [S-16955] The item base's keys over the days.</summary>
+    public bool HandleKey(WidgetKey key) => _body.Children.Contains(_list) && _list.HandleKey(key);
 
     /// <summary>
     /// [S-730] Refresh. The style is chosen on the selection's page ([S-6007]).
@@ -201,23 +234,24 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         _body.Margin = new Thickness(0, stated ? FamilySpace.Inset : 0, 0, 0);
 
         var style = _config.Style;
-        object plan = style switch
-        {
-            ForecastStyle.Columns => WeatherForecastLayout.Columns(area, _config),
-            ForecastStyle.Curve => ForecastCurve.Plan(area, _config),
-            ForecastStyle.Grid => ForecastGrid.Plan(area, _config),
-            _ => WeatherForecastLayout.Rows(area, _config),
-        };
 
         // [S-16441] What the problem glyph says: a stale forecast's lines, or a failure the state's row has no room for. In the
-        // rows style it is the first day's lead (Rows); elsewhere the kit's status over the top end.
+        // table and the lists it is the first day's lead; elsewhere the kit's status over the top end.
         var problems = ForecastDefaults.Problems(_problems, _failure, stated);
         _shownProblems = problems;
-        _mark.Show(plan is ForecastRowsPlan ? [] : problems, busy: false);
+        var inLead = style is ForecastStyle.Table or ForecastStyle.List or ForecastStyle.ColumnList;
+        _mark.Show(inLead ? [] : problems, busy: false);
 
-        // One clock reading for the whole build, so a forecast drawn across midnight cannot label
-        // two different days "Today".
+        // One clock reading for the whole build, so a forecast drawn across midnight cannot label two different days "Today".
         var today = DateOnly.FromDateTime(DateTime.Now);
+        if (ForecastItems.Arrangement(style) is { } arrangement)
+        {
+            ShowItems(days, today, arrangement, area, inLead ? problems : []);
+            return;
+        }
+
+        object plan = ForecastCurve.Plan(area, _config);
+
         var key = (style, plan, today, _config.ShowPrecipitation);
 
         // [S-16439] The same plan in another width still draws anew: the curve's plot runs to the card's right edge.
@@ -233,43 +267,36 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
         ClearBody();
         _built = key;
 
-        // [S-16591] The bars scale against every day laid (the ones scrolled to too), so a scroll never redraws them.
-        var (coldest, warmest) = Extremes(days);
-        var range = new Range(coldest, warmest);
-        var grid = area.Grid();
-
-        _body.Children.Add(plan switch
-        {
-            ForecastColumnsPlan columns => Scrolled(BuildColumns(days, today, range, columns), across: true, columns.ColumnWidth, days.Count, null),
-            ForecastCurvePlan curve => BuildCurve(days, today, curve),
-            ForecastGridPlan cells when BuildGrid(days, today, cells) is var lines => Scrolled(lines, across: false, cells.CellHeight, ForecastGrid.Lines(days.Count, cells.Columns).Count, lines),
-            ForecastRowsPlan rows when BuildRows(days, today, range, rows) is var list => Scrolled(list, across: false, ItemSize.Optimal(FamilyShape.RowHeight(rows.Lines), grid), days.Count, list),
-            _ => new Grid(),
-        });
+        _body.Children.Add(BuildCurve(days, today, (ForecastCurvePlan)plan));
     }
 
-    /// <summary>The coldest low and warmest high across the forecast, which every bar scales against.</summary>
-    private readonly record struct Range(double Coldest, double Warmest);
-
-    private static (double Coldest, double Warmest) Extremes(IReadOnlyList<ForecastDay> days)
+    /// <summary>
+    /// [S-16974] Every fetched day on the item base in <paramref name="arrangement"/>, its bars on the scale of every day laid
+    /// (the ones scrolled to too, so a scroll never redraws them, [S-16591]); the problem glyph in the first day's lead where
+    /// <paramref name="problems"/> say one ([S-16441]).
+    /// </summary>
+    private void ShowItems(IReadOnlyList<ForecastDay> days, DateOnly today, ItemStyle arrangement, WidgetArea area, IReadOnlyList<string> problems)
     {
-        var coldest = double.MaxValue;
-        var warmest = double.MinValue;
-
-        foreach (var day in days)
+        if (!_body.Children.Contains(_list))
         {
-            foreach (var value in new[] { day.Low, day.High })
-            {
-                if (value is { } v && double.IsFinite(v))
-                {
-                    coldest = Math.Min(coldest, v);
-                    warmest = Math.Max(warmest, v);
-                }
-            }
+            ClearBody();
+            _body.Children.Add(_list);
         }
 
-        // Every day missing both numbers: the bar spans the row, which RangeBar does for no span.
-        return coldest <= warmest ? (coldest, warmest) : (0, 1);
+        _laid = area;
+        _laidStated = _state.Visibility == Visibility.Visible;
+        _built = null;
+        var style = _config.Style;
+        var (coldest, warmest) = ForecastItems.Extremes(days);
+        var locale = Strings.Current;
+        var problem = problems.Count > 0 ? string.Join("\n", problems) : null;
+        var items = days.Select((day, i) => ForecastItems.Item(day, style, today, coldest, warmest, _config.ShowPrecipitation, locale, i == 0 ? problem : null)).ToList();
+        _list.Arrangement = arrangement;
+        _list.Gap = _config.Gap;
+        _list.Titles = _config.ColumnTitles;
+        _list.Size(area);
+        var hidden = ForecastItems.Hidden(style, _config.HiddenParts);
+        _list.Show(items, new ItemDraw(hidden, ForecastItems.Shape(style, _config.HiddenParts, _config.ShowPrecipitation)), ItemOrder.Shown(ForecastItems.Parts, _config));
     }
 
     /// <summary>The same glyph the current-conditions widget draws for a condition. [S-652]</summary>
@@ -280,7 +307,6 @@ internal sealed partial class WeatherForecastView : Grid, IWidgetView, IWidgetOp
     {
         _body.Children.Clear();
         _days.Clear();
-        DropScroller();
         _built = null;
     }
 

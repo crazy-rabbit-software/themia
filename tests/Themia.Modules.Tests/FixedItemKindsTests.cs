@@ -65,20 +65,20 @@ public sealed class FixedItemKindsTests
         foreach (var (screen, scale) in Displays)
         {
             var grid = SizeFit.Grid(screen, scale);
-            foreach (var lines in new[] { 1, 2 })
+            foreach (var hidden in new[] { new[] { Themia.Sdk.Items.ItemPart.Subtitle }, [] })
             {
-                var config = new WeatherForecastConfig { Lines = lines };
+                var config = new WeatherForecastConfig { HiddenParts = [.. hidden] };
                 foreach (var card in Heights(config, screen, scale))
                 {
-                    // The rows style's RowStack (SpreadStack): a row a day from the card's top edge, at its optimal.
-                    var days = WeatherForecastLayout.DaysIn(new WidgetArea(300, card - FamilySpace.Inset, grid.Pitch), config);
-                    var slots = ItemSize.Lay(card, [.. Enumerable.Repeat(StackItem.Row(lines), days)], grid);
-                    var optimal = grid.Whole(FamilyShape.RowHeight(lines));
-                    var why = $"{days} days of {lines} lines in {card:0.##} on {screen.Width}x{screen.Height} at {scale}";
+                    // [S-16974] The table: a row a day from the card's top edge, at its optimal, the last cut by the foot.
+                    var shape = ForecastItems.Shape(config.Style, config.HiddenParts, config.ShowPrecipitation);
+                    var lay = Themia.Sdk.Items.ItemLayout.Lay(Themia.Sdk.Items.ItemStyle.Table, WeatherForecastConfig.MostDays, 300, card, 0, shape, ForecastItems.Cells, grid);
+                    var optimal = grid.Whole(FamilyShape.RowHeight(1));
+                    var why = $"{lay.Boxes.Count} days in {card:0.##} on {screen.Width}x{screen.Height} at {scale}";
 
-                    Assert.All(slots, s => Assert.True(Math.Abs(s.Length - optimal) <= 1, why));
-                    Assert.True(days == WeatherForecastConfig.MostDays || slots[^1].End >= card - 1, why);
-                    Assert.True(slots[^1].Start < card, why);
+                    Assert.All(lay.Boxes, b => Assert.True(Math.Abs(b.Height - optimal) <= 1, why));
+                    Assert.True(lay.Boxes.Count == WeatherForecastConfig.MostDays || lay.Boxes[^1].Bottom >= card - 1, why);
+                    Assert.True(lay.Boxes[^1].Y < card, why);
                 }
             }
         }

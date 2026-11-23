@@ -7,36 +7,34 @@ the glyphs [S-733]; the background web sync [S-2663]; the family's blocks [S-670
 
 Owning files: everything in this folder: `WeatherForecastModule.cs` (descriptor, view factory,
 settings rows, JSON context, its glyph), `WeatherForecastConfig.cs` (with its styles),
-`WeatherForecastView.cs` and its `.Layouts.cs`, `.Curve.cs`, `.Grid.cs` parts (the forecast through
-`IWidgetHost.Weather`, drawn with the family's Row, Chart and Status blocks), `WeatherForecastLayout.cs`
-(rows and columns), `ForecastDays.cs` (the grid), `ForecastCurve.cs`,
+`WeatherForecastView.cs` and its `.Layouts.cs`, `.Curve.cs` parts (the forecast through `IWidgetHost.Weather`, its days on
+the item base's `ItemList`, the curve on the Chart block, the Status block), `ForecastItems.cs` (a day as the item base's
+item in each style, its parts, its measures), `WeatherForecastLayout.cs` (each style's sizes), `ForecastDays.cs` (the days
+with nothing read, the problem glyph's lines), `ForecastCurve.cs`,
 `WeatherForecastMenu.cs` (its properties-menu lines: the weather family's `WeatherPlaceRows.LocationLine`,
 precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's `WeatherSample`), `Localization/Locales/`
 (its own `WeatherForecastStr`, 30 languages, its style names included). Tests: `Tests/` (run by
 `tests/Themia.Modules.Tests`).
 
-- **[S-724]** The forecast's look is its style ([S-6163]): Rows (the default), Columns, the
-  temperature curve or the grid; what was its layout setting. Without a forecast the style keeps its days from
-  today, "--" and the unknown sky, why as their tooltip ([S-12813], `ForecastDefaults.Unread`).
-- **[S-725]** Rows (`WeatherForecastLayout.Rows`): one Row block per day ([S-6711]): the day's sky
-  glyph as its 16 lead, the day as its name ("Today" in BodyStrong, never the accent), a range bar
-  (the Chart block's track, the day's low to its high on the scale of the days shown, 32 % of the
-  row, at most 140, at the least: it takes what the names and values leave, [S-12403]) and "low high" as its value. Lines per row is a setting
-  ([S-11147]): one, or two (the second the sky in words and, with the precipitation on, its chance and
-  amount where there is any, "Light rain · 80% · 4.2 mm"). The days are the config's, one row each.
-- **[S-726]** Columns (`WeatherForecastLayout.Columns`): the days side by side in equal columns across
-  the content. Every column has, 4 apart, its day (Body, today strong), the sky's 32 glyph, its high
-  (Body primary), the range standing up (the Chart block's column, the day's low to its high, 32), the
-  low (Body secondary) and, with the precipitation on, its amount (Caption secondary) at the foot, a
-  fixed line rain or not so the columns line up.
+- **[S-724]** The forecast's look is its style ([S-6163]): the item base's arrangements (Table, the default; Row list; Grid;
+  List; Column list) or the temperature curve. Without a forecast the style keeps its days from today, "--" and the unknown
+  sky, why as their tooltip ([S-12813], `ForecastDefaults.Unread`).
+- **[S-725]** Table (what Rows was, owner 2026-11-23: "the current weather forecast row view will be the new table view"): a
+  row a day, its parts in the item base's aligned columns ([S-16945], [S-16956]): the day's sky glyph as its 16 lead, the
+  day ("Today" in BodyStrong, never the accent), the range bar (the day's low to its high on the scale of the days laid,
+  what the row leaves and never under 32 % of the row, at most 140) and "low high" at its end; the sky in words with its
+  chance and amount ("Light rain · 80% · 4.2 mm", the precipitation on) is the **Conditions** part, a column of its own
+  where shown (what was the second line, [S-11147]). The parts and their order are the page's ([S-16950]); column titles
+  are off by default.
+- **[S-726]** Row list (what Columns was): the days side by side in columns of 60 from the card's left edge, from its top
+  edge to its foot ([S-16942]): the day, the sky's 32 glyph, the high, the range standing up in the room the parts leave,
+  the low and, with the precipitation on, its amount at the foot, a line kept blank on a dry day so the columns line up.
 - **[S-727]** Today is its day's name in BodyStrong (rows, columns, the curve, the grid): no accent,
   no fill under it (the accent is for a selection, and today is not one, [S-6706]). Precipitation is
   text in the secondary role, never the accent: the amount ("0.3"), blank on a dry day.
-- **[S-6163]** The forecast's styles, `WeatherForecastConfig.Style` (`ForecastStyle`): **Rows**
-  ([S-725], the default), **Columns** ([S-726]), **Temperature curve** and **Grid** ([S-6171]). What
-  was the `Layout` setting: its Automatic (rows that turned into columns on a strip) is gone, and
-  its Grid (the columns wrapped into cards) is now the grid style; the style is the user's choice
-  at every size.
+- **[S-6163]** The forecast's styles, `WeatherForecastConfig.Style` (`ForecastStyle`): **Table** ([S-725], the default),
+  **Row list** ([S-726]), **Temperature curve** ([S-6164]), **Grid** ([S-6171]), **List** and **Column list** (the item
+  base's, [S-16941], [S-16943]). A stored `rows` or `columns` is no style any more and loads as the default.
 - **[S-6164]** **Temperature curve** (`ForecastCurve`): the days as columns, each with its day and the
   sky's 16 glyph under it; under them one chart across the columns (the Chart block's series, [S-6717]):
   each day's high a point on its column's middle with its figure (Caption, primary) over it, joined by
@@ -47,9 +45,8 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   the other parts leave. The scale is the coldest low to the warmest high; one temperature all week is a
   flat line in the middle. A day without a value breaks the line. Time runs left to right in every
   language.
-- **[S-6171]** **Grid** (`ForecastGrid`): the days as cells (the day, the sky's 32 glyph, the high
-  then the low; no other fact), filled left to right then down, each centred in its cell, the cells of one
-  size from the card's edges, touching ([S-14815]).
+- **[S-6171]** **Grid**: the days as the item base's cards of 80 × 100 ([S-16944]): the day, the sky's 32 glyph, the high
+  beside the low (no other fact), centred, the whole columns the width holds, the lines down, the last cut by the foot.
 - **[S-6172]** *(Retired 2026-10-29, group G3: the temperature now is the current conditions' fact, not
   the forecast's ([S-666]); the curve's now mark and the dot on today's range bar are gone, and the
   forecast no longer reads the current-conditions reading.)*
@@ -67,43 +64,21 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   menu line sets them and none is stored ([S-14502]): the card shows every day it reaches at their one size, the last
   cut ([S-14810]). Nothing else sheds or appears with the box (a bar or
   the chart longer, a column or cell wider). Days and lines out of range are repaired.
-- **[S-11146]** **Sizes** (`WeatherForecastLayout.Sizing`): **Rows** a 28 or 40 row a day in whole grid cells from the
-  card's top edge, every day the card's height reaches at that one size, the last cut by its foot (owner, 2026-11-20:
-  "the widget items should actually have a fixed size ... the last item will be cutoff to some extent then", [S-14810]),
-  220..420 wide (a new one 300 × 150, five days); **Columns** a 60 column a day (its 56 in whole cells) from the card's
-  left edge, every day the width reaches, the last cut by its right edge, one height (184 with the rain, 164 without; a
-  new one five, 300 wide); **Curve** a 60 column a day from the card's left edge, every day the width reaches, the chart
-  80..232 (a new one 104: the one band, [S-6755], 48..200 and a new one's 72, and the figures' two Caption lines; until
-  2026-11-21 72..144, a new one 96) under the days' parts; **Grid** cells of 80 × 100 (their content and its padding in whole
-  grid cells), as many across as the width holds whole and lines down as the height reaches, the last line cut, a new
-  one 3 × 2 (240 × 200), 1 × 1 to 5 × 3 (`ForecastGrid.DaysFor`, [S-14815]). Every
-  style takes every grid cell; a resize stores no days ([S-14502]). Tests `ForecastDaysTests.S11146_S14410_`,
-  `ForecastCurveTests.S11146_S14410_`, `WeatherForecastMenuTests.S6173_S14410_`. The grid's columns are the whole ones
-  the width holds at their one size, the room past them empty ([S-16438]).
-- **[S-11147]** Under Style, the rows style's **Lines per row** (one or two, the kit's words); the
-  other styles offer nothing there.
-- **[S-12403]** **The days fill the content** ([S-12400]), in every style. Rows: the days fill the content
-  from its top to the foot's inset, touching ([S-12807]): a box taller than the days grows the rows; each
-  range bar takes what the widest day name (with two lines, the widest second line too) and the widest
-  value leave, the same length on every row, never under [S-725]'s share (`WeatherForecastLayout.MeterWidth`).
-  Columns: the columns at their one width ([S-14810]), the standing bar taking the height the other parts
-  leave. Curve: the columns at their one width, the chart the height left. Grid: the cells at their one
-  size ([S-14815]), a last line short of days leaving the room after them empty (`ForecastGrid.Lines`).
-  Tests `WeatherLayoutTests.S12403_`, `ForecastDaysTests.S12403_`.
-- **[S-14815]** **Every style's days stand from the card's edges** (owner, 2026-11-21: "the weather forecast widget grid
-  view items do not go from edge to edge, they have space everywhere. same for the columns view and maybe also other
-  styles. fix this, also for other widgets if applicable."; docs/WIDGET-RULES.md WR-2, WR-3, WR-4). A day's box (a row,
-  a column, a curve's column, a grid's cell) is an item (`ItemMark`): rows from the card's top edge across its whole
-  width; columns and the curve's columns from the card's left edge and from its top edge to its foot, the inset over and
-  under their parts padding inside the column (the hover and a link light the column whole); the grid's cells of one
-  size (80 × 100 on the default grid: "Today" and "16° 8°" with the inset either side, the parts with 8 over and under,
-  in whole grid cells, at every width of the card) from the card's left and top edges, touching, the whole columns the
-  width holds, the room past them (less than a cell) empty at the right edge (the days wrap line after line, [S-16438]: a
-  day in a line's middle cut by the right edge with the next days under it broke WR-4; owner, 2026-11-23: "Fixed size, gap
-  at right"),
-  and every line the height reaches, the last cut by its foot ([S-14816]). No margin and
-  no gap round or between the days in any style; every edge on a whole device pixel (`RowReach`). Tests
-  `ForecastDaysTests.S14815_`; renders judged by `scripts/item-check.py` in every style ([S-14814]).
+- **[S-11146]** **Sizes** (`WeatherForecastLayout.Sizing`): the item base's in its arrangement ([S-16954]) with the days'
+  measures (`ForecastItems.Cells`): the table a row of 30 a day under no titles (a new one 320 × 150), the row list a column
+  of 60 a day at one height (190 with the rain, 170 without: its 184 and 164 in whole cells; a new one five, 300 wide), the grid cells of 80 × 100 (a new
+  one 3 × 2), the list and the column list the base's; the curve a 60 column a day from the card's left edge, the chart
+  80..232 (a new one 104) under the days' parts. Every style takes every grid cell; a resize stores no days ([S-14502]).
+  Tests `ForecastItemsTests.S16974_S11146_`, `ForecastCurveTests.S11146_S14410_`.
+- **[S-11147]** *(Retired by [S-16974]: the table's second line is its **Conditions** part, shown or not and ordered in the
+  page's parts; a stored `lines` is dropped at load.)*
+- **[S-12403]** **The days fill the content** ([S-12400]): in the table each range bar takes what the widest day and the widest
+  value leave, the same length on every row, never under its share ([S-16956]); the row list's standing bars take the
+  height the other parts leave; the curve the chart the height left; the grid's cells their one size.
+- **[S-14815]** **Every style's days stand from the card's edges** (owner, 2026-11-21; docs/WIDGET-RULES.md WR-2, WR-3, WR-4): a
+  day is the item base's item, its box from the card's edges with its padding inside it, touching or with the block gap
+  ([S-16954]); the grid's columns the whole ones the width holds, the room past them empty at the right edge ([S-16438]);
+  the curve's columns from the card's left edge and from its top edge to its foot. Every edge on a whole device pixel.
 - **[S-16439]** **The curve's plot is edge to edge** (owner, 2026-11-19: "Plot edge to edge", the plot and its fill reach
   the card's edges, the labels stand inside it, over the plot): the highs' and the lows' lines are held out from the first
   day's point to the card's left edge and from the last day's to its right edge, the days' columns' end or the card's where
@@ -126,21 +101,26 @@ precipitation and days), `Preview/` (Debug renders: `--state sample`, the SDK's 
   stale against 13 fresh). The other styles keep the kit's status over the top end. `ForecastDefaults.Problems`; test
   `ForecastDaysTests.S16441_`.
 - **[S-16590]** **The temperature bars line up** (owner, 2026-11-23: "for the weather forecast widget the temperature bars
-  should be aligned to each other"): in the rows style every day's range bar starts and ends at the same x: the values in
-  tabular figures, their column the widest value's on every row (`WeatherForecastLayout.ValueColumn`, `RowBlock.ValueColumn`),
-  the bar of [S-12403]'s length before it (`BarSpan`), the lead one width whatever it holds (the sky or the problem glyph,
-  [S-16441]) and the day the rest; "-3° 12°" and "8° 14°", "Today" and "Tue" no longer move a row's bar. The columns
-  style's standing bars share their top and foot already (each part above and under them one line on every column).
-  Test `WeatherLayoutTests.S16590_`.
-- **[S-16591]** **The days past the card are scrolled to** (owner, 2026-11-23: "the weather forecast lists are not
-  scrollable although they should be"): in Rows, Columns and Grid every fetched day (all 14) is laid at its one fixed
-  size ([S-14810]) in a scroller with no bar, the card showing as many as it reaches, the last cut by its edge; the mouse
-  wheel and the touchpad turn it a whole day a notch (rows and the grid's lines down, columns across; a touchpad's small
-  turns add up to a notch), the keys (with the keyboard a click gives where there is more to see) a day, a page of the whole
-  days shown, the first or the last; the last turn stands the last day at the far edge (`ForecastScroll`: `Wheel`, `Step`,
-  `LastFirst`, `Offset`). The rows and the grid's lines fade at the foot while more are below, as the kit's lists do
-  (`ScrollFade`). The bars scale against every day laid, so a scroll never redraws them, and stay aligned ([S-16590]).
-  The curve is the week's one chart and does not scroll. Tests `ForecastScrollTests`.
+  should be aligned to each other"): the table's columns are every row's ([S-16956]): the values in tabular figures, their
+  column the widest value's, the bar before it, the lead one width whatever it holds (the sky or the problem glyph); the row
+  list's standing bars share their top and foot (each part above and under them one line on every column). Test
+  `ItemBaseTests.S16956_`.
+- **[S-16591]** **The days past the card are scrolled to** (owner, 2026-11-23: "the weather forecast lists are not scrollable
+  although they should be"): in every style but the curve every fetched day (all 14) is laid at its one size and scrolled to
+  by whole days, the item base's scroll ([S-16955], `ItemScroll`): the wheel and the touchpad a day (or a grid's line) a
+  notch, the keys a day, a page, the first or the last; the last turn stands the last day at the far edge; the rows fade
+  at the foot while more are below. The bars scale against every day laid, so a scroll never redraws them. The curve is
+  the week's one chart and does not scroll. Tests `ItemScrollTests`.
+
+- **[S-16974]** **The forecast on the item base** (owner, 2026-11-23: "the weather should be integrated into the same component
+  too ... weather should not loose any features"): a day is an item (`ForecastItems.Item`) in every style but the curve:
+  its sky the lead (the problem glyph in the first day's place where the forecast is stale, in the table and the lists,
+  [S-16441]), the day the title (today strong), the range bar ([S-16949]: its empty track without figures, [S-16440]), and in
+  the table and the lists the conditions under it and "low high" at its end, in the row list the high over the standing bar,
+  the low under it and the rain at its foot, in the grid the high beside the low. Its page: the place, the precipitation
+  switch, then on the base's styles **Each item shows** (Sky, Day, Conditions, Range, Low and high in order: the table's
+  columns) and the gap or the table's column titles. A click on the card opens the forecast's page ([S-2036]); a day publishes
+  and lights its day on the view ([S-11924]). Tests `ForecastItemsTests`, `WeatherForecastMenuTests.S16974_`.
 
 Needs a live pass: the widget against the real service (1 and 14 days), offline with a restored shelf.
 - View links: a day publishes and lights the day under the pointer and marks the day selected on the view ([S-11924], [S-11927]).

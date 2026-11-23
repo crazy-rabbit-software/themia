@@ -18,11 +18,11 @@ public sealed class OnlineStylesTests
     public void S6160_each_kind_offers_its_styles_in_menu_order_the_default_first()
     {
         Assert.Equal(["standard", "largeIcon", "minimal"], Names(new WidgetId("weatherNow")));
-        Assert.Equal(["rows", "columns", "curve", "grid"], Names(new WidgetId("weatherForecast")));
+        Assert.Equal(["table", "rowList", "curve", "grid", "list", "columnList"], Names(new WidgetId("weatherForecast")));
         Assert.Equal(["number", "gauge"], Names(new WidgetId("airQuality")));
 
         Assert.Equal(WeatherNowStyle.Standard, new WeatherNowConfig().Style);
-        Assert.Equal(ForecastStyle.Rows, new WeatherForecastConfig().Style);
+        Assert.Equal(ForecastStyle.Table, new WeatherForecastConfig().Style);
         Assert.Equal(AirQualityStyle.Number, new AirQualityConfig().Style);
     }
 
