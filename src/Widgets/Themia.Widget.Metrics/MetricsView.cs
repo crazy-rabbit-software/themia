@@ -40,6 +40,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     private readonly FontIcon _blockGlyph = Family.Glyph(Glyphs.Cpu);
     private readonly TextBlock _blockName = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
     private readonly TextBlock _blockValue = Family.Text(FamilyType.Big28);
+    private readonly StackPanel _caption = new();
     private readonly ScaleTransform _blockScale = new();
 
     private MetricsConfig _config = new();
@@ -81,13 +82,19 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _head.Children.Add(_value);
 
         // The value style: the caption row over the reading.
-        var caption = new StackPanel { Orientation = Orientation.Horizontal, Spacing = FamilySpace.GlyphGap };
+        _caption.Orientation = Orientation.Horizontal;
+        _caption.Spacing = FamilySpace.GlyphGap;
+        var caption = _caption;
         _blockGlyph.VerticalAlignment = VerticalAlignment.Center;
         _blockName.TextWrapping = TextWrapping.NoWrap;
         caption.Children.Add(_blockGlyph);
         caption.Children.Add(_blockName);
         _blockValue.TextWrapping = TextWrapping.NoWrap;
         Family.Figures(_blockValue);
+
+        // Both on the block's start edge: the reading under the caption's glyph, never centred in the block's width.
+        caption.HorizontalAlignment = HorizontalAlignment.Left;
+        _blockValue.HorizontalAlignment = HorizontalAlignment.Left;
 
         // [S-16324] The reading stands in its template's box: the checks judge it by that box (WR-15).
         HoldMark.Mark(_blockValue);
@@ -268,7 +275,9 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         // template's (a held reading, judged by it), and the block's ink down is read as drawn (the glyph's own room in its
         // box), so it is the ink that fills the card's height. Its own size alone: a width or margin set by the pass
         // before would stand in the measure.
-        _blockValue.Text = MetricFaceRules.Template(reading);
+        // Without a reading the box is a reading's all the same ("--" stands where "88%" would), so nothing moves when one comes.
+        var shown = unavailable ? MetricFormat.Reading(Strings.Current, def, MetricFormat.Typical(def, _config.Feed.Shape), _currency) : reading;
+        _blockValue.Text = MetricFaceRules.Template(shown);
         _blockValue.Width = double.NaN;
         _block.Width = double.NaN;
         _block.Margin = default;
@@ -277,8 +286,11 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _blockValue.Width = _blockValue.DesiredSize.Width;
         _blockValue.Text = reading;
 
-        // Across, the block stands by its box: the reading's box is its template's, where every value it shows stands.
-        var face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink);
+        // Across, the block's extent: from its start (the reading's box, its template's, where every value it shows stands) to
+        // the further of that box's end and the caption's last ink.
+        var caption = Ink.Of(_caption);
+        var end = Math.Max(_blockValue.DesiredSize.Width, _caption.DesiredSize.Width - caption.Right);
+        var face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink, 0, Math.Max(0, box.Width - end));
         _blockScale.ScaleX = face.Scale;
         _blockScale.ScaleY = face.Scale;
         _block.Width = box.Width;

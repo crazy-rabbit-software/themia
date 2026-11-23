@@ -44,6 +44,24 @@ public static class MetricFormat
         };
     }
 
+    /// <summary>
+    /// [S-16324] A reading of the metric's own form (a share's "88%", a pair's two, a price's digits): what a face without a
+    /// reading holds its reading's room by, so "--" stands where a reading will.
+    /// </summary>
+    public static MetricValue Typical(MetricDef metric, MetricShape shape)
+    {
+        ArgumentNullException.ThrowIfNull(metric);
+        var value = metric.Unit switch
+        {
+            MetricUnit.Share => 0.88,
+            MetricUnit.Rate => 8.8 * 1024 * 1024,
+            MetricUnit.Price => 888.88,
+            MetricUnit.Ratio => 8.8888,
+            _ => 88,
+        };
+        return new MetricValue(value, shape == MetricShape.Pair ? value : null);
+    }
+
     /// <summary>[S-16303] A reading as the head says it: one figure, a pair's two ("8° / 16°"), a candle's close; "--" for none.</summary>
     public static string Reading(Locale locale, MetricDef metric, MetricValue? value, string currency = "")
     {
