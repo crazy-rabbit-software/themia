@@ -43,7 +43,14 @@ public sealed partial class DeviceFace : Grid
         ArgumentNullException.ThrowIfNull(item);
         var reading = item.Reading ?? DeviceReading.None();
         _readout.Show(reading.Value, reading.Unit, item.Line, valueRole: item.Absent || item.Reading is null ? ColourRole.TextDisabled : ColourRole.TextPrimary);
+        var picture = _icon.ShowsPicture;
         _icon.Show(item.Icon, stock);
+        if (picture != _icon.ShowsPicture)
+        {
+            // The icon's ink is read another way now (a picture's or a glyph's) at the same size: the block is fitted again.
+            _fit.Refit();
+        }
+
         _bar.Show(Math.Clamp(item.Fill, 0, 1));
         _bar.Role(item.FillRole);
     }
