@@ -455,6 +455,33 @@ public sealed class MusicPlanTests
         Assert.Equal(400 - MusicPlan.Inset, title.Right, 6);
     }
 
+    [Theory]
+    [InlineData(MusicStyle.Side)]
+    [InlineData(MusicStyle.Stacked)]
+    [InlineData(MusicStyle.Strip)]
+    public void S17103_now_playing_is_no_taller_than_where_its_block_stands_the_inset_from_its_top_and_foot(MusicStyle style)
+    {
+        // Owner, 2026-11-23: "the now playing widget right now can be resized in the height as well for example, generally
+        // speaking this is good but the height resize should be limited to not exceed where the spacings at the bottom or top
+        // are not the same as they are in the other widgets too."
+        var sizing = SizeStretch.Relax(MusicPlan.Sizing(style, MusicElements.All));
+        Assert.Equal(StretchRoom.Face, sizing.Room);
+        Assert.Equal(SizeStretch.Ceiling, sizing.Max.Width);
+
+        foreach (var width in new[] { sizing.Natural.Width, sizing.Natural.Width * 1.5, sizing.Natural.Width * 2, 900 })
+        {
+            var most = sizing.MostHeight(width);
+            Assert.Equal(new SizeDip(width, most), sizing.Fit(new SizeDip(width, most + 200)));
+
+            // At its most height the block stands the inset (and the natural's rounding, a DIP or so scaled) over its top and
+            // under its foot.
+            var laid = MusicPlan.Lay(style, MusicElements.All, width, most, Template);
+            var slack = 3 * width / sizing.Natural.Width;
+            Assert.InRange(laid.Parts.Values.Min(b => b.Y), MusicPlan.Inset - 0.5, MusicPlan.Inset + slack);
+            Assert.InRange(most - laid.Parts.Values.Max(b => b.Bottom), MusicPlan.Inset - 0.5, MusicPlan.Inset + slack);
+        }
+    }
+
     [Fact]
     public void S16507_a_cover_alone_fills_the_card_and_goes_down_to_the_grids_least()
     {

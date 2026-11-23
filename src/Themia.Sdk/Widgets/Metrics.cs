@@ -249,8 +249,18 @@ public static class MetricRules
         var graphs = trend == MetricTrend.Line;
         var natural = row + (graphs ? GraphNatural(detail, grid) : 0);
         var least = graphs ? grid.Pitch : row;
-        return WidgetSizing.Range(new(MinWidth + room, least), new(NaturalWidth + room, natural), new(MaxWidth + room, natural));
+        var sizing = WidgetSizing.Range(new(MinWidth + room, least), new(NaturalWidth + room, natural), new(MaxWidth + room, natural));
+
+        // [S-17100] A graph grows with its card; with none, a card taller than its row draws the readout scaled as one, at most
+        // as tall as the readout stacked (its caption over its value, about half the row's room wide) fills its width.
+        return graphs ? sizing : sizing.ScalesAsOne(ReadoutShape);
     }
+
+    /// <summary>
+    /// [S-17100] The readout's tallest arrangement at scale 1, its caption over its value (<see cref="Arrange"/>): the two lines
+    /// over about half the row's room, what a name and a value beside each other take of it.
+    /// </summary>
+    public static SizeDip ReadoutShape => new((NaturalWidth - (2 * FamilySpace.Inset)) / 2, FamilyType.Caption.LineHeight + FamilyType.Big28.LineHeight);
 
     /// <summary>
     /// [S-14603] The width a trend takes beside the value: the arrow its own and the gap before the value; a line none, it

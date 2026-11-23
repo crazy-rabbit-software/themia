@@ -221,6 +221,8 @@ public static class MetricFaceRules
         var own = new SizeDip(
             Math.Max(min.Width, Math.Max(ValueNaturalWidth, Math.Ceiling((2 * FamilySpace.Inset) + RowWidth(name, widest) + MarkRoom))),
             Math.Max(min.Height, Math.Ceiling((2 * FamilySpace.Inset) + Head.LineHeight)));
-        return WidgetSizing.Range(min, own, new(own.Width * 2, own.Height * 2));
+        // [S-17100] The row scales as one until the width or its height stops it: a card no taller than the row's shape fills
+        // at its width (the room between the name and the value on a wider one is the owner's).
+        return WidgetSizing.Range(min, own, new(own.Width * 2, own.Height * 2)).ScalesAsOne(new SizeDip(RowWidth(name, widest) + MarkRoom, Head.LineHeight));
     }
 }

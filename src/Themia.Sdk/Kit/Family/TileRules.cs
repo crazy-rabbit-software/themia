@@ -267,10 +267,12 @@ public static class TileRules
     /// (<paramref name="stateLine"/>: a toggle's, which says on or off under its name); the Switch look a
     /// row from its glyph and switch alone to 640 wide. What it draws in its box is <see cref="Face"/>.
     /// </summary>
+    /// [S-17100] [S-17101] A tile's face scales as one: the tile is at most as tall as wide (its face centred across a wider
+    /// one); the Switch's row is at most its natural height, thinner down to its name alone ([S-17150]).
     public static WidgetSizing Sizing(TileLook look, bool stateLine = true)
         => look == TileLook.Switch
-            ? WidgetSizing.Range(new(SwitchMinWidth, SwitchSlimHeight), new(SwitchNaturalWidth, stateLine ? SwitchHeight : SwitchSlimHeight), SwitchMax) with { Room = StretchRoom.Picture }
-            : WidgetSizing.Range(new(MinSide, MinSide), new(NaturalSide(stateLine), NaturalSide(stateLine)), new(MaxSide, MaxSide)) with { Room = StretchRoom.Picture };
+            ? WidgetSizing.Range(new(SwitchMinWidth, SwitchSlimHeight), new(SwitchNaturalWidth, stateLine ? SwitchHeight : SwitchSlimHeight), SwitchMax with { Height = stateLine ? SwitchHeight : SwitchSlimHeight }) with { Room = StretchRoom.Picture, KeepsHeight = true }
+            : WidgetSizing.Range(new(MinSide, MinSide), new(NaturalSide(stateLine), NaturalSide(stateLine)), new(MaxSide, MaxSide)).ScalesAsOne();
 
     /// <summary>The largest of the family's glyph sizes at most <paramref name="room"/>, 16 at least.</summary>
     private static double Largest(double room)

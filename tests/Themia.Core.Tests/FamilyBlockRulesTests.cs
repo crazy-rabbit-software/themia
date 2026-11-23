@@ -351,8 +351,16 @@ public sealed class FamilyBlockRulesTests
 
         var row = TileRules.Sizing(TileLook.Switch);
         Assert.Empty(row.Problems());
-        Assert.False(row.FixedWidth || row.FixedHeight);
+        // [S-17101] The Switch is one row: its width free, its height at most the row's (a taller card only stood room round it),
+        // thinner down to its name alone ([S-17150]).
+        Assert.False(row.FixedWidth);
+        Assert.True(row.KeepsHeight);
+        Assert.Equal(TileRules.SwitchHeight, row.Max.Height);
         Assert.Equal(60, row.Natural.Height);
+
+        // [S-17100] A tile's face scales as one: the card at most as tall as it is wide.
+        Assert.Equal(StretchRoom.Face, TileRules.Sizing(TileLook.Tile).Room);
+        Assert.Equal(200, TileRules.Sizing(TileLook.Tile).MostHeight(200), 6);
         Assert.Equal(new SwitchParts(Glyph: true, Lines: false), TileRules.Switch(row.Min.Width - 24));
         Assert.Equal(new SwitchParts(Glyph: true, Lines: true), TileRules.Switch(row.Natural.Width - 24));
     }

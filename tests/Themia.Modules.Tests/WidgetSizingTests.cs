@@ -205,7 +205,7 @@ public sealed class WidgetSizingTests
 
     [Theory]
     [MemberData(nameof(Kinds))]
-    public void S12411_every_kind_has_no_practical_max_on_every_axis(string id)
+    public void S12411_S17100_every_kind_has_no_practical_max_where_its_content_grows(string id)
     {
         var kind = ModuleCatalog.Of(new WidgetId(id));
         foreach (var config in Configs(kind))
@@ -221,12 +221,66 @@ public sealed class WidgetSizingTests
             void Axis(string name, double max)
                 => Assert.True(max >= SizeStretch.Ceiling - 0.01, $"{id}: {name} max {max} under the ceiling {SizeStretch.Ceiling}");
 
-            Axis("width", sizing.Max.Width);
-            if (!sizing.KeepsHeight)
+            // [S-17101] An axis of a fixed extent keeps its stated most: its natural.
+            if (sizing.KeepsWidth)
             {
-                Axis("height", sizing.Max.Height);
+                Assert.Equal(sizing.Natural.Width, sizing.Max.Width);
+            }
+            else
+            {
+                Axis("width", sizing.Max.Width);
+            }
+
+            if (sizing.KeepsHeight)
+            {
+                Assert.True(sizing.Max.Height <= sizing.Natural.Height + 0.01 || id == "fence", $"{id}: a kept height {sizing.Max.Height} over its natural {sizing.Natural.Height}");
+                continue;
+            }
+
+            Axis("height", sizing.Max.Height);
+
+            // [S-17100] A face's height follows its width: its natural a size it takes, and at twice its natural width a
+            // height its shape bounds, taller than its natural.
+            if (sizing.Room == StretchRoom.Face)
+            {
+                var most = sizing.MostHeight(2 * sizing.Natural.Width);
+                Assert.True(sizing.MostHeight(sizing.Natural.Width) >= sizing.Natural.Height - 0.5, $"{id}: its natural over its shape");
+                Assert.InRange(most, sizing.Natural.Height, SizeStretch.Ceiling / 4);
+            }
+            else
+            {
+                Assert.Null(sizing.Shape);
+                Assert.Equal(sizing.Max.Height, sizing.MostHeight(2 * sizing.Natural.Width));
             }
         }
     }
-}
 
+    [Theory]
+    [InlineData("music")]
+    [InlineData("clock")]
+    [InlineData("cpu")]
+    [InlineData("quickToggle")]
+    public void S17100_the_scaled_faces_stop_their_height_at_their_shape(string id)
+    {
+        // Owner, 2026-11-23: "the now playing widget right now can be resized in the height as well for example, generally speaking
+        // this is good but the height resize should be limited ... do this for all widgets."
+        var sizing = ModuleCatalog.Of(new WidgetId(id)).SizingOf();
+        Assert.Equal(StretchRoom.Face, sizing.Room);
+        var wide = 2 * sizing.Natural.Width;
+        Assert.Equal(new SizeDip(wide, sizing.MostHeight(wide)), sizing.Fit(new SizeDip(wide, SizeStretch.Ceiling)));
+        Assert.True(sizing.MostHeight(wide) < SizeStretch.Ceiling / 4, $"{id}: {sizing.MostHeight(wide)}");
+    }
+
+    [Theory]
+    [InlineData("tasks")]
+    [InlineData("calendar")]
+    [InlineData("notes")]
+    [InlineData("stockHistory")]
+    [InlineData("weekPlanner")]
+    public void S17102_lists_grids_editors_and_graphs_stay_relaxed(string id)
+    {
+        var sizing = ModuleCatalog.Of(new WidgetId(id)).SizingOf();
+        Assert.NotEqual(StretchRoom.Face, sizing.Room);
+        Assert.Equal(SizeStretch.Ceiling, sizing.MostHeight(sizing.Natural.Width), 6);
+    }
+}

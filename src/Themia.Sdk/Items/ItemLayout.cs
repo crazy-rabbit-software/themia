@@ -277,8 +277,9 @@ public static class ItemLayout
         switch (style)
         {
             case ItemStyle.RowList:
-                // [S-16942] Its columns from the card's left edge, one height: its parts' column.
-                return WidgetSizing.Range(new(w, h), new(Run(rows, w), h), new(Run(KitSizing.MaxRows, w), h));
+                // [S-16942] Its columns from the card's left edge, one height: its parts' column. [S-17101] A taller card would
+                // only stand room under them: the height is the column's.
+                return WidgetSizing.Range(new(w, h), new(Run(rows, w), h), new(Run(KitSizing.MaxRows, w), h)) with { KeepsHeight = true };
 
             case ItemStyle.Grid:
             {
@@ -316,14 +317,14 @@ public static class ItemLayout
     /// [S-16637] One item's face's sizing (a Drive, a Bluetooth device, a Meeting, a Contact): one List item from the card's top
     /// edge, the card one item tall, 220..520 wide, a new one 300; never narrower than its lead, its end and the start of its
     /// subtitle (<paramref name="widestLine"/> up to 96 DIP: past it the subtitle is cut with its ellipsis) and
-    /// <paramref name="end"/> wide at its end.
+    /// <paramref name="end"/> wide at its end. [S-17101] One item that does not repeat: the card is as tall as it, never taller.
     /// </summary>
     public static WidgetSizing Face(ItemShape shape, double widestLine, double end)
     {
         var h = ItemSize.Optimal(ListNatural(shape), ItemGrid.Default());
         var lead = shape.Lead ? FamilyType.Big28.LineHeight + FamilySpace.GlyphGap : 0;
         var least = Math.Max(LeastWidth, Math.Ceiling(Math.Min(widestLine, FamilySpace.ColumnGap * 8) + lead + FamilySpace.S3 + end + (2 * FamilySpace.Inset)));
-        return WidgetSizing.Range(new(least, h), new(Math.Max(NaturalWidth, least), h), new(Math.Max(MostWidth, least), h));
+        return WidgetSizing.Range(new(least, h), new(Math.Max(NaturalWidth, least), h), new(Math.Max(MostWidth, least), h)) with { KeepsHeight = true };
     }
 
     /// <summary>[S-16631] A reading's widest form ("100%") at 28, estimated.</summary>

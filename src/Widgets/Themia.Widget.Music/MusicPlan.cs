@@ -382,7 +382,10 @@ public static class MusicPlan
         var min = new SizeDip(Least(least.Width * floor), Least(least.Height * floor));
         // A face of one time alone is as wide as the widest time at 1: the least never stands over the natural.
         var nat = new SizeDip(Math.Ceiling(Box(Math.Max(natural.Width, least.Width))), Math.Ceiling(Box(Math.Max(natural.Height, least.Height))));
-        return WidgetSizing.Range(min, nat, nat);
+        // [S-17100] The block scales as one (owner, 2026-11-23: "the now playing widget right now can be resized in the height as
+        // well ... the height resize should be limited to not exceed where the spacings at the bottom or top are not the same as
+        // they are in the other widgets too"): a card no taller than the block's shape fills at its width.
+        return WidgetSizing.Range(min, nat, nat).ScalesAsOne();
     }
 
     /// <summary>

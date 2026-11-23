@@ -37,12 +37,14 @@ public static class SunLayout
         var inset = 2 * FamilySpace.Inset;
         if (config.Style == SunStyle.DayBar)
         {
+            // [S-17101] The bar is one line: the card keeps its height.
             var bar = inset + Dot;
-            return WidgetSizing.Range(new(Narrowest, bar), new(Start, bar), new(Widest, bar));
+            return WidgetSizing.Range(new(Narrowest, bar), new(Start, bar), new(Widest, bar)) with { KeepsHeight = true };
         }
 
         double Arc(double width) => inset + Math.Floor((width - inset) / 2);
-        return WidgetSizing.Range(new(Narrowest, ArcLeast), new(Start, Arc(Start)), new(Widest, Arc(Widest)));
+        // [S-17100] The arc is half as tall as wide: a taller card would stand room over and under it.
+        return WidgetSizing.Range(new(Narrowest, ArcLeast), new(Start, Arc(Start)), new(Widest, Arc(Widest))).ScalesAsOne();
     }
 
     /// <summary>

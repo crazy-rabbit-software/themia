@@ -44,7 +44,9 @@ public static class StockLayout
             height = ItemSize.Optimal(PriceBand, grid) + (rows * ItemSize.Optimal(FamilyShape.Row1, grid));
         }
 
-        return WidgetSizing.Range(new(Narrowest, height), new(Narrowest, height), new(Widest, height));
+        // [S-17100] [S-17101] The price alone scales as one; over its rows the card is as tall as they are.
+        var sizing = WidgetSizing.Range(new(Narrowest, height), new(Narrowest, height), new(Widest, height));
+        return rows > 0 ? sizing with { KeepsHeight = true } : sizing.ScalesAsOne();
     }
 
     /// <summary>

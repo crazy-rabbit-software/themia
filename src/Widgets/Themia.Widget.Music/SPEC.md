@@ -56,6 +56,14 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   the box, the style, the set and the times' template only. Tests `MusicPlanTests.S16502_` (every style × all, each
   element hidden, and several sets, at the least, natural, large and off-proportion boxes: every shown element drawn,
   inside the inset, none over another, the block on the inset, the natural at 1 and the least at the floor).
+- **[S-17103]** **No taller than its block fills** (owner, 2026-11-23: "the now playing widget right now can be resized in the
+  height as well for example, generally speaking this is good but the height resize should be limited to not exceed where
+  the spacings at the bottom or top are not the same as they are in the other widgets too"; SPEC [S-17100]). Every style
+  with a column is a face that scales as one (`MusicPlan.Sizing`, `WidgetSizing.ScalesAsOne`): its width stays the user's,
+  its height stops where the block, scaled to fill the width, stands the inset from the card's top and foot (its natural
+  less the inset, 376 × 64 beside a cover: at most 24 + 0.17 × (width − 24), the natural 400 × 88 the most at 400 wide,
+  122 at 600, 156 at 800, in the whole cells that hold it); a wider card stands the block centred across. A cover alone
+  stays a picture, its card the user's on both axes ([S-16507]). Tests `MusicPlanTests.S17103_`.
 - **[S-16517]** **The transport stands right of the texts, right-aligned** (owner, 2026-11-23: "for the now playing
   widget move the action buttons on the right side of the text and right align them"). In the side cover, Stacked and
   Full art's foot the column's head holds the texts and, 12 right of them, the transport at the column's end, on the

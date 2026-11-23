@@ -81,6 +81,14 @@ public static class MeterSizing
     /// </summary>
     public static WidgetSizing Reading(MeterLook look, ReadoutText worst, int rows = 1)
     {
+        // [S-17100] A reading scales as one with its drawing (a dial, the battery, the bars): its height follows its width;
+        // [S-17101] its bar rows are as many as it states, so the Rows look is as tall as they are.
+        var sizing = Stated(look, worst, rows);
+        return look == MeterLook.Rows ? sizing with { KeepsHeight = true } : sizing.Room == StretchRoom.Face ? sizing : sizing.ScalesAsOne();
+    }
+
+    private static WidgetSizing Stated(MeterLook look, ReadoutText worst, int rows)
+    {
         worst = Identified(look, worst);
         var reading = ReadingWidth(worst);
         var top = FamilySpace.ContentTop;

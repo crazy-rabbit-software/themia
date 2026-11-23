@@ -28,12 +28,12 @@ public static class HeaderLayout
     public static double Height(bool caption)
         => FamilySpace.Inset + FamilySpace.HeaderLine + (caption ? FamilyType.Caption.LineHeight : 0) + FamilySpace.HeaderGap;
 
-    /// <summary>[S-9601] The sizing: any width in range, the height its lines take.</summary>
+    /// <summary>[S-9601] The sizing: any width in range, the height its lines take; [S-17100] a taller card at most its line's shape at its width.</summary>
     public static WidgetSizing Sizing(HeaderConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         var height = Height(config.HasCaption);
-        return WidgetSizing.Range(new(Narrowest, height), new(NaturalWidth, height), new(Widest, height));
+        return WidgetSizing.Range(new(Narrowest, height), new(NaturalWidth, height), new(Widest, height)).ScalesAsOne();
     }
 
     /// <summary>Text as stored: one line (breaks become spaces), trimmed, at most <see cref="MostText"/> characters.</summary>

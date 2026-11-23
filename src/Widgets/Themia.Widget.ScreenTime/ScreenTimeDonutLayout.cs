@@ -40,6 +40,7 @@ public static class ScreenTimeDonutLayout
     public static WidgetSizing Sizing(ScreenTimePeriod period)
     {
         var natural = Box(NaturalRing, period);
-        return WidgetSizing.Range(Box(LeastRing, period), natural, natural);
+        // [S-17100] The block scales as one: its height follows its width.
+        return WidgetSizing.Range(Box(LeastRing, period), natural, natural).ScalesAsOne();
     }
 }
