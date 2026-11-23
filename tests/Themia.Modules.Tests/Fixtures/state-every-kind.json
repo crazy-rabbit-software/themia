@@ -151,12 +151,17 @@
           "config": {
             "kind": "email",
             "rows": 5,
-            "lines": 2,
             "columnTitles": true,
             "accountIds": [],
             "folder": "inbox",
             "style": "list",
-            "sortOrder": "desc"
+            "sortOrder": "desc",
+            "showPreview": false,
+            "gap": 0,
+            "hiddenParts": [
+              "Note"
+            ],
+            "partOrder": []
           }
         },
         {

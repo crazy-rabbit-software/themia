@@ -1,14 +1,14 @@
 using Themia.Core.Localization;
 using Themia.Core.Mail;
 using Themia.Core.Model;
+using Themia.Sdk.Items;
 using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Email;
 
 /// <summary>
-/// [S-6420] Mail on the kit: its spec (the stacked look going one line on a strip, or the table), what
-/// the user chose (<see cref="Choices"/>), a message as a <see cref="KitItem"/> and its actions. Pure,
-/// so the menu's lines and the rows' fields are tested here and not in a view.
+/// [S-6420] [S-16971] Mail on the kit and the item base: its spec, a message as a <see cref="KitItem"/> and as the base's item,
+/// and its actions. Pure, so the menu's lines and the items' fields are tested here and not in a view.
 /// </summary>
 public static class MailSpec
 {
@@ -22,58 +22,52 @@ public static class MailSpec
     public const string JunkId = "junk";
     public const string DeleteId = "delete";
 
+    /// <summary>[S-16971] The parts a message has, in its own order: the sender, the subject, the account, the time.</summary>
+    public static IReadOnlyList<ItemPart> Parts { get; } = [ItemPart.Title, ItemPart.Subtitle, ItemPart.Note, ItemPart.End];
+
     /// <summary>
-    /// [S-6403] The spec of a style: List and Compact are the stacked look, Table the table. An empty
-    /// folder says which folder it is ("No messages in Inbox"). [S-2270] Unread is told by the sender's
-    /// name alone: BodyStrong primary unread, Body secondary read; no row leads.
+    /// [S-16971] The kit's spec of the list: its screens' words (an empty folder says which folder it is, "No messages in
+    /// Inbox"), its compact ages; the items are the item base's.
     /// </summary>
     /// <param name="folder">The folder the widget lists now; Inbox when null.</param>
-    public static KitSpec Spec(EmailStyle style, Func<MailFolder>? folder = null)
+    public static KitSpec Spec(Func<MailFolder>? folder = null)
     {
         string Empty() => Str.WidgetsB_Email_NoMessagesIn.Format(("folder", (folder?.Invoke() ?? MailFolder.Inbox).Label()));
-
-        return style == EmailStyle.Table
-            ? new(KitRowLook.Table, KitShow.All, () => string.Empty, Empty, KitTime.Compact)
-            {
-                ColumnHeading = column => Column(column).Label(),
-                ColumnTime = KitTime.Stamp,
-                Unread = true,
-            }
-            : new(KitRowLook.TwoLine, KitShow.All, () => string.Empty, Empty, KitTime.Compact) { Unread = true };
+        return new(KitRowLook.Line, KitShow.All, () => string.Empty, Empty, KitTime.Compact) { Unread = true };
     }
 
-    /// <summary>[S-543] [S-6403] The fields the user has on: subject and account as chosen, the preview the List style's own.</summary>
-    public static KitChoices Choices(EmailConfig config)
+    /// <summary>
+    /// [S-16971] [S-2270] A message as the item base's item at <paramref name="now"/>: the sender the title (unread strong and
+    /// primary, read plain and secondary: no lead), the subject under it (the preview after it where
+    /// <paramref name="preview"/>), when it came at the end (the kit's compact age), the account's name the note.
+    /// </summary>
+    public static Themia.Sdk.Items.Item Base(KitItem message, bool preview, DateTimeOffset now, Locale locale)
     {
-        ArgumentNullException.ThrowIfNull(config);
-
-        // [S-2270] No lead: every row would show an envelope; unread is the name's own weight and role.
-        var shows = KitShow.When
-            | (config.Shows(MailListField.Subject) ? KitShow.Subtitle : KitShow.None)
-            | (config.Shows(MailListField.Account) ? KitShow.Badges : KitShow.None)
-            | (config.ShowsPreview ? KitShow.Preview : KitShow.None);
-
-        return new KitChoices(shows, [.. config.EffectiveColumns.Select(Kit)]) { Rows = config.RowsShown };
+        ArgumentNullException.ThrowIfNull(message);
+        var subject = message.Subtitle ?? string.Empty;
+        var line = preview && message.Preview is { Length: > 0 } text ? subject.Length > 0 ? $"{subject} – {text}" : text : subject;
+        var when = KitText.When(locale, message.When, KitTime.Compact, now);
+        return new Themia.Sdk.Items.Item(
+            message.Id,
+            message.Title,
+            null,
+            line,
+            when.Length > 0 ? ItemEnd.Text(when) : null,
+            Note: message.Badges is [{ Text: { Length: > 0 } account }, ..] ? account : string.Empty,
+            Tooltip: message.Tooltip ?? string.Empty,
+            Strong: message.Emphasis,
+            Muted: !message.Emphasis);
     }
 
-    /// <summary>[S-543] A table column of the user's as the kit's.</summary>
-    public static KitColumn Kit(MailColumn column) => column switch
+    /// <summary>[S-16971] A message's words for its parts: From, Subject, Account, Date.</summary>
+    public static string PartName(ItemPart part) => Strings.Get(Strings.Current, part switch
     {
-        MailColumn.From => KitColumn.Title,
-        MailColumn.Subject => KitColumn.Subtitle,
-        MailColumn.Date => KitColumn.When,
-        MailColumn.Preview => KitColumn.Preview,
-        _ => KitColumn.Badge,
-    };
-
-    private static MailColumn Column(KitColumn column) => column switch
-    {
-        KitColumn.Title => MailColumn.From,
-        KitColumn.Subtitle => MailColumn.Subject,
-        KitColumn.When => MailColumn.Date,
-        KitColumn.Preview => MailColumn.Preview,
-        _ => MailColumn.Account,
-    };
+        ItemPart.Subtitle => Str.Email_Col_Subject,
+        ItemPart.Note => Str.Email_Col_Account,
+        ItemPart.End => Str.Email_Col_Date,
+        ItemPart.Title => Str.Email_Col_From,
+        _ => Str.Items_Part_Lead,
+    });
 
     /// <summary>
     /// [S-1282] [S-1284] A message as a row: the sender, the subject, the preview, its time; unread is

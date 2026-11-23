@@ -9,14 +9,14 @@ using Themia.Core.Settings;
 using Themia.Core.Widgets;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.WinUI.Items;
 
 namespace Themia.Widget.Email;
 
 /// <summary>
-/// [S-7512] The Mail widget's options, all on its page ([S-3719]): under Style what the
-/// style draws with ([S-6403], [S-6070]: the subject and account lines, the preview's lines, the
-/// table's columns); then Appearance ([S-3723]), the accounts it reads ([S-541], the kit's Accounts
-/// submenu) and the folder. It has no settings page.
+/// [S-7512] [S-16971] The Mail widget's options, all on its page ([S-3719]): the item base's lines (its parts in order with the
+/// preview, the gap or a table's column titles, the rows), then the accounts it reads ([S-541], the kit's Accounts submenu)
+/// and the folder. It has no settings page.
 /// <para>
 /// Accounts are signed in from settings › Accounts, not here: the menu lists what is already signed in
 /// and opens that page, so there is exactly one place an account comes into being.
@@ -31,26 +31,8 @@ internal static class EmailMenu
         ArgumentNullException.ThrowIfNull(email);
         ArgumentNullException.ThrowIfNull(accounts);
 
-        var look = menu.StyleLines;
-        if (email.Offers(EmailSetting.ListFields))
-        {
-            // [S-543] The optional lines of the list and compact styles. Sender and time always show.
-            look.Add(Field(menu, email, MailListField.Subject, EmailStr.WidgetsB_Settings_Email_ShowSubject.Text()));
-            look.Add(Field(menu, email, MailListField.Account, EmailStr.WidgetsB_Settings_Email_ShowAccount_Label.Text()));
-        }
-
-        if (email.Offers(EmailSetting.Columns))
-        {
-            look.Add(Columns(menu, email));
-        }
-
-        if (email.Offers(EmailSetting.ColumnTitles))
-        {
-            look.Add(menu.Toggle(null, EmailStr.Email_ColumnTitles.Text(), email.ColumnTitles, on => email.ColumnTitles = on));
-        }
-
-        // [S-11402] How many messages, and their lines where a message has more than one.
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, email, mostLines: email.MostLines));
+        // [S-16971] The item base's lines: the parts in order with the preview, the gap or the column titles, the rows.
+        ItemMenuLines.List(menu, email, MailSpec.Parts, own: [menu.Toggle(null, Str.Email_Col_Preview.Text(), email.ShowPreview, on => email.ShowPreview = on)], name: MailSpec.PartName);
         menu.Lines.Add(SettingsLine.Separator);
 
         menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.MailAccounts, OfficeMenuLines.Accounts(menu, accounts, Glyphs.Mail,
@@ -59,57 +41,4 @@ internal static class EmailMenu
         menu.Lines.Add(menu.Choice(Glyphs.Folder, EmailStr.Email_Folder_Label.Text(),
             [.. EmailFolders.Listable.Select(f => (f, f.Label()))], email.Folder, value => email.Folder = value));
     }
-
-    /// <summary>[S-543] One optional line's switch, the fields kept in their canonical order.</summary>
-    private static SettingsLine Field(WidgetMenuLines menu, EmailConfig email, MailListField field, string text)
-        => menu.Toggle(null, text, email.EffectiveListFields.Contains(field), on =>
-        {
-            var fields = email.EffectiveListFields.ToList();
-            fields.Remove(field);
-            if (on)
-            {
-                fields.Add(field);
-            }
-
-            // Kept in the canonical order, so the file reads the same however it was toggled.
-            email.ListFields = [.. EmailConfig.ListFieldOrder.Where(fields.Contains)];
-        });
-
-    /// <summary>
-    /// [S-543] The table's columns as the menu's list ([S-3729]): those on, in their order, each with
-    /// Move up, Move down and Remove (greyed on the last one: one always stays); the ones that are off
-    /// to add after them; then what a narrow table drops first.
-    /// </summary>
-    private static SettingsLine Columns(WidgetMenuLines menu, EmailConfig email)
-    {
-        // The defaults made the widget's own so the list edits them in place: the same columns.
-        var columns = email.RowColumns is { Count: > 0 } chosen ? chosen : [.. EmailConfig.DefaultColumns];
-        email.RowColumns = columns;
-
-        var add = new List<SettingsLine>();
-        foreach (var column in Enum.GetValues<MailColumn>().Where(c => !columns.Contains(c)))
-        {
-            add.Add(menu.Command(Glyphs.Add, column.Label(), () => columns.Add(column)));
-        }
-
-        add.Add(SettingsLine.Separator);
-        add.Add(WidgetMenuLines.Note(EmailStr.WidgetsB_Settings_Email_ColumnsNote.Text()));
-
-        return menu.List(Glyphs.Grid, EmailStr.WidgetsB_Email_Menu_Columns.Text(), columns,
-            new MenuList<MailColumn>(c => c.Label(), string.Empty)
-            {
-                Glyph = ColumnGlyph,
-                AddLines = add,
-                Min = 1,
-            });
-    }
-
-    private static string ColumnGlyph(MailColumn column) => column switch
-    {
-        MailColumn.From => Glyphs.Contact,
-        MailColumn.Subject => Glyphs.Mail,
-        MailColumn.Date => Glyphs.Calendar,
-        MailColumn.Preview => Glyphs.Preview,
-        _ => Glyphs.Contact,
-    };
 }

@@ -34,26 +34,6 @@ public enum MailSortOrder
 }
 
 /// <summary>
-/// [S-543] The optional lines of the list and compact styles. Sender and time always show; the
-/// preview is the List style's own line ([S-6403]), not a field.
-/// </summary>
-public enum MailListField
-{
-    Subject,
-    Account,
-}
-
-/// <summary>[S-543] The columns of the row view, in the order the user put them.</summary>
-public enum MailColumn
-{
-    From,
-    Subject,
-    Date,
-    Preview,
-    Account,
-}
-
-/// <summary>
 /// One message, as every provider is reduced to it.
 /// <para>
 /// <see cref="RawId"/> is the provider's own handle and only means something to that provider: a
@@ -157,46 +137,6 @@ public static class MailNames
         _ => null,
     };
 
-    public static string Wire(this MailListField field) => field switch
-    {
-        MailListField.Account => "account",
-        _ => "subject",
-    };
-
-    public static MailListField? ParseListField(string? wire) => wire?.Trim().ToLowerInvariant() switch
-    {
-        "subject" => MailListField.Subject,
-        "account" => MailListField.Account,
-        _ => null,
-    };
-
-    public static string Wire(this MailColumn column) => column switch
-    {
-        MailColumn.Subject => "subject",
-        MailColumn.Date => "date",
-        MailColumn.Preview => "preview",
-        MailColumn.Account => "account",
-        _ => "from",
-    };
-
-    public static MailColumn? ParseColumn(string? wire) => wire?.Trim().ToLowerInvariant() switch
-    {
-        "from" => MailColumn.From,
-        "subject" => MailColumn.Subject,
-        "date" => MailColumn.Date,
-        "preview" => MailColumn.Preview,
-        "account" => MailColumn.Account,
-        _ => null,
-    };
-
-    public static string Label(this MailColumn column) => Strings.Get(Strings.Current, column switch
-    {
-        MailColumn.Subject => Str.Email_Col_Subject,
-        MailColumn.Date => Str.Email_Col_Date,
-        MailColumn.Preview => Str.Email_Col_Preview,
-        MailColumn.Account => Str.Email_Col_Account,
-        _ => Str.Email_Col_From,
-    });
 
     /// <summary>
     /// A value this build does not know, read from a hand-edited or newer state file. Logged and
@@ -270,92 +210,6 @@ public sealed class MailSortOrderConverter : LenientWireConverter<MailSortOrder>
     protected override MailSortOrder? Parse(string? wire) => MailNames.ParseSortOrder(wire);
 
     protected override string Write(MailSortOrder value) => value.Wire();
-}
-
-/// <summary>
-/// A list of closed-set names. Unknown names are dropped and logged, a non-array becomes null (the
-/// default), so neither can refuse the state file.
-/// </summary>
-public abstract class LenientWireListConverter<T> : JsonConverter<List<T>>
-    where T : struct, Enum
-{
-    protected abstract string What { get; }
-
-    protected abstract T? Parse(string? wire);
-
-    protected abstract string Write(T value);
-
-    public override bool HandleNull => true;
-
-    public override List<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return null;
-        }
-
-        if (reader.TokenType != JsonTokenType.StartArray)
-        {
-            var token = reader.TokenType;
-            reader.Skip();
-            MailNames.Unknown(What, token.ToString(), "the default");
-            return null;
-        }
-
-        var list = new List<T>();
-
-        while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
-        {
-            if (reader.TokenType == JsonTokenType.String && Parse(reader.GetString()) is { } value)
-            {
-                list.Add(value);
-                continue;
-            }
-
-            var seen = reader.TokenType == JsonTokenType.String ? reader.GetString() : reader.TokenType.ToString();
-            reader.Skip();
-            MailNames.Unknown(What, seen, "nothing (dropped)");
-        }
-
-        return list;
-    }
-
-    public override void Write(Utf8JsonWriter writer, List<T>? value, JsonSerializerOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(writer);
-
-        if (value is null)
-        {
-            writer.WriteNullValue();
-            return;
-        }
-
-        writer.WriteStartArray();
-        foreach (var item in value)
-        {
-            writer.WriteStringValue(Write(item));
-        }
-
-        writer.WriteEndArray();
-    }
-}
-
-public sealed class MailListFieldsConverter : LenientWireListConverter<MailListField>
-{
-    protected override string What => "list field";
-
-    protected override MailListField? Parse(string? wire) => MailNames.ParseListField(wire);
-
-    protected override string Write(MailListField value) => value.Wire();
-}
-
-public sealed class MailColumnsConverter : LenientWireListConverter<MailColumn>
-{
-    protected override string What => "column";
-
-    protected override MailColumn? Parse(string? wire) => MailNames.ParseColumn(wire);
-
-    protected override string Write(MailColumn value) => value.Wire();
 }
 
 /// <summary>

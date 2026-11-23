@@ -25,23 +25,23 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   signed in. Its menu lists the signed-in mail accounts as switches under "Every mail account" and
   opens ⚙ › Accounts ([S-7512], [S-3558]); no account is ever signed in from the widget. Folders: Inbox,
   Sent, Drafts, Deleted, Junk [S-12].
-- **[S-542]** List (sender + time, subject, preview), Compact (sender + time, subject) and Row (one
-  line of user-ordered columns under a header row) views [S-14, S-37]; newest or oldest first over
-  the same newest N [S-17]. No card header ([S-12480]): the kit's status over the content's top end
-  ([S-12481]) carries the kit's problem glyph ([S-7064]: one line per account that failed or needs signing in, a
-  tap → Accounts where only the user can mend it) and a busy ring only for a refresh the user asked for. The card menu offers Refresh, Write email
-  ([S-558]) and the five folders [S-20]; the style ([S-6403]) and the order are settings only ([S-1746]).
-- **[S-543]** List fields Subject / Account, default the subject alone ([S-12801]: on every row of one account the
-  account's name only repeats the context; it is a choice for an inbox of several) (the preview is the List style's own
-  line, [S-6403]); the account tag shows whenever chosen [S-43]. Table columns From, Subject, Date,
-  Preview, Account, reorderable, at least one on [S-16].
-- **[S-6403]** Mail's styles ([S-6000]), `EmailConfig.Style` (`EmailStyle`, `"style": "list"`):
-  **List with preview** (sender + time, subject, the preview where the tile gives a row three lines), **Compact list**
-  (sender + time, subject) and **Table** (one line of the user's columns under a header row), in
-  that order: what were the view setting and the list fields' Preview switch (List without the
-  preview was Compact, so the switch is gone). The rest are lines under Style, shown only for the style that
-  draws with them (`EmailConfig.ShownSettings`, [S-6070], [S-7512]): Subject / Account for List and Compact, Preview
-  lines for List, the columns for Table. A hand-edited `"preview"` list field is dropped.
+- **[S-542]** The messages on the item base ([S-16971]); newest or oldest first over the same newest N [S-17]. No card
+  header ([S-12480]): the kit's status over the content's top end ([S-12481]) carries the kit's problem glyph ([S-7064]:
+  one line per account that failed or needs signing in, a tap → Accounts where only the user can mend it) and a busy ring
+  only for a refresh the user asked for. The card menu offers Refresh, Write email ([S-558]) and the five folders [S-20];
+  the style and the order are settings only ([S-1746]).
+- **[S-543]** *(Retired by [S-16971]: the subject, the account and the date are the item's parts, shown and ordered in the item
+  base's one checklist ([S-16950]); the table's columns are those parts in that order; the preview is a switch.)*
+- **[S-6403]** *(Retired by [S-16971]: Mail's styles are the item base's arrangements; a stored `listFields`, `rowColumns` or
+  `lines` is dropped at load, a stored `compact` style is read as the default.)*
+- **[S-16971]** **Mail on the item base** (owner, 2026-11-23: "same should be done for email and contacts too"; "there should
+  also be a base style where this data is shown as a table"): a message is an item (`MailSpec.Base`): its sender the title
+  (unread strong and primary, read plain and secondary: no lead, [S-2270]), its subject under it (its preview after it,
+  "Subject – preview", where **Preview** is on), when it came at its end (the kit's compact age), its account's name the
+  note (left out by default, [S-12801]); every arrangement (List, Row list, Column list, Grid, Table: its columns From,
+  Subject, Account, Date in the parts' order, its column titles on by default), its gap and Rows (a new card five). It
+  stays a kit view through `ItemKit` ([S-16958]): a click opens a message, the Menu key and a right click its menu
+  ([S-544]), Delete deletes it where its account allows. Tests `EmailItemTests`, `EmailMenuTests`.
 - **[S-544]** Message right-click: Open, Reply, Mark read/unread, Archive, Move to Junk, Copy subject,
   Delete [S-21], built by the kit's one menu builder ([S-7011], [S-7013]: Reply an OpenTo, the marks,
   Archive and Junk changes): Copy subject and Delete are its icon row, Enter, Ctrl+C and Delete are
@@ -50,15 +50,8 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   is removed for good (Graph DELETE; IMAP `\Deleted` + `UID EXPUNGE`, UIDPLUS-scoped). A change shows
   at once and waits in the account's queue until the provider has it ([S-2610], [S-2624]); a refusal
   is the status's warning tooltip and the next probe fetches the truth.
-- **[S-11402]** **Mail states its rows** ([S-2440]): `Rows` (1..20, default 5) and `Lines` per
-  message (the sender with its time; the subject with the account; the preview, List only), offered
-  up to the lines its style and fields have (List 3, Compact 2, none in the Table; a Compact list with
-  subject and account off is one line), default 2. Each style states its own sizes: List and Compact
-  the kit's (220..520, a new one 300 × 248), the Table 320..720 (a new one 420), its rows one line,
-  its **Column titles** a setting under Style (on by default) and never the height's ([S-11401]).
-  Rows decide its natural height; the card shows the rows it holds at their optimal, stretched to fill it, and a resize stores none ([S-14500], [S-14502]); more messages scroll inside them
-  (the wheel as before). Nothing appears or disappears with the size: [S-1280]'s ladder is gone. Tests
-  `EmailSizingTests`, `EmailMenuTests.S11402_`.
+- **[S-11402]** *(Retired by [S-16971]: its rows are the item base's: Rows (1..20, a new one 5) decide its natural height,
+  one face a message, the table's widths the base's.)*
 - **[S-1280]** *(Retired by [S-11402]: what a row shows is its lines, never the tile.)* Mail's ladder (the kit's message and table looks on the family's rows, [S-7032],
   [S-7034]): a Row block per message, the sender the name (BodyStrong while unread), the time the
   value, the subject with the account after it ("Quarterly numbers · Work") on the second line
@@ -80,11 +73,9 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   name, "Work (Microsoft)", is retired, [S-666]). Mark read or unread, archive and delete are the
   item menu's and the keys' (the quick actions a one-line row swapped in for its time under the
   pointer are retired with [S-7033]).
-- **[S-6420]** Mail on the kit (`MailSpec`): List and Compact are the kit's stacked look (going one
-  line on a strip), Table its table ([S-7032]..[S-7034]); a message is a `KitItem` (the sender its
-  title, the subject its subtitle, the account's name its badge, unread its emphasis, accent tone and
-  closed envelope) and its menu lines `KitAction`s; its keys are the kit's ([S-7020]: Left and Right
-  step like Up and Down, Ctrl+C copies the subject).
+- **[S-6420]** Mail on the kit (`MailSpec`): a message is a `KitItem` (the sender its title, the subject its subtitle, the
+  preview, the account's name its badge, unread its emphasis) mapped onto the item base's item ([S-16971]), its menu lines
+  `KitAction`s; its keys are the item base's ([S-16955]).
 - **[S-6421]** Mail is a kit view ([S-7061]): `MailKitSource` reads the host's one mail source for
   the config's accounts, folder and count (the feed is pushed; Refresh is the feed's), its messages as
   items, each account read as an outcome (signed out: sign in again; not answered: loading; failed:
@@ -96,20 +87,16 @@ its rows the kit's `KitList`), `EmailMenu.cs` (its properties-menu lines), `Prev
   whole shelf the sync keeps per folder (`EmailConfig.FetchCount` = `MailShelves.MaxPerFolder`, 50),
   newest first, and the list scrolls past the rows that fit, so a big tile is never half empty and
   resizing never refetches. A `maxCount` left in a hand-edited file is ignored.
-- **[S-1287]** Row view from 700px: when the user's columns leave Subject as the only flexible column
-  and it would take more than 40% of the line, Preview joins after Subject. A chosen Preview keeps
-  the user's order; without Subject nothing is added.
+- **[S-1287]** *(Retired by [S-16971]: the table's columns are the parts shown, the user's alone.)*
 - **[S-1289]** *(Retired by [S-12481]: no card header, so no header buttons. The order is the page's
   setting; writing a new email is the card menu's line, one per account, [S-558].)*
 
-- **[S-7512]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the
-  settings page is gone). Under Style: Show subject and Show account (List and Compact), and for
-  the Table its **Columns**, the menu's list ([S-3729]): the columns
-  that are on in their order, dragged to reorder ([S-3732]), each with Remove (greyed on the last: one always
-  stays), the ones that are off to add at the end, and what a narrow table drops first as a note.
-  Then Appearance, **Accounts** (the kit's Accounts submenu over the signed-in mail accounts: Every
-  mail account, a switch each, the last one greyed, Manage accounts) and **Folder** (Inbox, Sent,
-  Drafts, Deleted, Junk).
+- **[S-7512]** Its options are on the properties menu ([S-3719], user request 2026-10-19; the settings page is gone): the
+  item base's lines (**Each item shows**: From, Subject, Account, Date in order with **Preview**; **Gap between items**, or a
+  table's **Column titles**; **Rows**), then **Accounts** (the kit's Accounts submenu over the signed-in mail accounts:
+  Every mail account, a switch each, the last one greyed, Manage accounts) and **Folder** (Inbox, Sent, Drafts, Deleted,
+  Junk).
+
 - **[S-2043]** A click on the card ([S-2000]) opens the mail of the account it reads on the web:
   Outlook's for a Microsoft account, Google's for a Google one, the first chosen account that has
   such a page ([S-2005], `EmailModule.Opens`); an IMAP, CalDAV or CardDAV account opens nothing. A

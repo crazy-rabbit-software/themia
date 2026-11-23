@@ -10,6 +10,7 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
+using Themia.Sdk.WinUI.Items;
 using Themia.Widget.Email;
 using Themia.Sdk;
 
@@ -19,15 +20,14 @@ namespace Themia.App.Widgets;
 /// [S-540] Recent mail from the accounts signed in to Themia: Microsoft (Graph), Google (Gmail) and
 /// IMAP, merged into one list.
 /// <para>
-/// A kit view ([S-6421]): the host's one <see cref="App.Services.Mail.IMailSource"/> read through
-/// <see cref="MailKitSource"/>, drawn by the kit's binding — the list in the look the style asks for
-/// ([S-7032]..[S-7034]), the kit's screens and state panel ([S-7040]), its header with the one stale
-/// rule ([S-7042]) and Mail's compose and sort buttons ([S-558], [S-1289]). Fetching, the cadence
-/// and the back-off are the service's ([S-546]). A click focuses a row, a double-click opens it,
-/// right-click offers what its account allows ([S-544]).
+/// A kit view ([S-6421]) on the item base ([S-16971], <see cref="ItemKit"/>): the host's one
+/// <see cref="App.Services.Mail.IMailSource"/> read through <see cref="MailKitSource"/>, the kit's screens and state panel
+/// ([S-7040]) and the one stale rule ([S-7042]), every message an item in the config's arrangement. Fetching, the cadence
+/// and the back-off are the service's ([S-546]). A click opens a message, right-click offers what its account allows
+/// ([S-544]), Delete deletes it where it may.
 /// </para>
 /// </summary>
-internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys
+internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidgetSurfaceAware, IWidgetContextActions, IWidgetSizeAware, IWidgetKeys, IWidgetGrounds
 {
     /// <inheritdoc />
     public CardOpen? Opens => EmailModule.Opens(_config.EffectiveAccountIds, _widgetHost.AccountsWith(HostFeatures.Mail));
@@ -44,24 +44,35 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
     private Ticker? _ticker;
     private IWidgetSurface? _surface;
     private EmailConfig _config = new();
-    private EmailStyle _style;
 
     public EmailView(IWidgetHost host)
     {
         _widgetHost = host;
-        _style = _config.Style;
-        _binding = new KitBinding(host, MailSpec.Spec(_style, () => _config.Folder), Glyphs.Mail, ActionsOf, Handle)
+        var kit = new ItemKit(host, (item, now) => MailSpec.Base(item, _config.ShowPreview, now, Strings.Current), MailSpec.Parts, () => _config)
         {
+            CanOpen = () => _surface is not { EditMode: true } && !host.IsPreview,
+        };
+        kit.List.PartTitle = MailSpec.PartName;
+        kit.List.GroundsChanged += () => GroundsChanged?.Invoke();
+        _binding = new KitBinding(host, MailSpec.Spec(() => _config.Folder), Glyphs.Mail, ActionsOf, Handle)
+        {
+            Arranged = kit,
             Decorate = LinkRow,
             Redrawing = ForgetRows,
         };
 
-        Children.Add(_binding.List);
+        Children.Add(_binding.Face);
         Children.Add(_binding.State);
 
         // [S-12481] The sources' state over the content's top end; compose is the card menu's ([S-558]).
         _binding.Status.Place(this);
     }
+
+    /// <inheritdoc />
+    public event Action? GroundsChanged;
+
+    /// <summary>[S-16640] With the gap on, every message's box.</summary>
+    public IReadOnlyList<Themia.Core.Geometry.DipRect>? Grounds => _binding.Arranged!.List.ViewGrounds;
 
     public void Bind(IWidgetSurface surface)
     {
@@ -72,7 +83,6 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
     {
         _ticker = ticker;
         _config = config as EmailConfig ?? new EmailConfig();
-        UseStyle();
         UseSource(new MailKitSource(_widgetHost.Mail, () => _config));
         _links.Join(_surface?.Links);
         _binding.Attach(ticker, _source!, _config, Tick);
@@ -81,26 +91,11 @@ internal sealed partial class EmailView : Grid, IWidgetView, IWidgetOpens, IWidg
     public void ApplyConfig(WidgetConfig config)
     {
         _config = config as EmailConfig ?? new EmailConfig();
-        UseStyle();
 
         if (_source is not null)
         {
             _binding.Apply(_source, _config, Tick, show: true);
         }
-    }
-
-    /// <summary>[S-6403] A style with another look draws through a list made for it.</summary>
-    private void UseStyle()
-    {
-        if (_config.Style == _style)
-        {
-            return;
-        }
-
-        _style = _config.Style;
-        var old = _binding.List;
-        var list = _binding.UseSpec(MailSpec.Spec(_style, () => _config.Folder));
-        Children[Children.IndexOf(old)] = list;
     }
 
     /// <summary>The source the binding reads; the old one lets go of its feed.</summary>

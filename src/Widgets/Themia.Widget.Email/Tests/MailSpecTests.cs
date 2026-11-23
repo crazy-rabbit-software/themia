@@ -79,14 +79,9 @@ public sealed class MailSpecTests
         Assert.Equal("Quarterly numbers", read.Subtitle);
     }
 
-    [Theory]
-    [InlineData(EmailStyle.List)]
-    [InlineData(EmailStyle.Table)]
-    public void S2270_the_list_tells_unread_by_its_names_and_asks_for_no_lead(EmailStyle style)
-    {
-        Assert.True(MailSpec.Spec(style).Unread);
-        Assert.False(MailSpec.Choices(new EmailConfig()).Shows.HasFlag(KitShow.Lead));
-    }
+    [Fact]
+    public void S2270_the_list_tells_unread_by_its_names()
+        => Assert.True(MailSpec.Spec().Unread);
 
     [Fact]
     public void S1286_every_widget_asks_for_the_whole_shelf_whatever_its_size()

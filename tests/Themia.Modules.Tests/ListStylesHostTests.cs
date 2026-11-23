@@ -18,7 +18,7 @@ public sealed class ListStylesHostTests
     [Theory]
     [InlineData("tasks", "list,compact")]
     [InlineData("gallery", "slideshow,grid,scatter,mosaic")]
-    [InlineData("email", "list,compact,table")]
+    [InlineData("email", "list,rowList,columnList,grid,table")]
     [InlineData("quote", "plain,marks")]
     [InlineData("habitTracker", "dots,heatmap,checklist")]
     public void S6400_each_kind_offers_its_styles_in_order_the_old_default_first(string kindId, string names)

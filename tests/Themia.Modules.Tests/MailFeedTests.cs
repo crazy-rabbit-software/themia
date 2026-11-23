@@ -138,7 +138,7 @@ public class MailFeedTests
             chosen,
             MailKitSource.Outcomes(targets, outcomes),
             count,
-            MailSpec.Spec(EmailStyle.List, () => folder).Empty());
+            MailSpec.Spec(() => folder).Empty());
     }
 
     private static KitScreen Screen(IReadOnlyList<MailAccount> accounts, IReadOnlyList<string> chosen, IReadOnlyList<MailAccountOutcome> outcomes, int count, MailFolder folder)
@@ -343,45 +343,6 @@ public class MailFeedTests
     public void S547_only_the_three_link_shapes_are_launchable(string link, bool expected)
         => Assert.Equal(expected, MailLinks.IsLaunchable(link));
 
-    [Fact]
-    public void S6403_S12801_the_preview_is_the_list_styles_own_line_and_the_field_is_the_subject_the_account_a_choice()
-    {
-        var config = new EmailConfig();
-        Assert.True(config.Shows(MailListField.Subject));
-        Assert.True(config.ShowsPreview);
-        Assert.False(config.Shows(MailListField.Account));
-
-        config.Style = EmailStyle.Compact;
-        Assert.False(config.ShowsPreview);
-        config.ListFields = [MailListField.Subject, MailListField.Account];
-        Assert.True(config.Shows(MailListField.Account));
-
-        config.Style = EmailStyle.Table;
-        Assert.False(config.ShowsPreview);
-
-        config.Style = EmailStyle.List;
-        config.ListFields = [MailListField.Subject];
-        Assert.False(config.Shows(MailListField.Account));
-        Assert.Equal(EmailConfig.DefaultColumns, config.EffectiveColumns);
-    }
-
-    [Theory]
-    [InlineData(EmailStyle.List, new[] { EmailSetting.ListFields })]
-    [InlineData(EmailStyle.Compact, new[] { EmailSetting.ListFields })]
-    [InlineData(EmailStyle.Table, new[] { EmailSetting.Columns, EmailSetting.ColumnTitles })]
-    public void S6403_the_page_offers_only_what_the_style_draws_with(EmailStyle style, EmailSetting[] expected)
-        => Assert.Equal(expected, new EmailConfig { Style = style }.ShownSettings);
-
-    [Fact]
-    public void S6403_an_old_preview_field_in_a_hand_edited_file_is_dropped_not_refused()
-    {
-        var document = StateWithMail("""{"kind":"email","listFields":["subject","preview","account"]}""");
-
-        var config = MailOf(StateDocument.Parse(document.ToJsonString()).State!);
-
-        Assert.Equal([MailListField.Subject, MailListField.Account], config.ListFields);
-    }
-
     /// <summary>A state document holding one Mail widget whose config is <paramref name="configJson"/>, plus a clock.</summary>
     private static JsonNode StateWithMail(string configJson)
     {
@@ -407,10 +368,9 @@ public class MailFeedTests
         {
             AccountIds = ["w"],
             Folder = MailFolder.Junk,
-            Style = EmailStyle.Table,
+            Style = Themia.Sdk.Items.ItemStyle.Table,
             SortOrder = MailSortOrder.OldestFirst,
-            ListFields = [MailListField.Account],
-            RowColumns = [MailColumn.Date, MailColumn.From],
+            PartOrder = [Themia.Sdk.Items.ItemPart.End, Themia.Sdk.Items.ItemPart.Title],
         };
         state.Views[0].Widgets.Add(widget);
 
@@ -424,9 +384,8 @@ public class MailFeedTests
         var parsed = StateDocument.Parse(json);
         var back = MailOf(parsed.State!);
         Assert.Equal(MailFolder.Junk, back.Folder);
-        Assert.Equal([MailColumn.Date, MailColumn.From], back.RowColumns);
-        Assert.Equal([MailListField.Account], back.ListFields);
-        Assert.Equal(EmailStyle.Table, back.Style);
+        Assert.Equal([Themia.Sdk.Items.ItemPart.End, Themia.Sdk.Items.ItemPart.Title], back.PartOrder);
+        Assert.Equal(Themia.Sdk.Items.ItemStyle.Table, back.Style);
         Assert.Equal(["w"], back.AccountIds);
         Assert.DoesNotContain(parsed.Repairs, r => r.Contains("mail", StringComparison.Ordinal));
     }
@@ -436,7 +395,7 @@ public class MailFeedTests
     {
         var document = StateWithMail("""
             {"kind":"email","accountIds":"not-a-list","folder":"nonsense","style":7,"sortOrder":"sideways",
-             "listFields":["subject","bogus"],"rowColumns":[]}
+             "hiddenParts":["Note"]}
             """);
 
         var parsed = StateDocument.Parse(document.ToJsonString());
@@ -445,66 +404,9 @@ public class MailFeedTests
         Assert.Equal(AppState.CreateDefault().Views[0].Widgets.Count + 2, parsed.State!.Views[0].Widgets.Count);
         var config = MailOf(parsed.State);
         Assert.Equal(MailFolder.Inbox, config.Folder);
-        Assert.Equal(EmailStyle.List, config.Style);
+        Assert.Equal(Themia.Sdk.Items.ItemStyle.List, config.Style);
         Assert.Equal(MailSortOrder.NewestFirst, config.SortOrder);
-        Assert.Equal([MailListField.Subject], config.ListFields);
-        Assert.Null(config.RowColumns);
         Assert.Empty(config.AccountIds!);
         Assert.Contains(parsed.Repairs, r => r.Contains("mail", StringComparison.Ordinal));
-    }
-}
-
-/// <summary>[S-556] [S-11402] Mail's styles on the kit's lined looks ([S-7032], [S-7034]): what its config states at every size.</summary>
-public class MailLayoutTests
-{
-    private static Themia.Sdk.Kit.KitPlan Plan(EmailConfig config, double width, double height)
-        => Themia.Sdk.Kit.KitPlanner.Plan(new WidgetArea(width, height), Themia.Widget.Email.MailSpec.Spec(config.Style), Themia.Widget.Email.MailSpec.Choices(config));
-
-    private static IEnumerable<MailColumn> Columns(IReadOnlyList<MailColumn> chosen, double width)
-        => Themia.Sdk.Kit.KitPlanner.TableColumns([.. chosen.Select(Themia.Widget.Email.MailSpec.Kit)], width, 8)
-            .Select(c => chosen.First(m => Themia.Widget.Email.MailSpec.Kit(m) == c.Column));
-
-    [Fact]
-    public void S11402_a_row_shows_its_lines_at_every_size_the_subject_then_the_preview()
-    {
-        var config = new EmailConfig { Lines = 3, ListFields = [MailListField.Subject, MailListField.Account] };
-        Assert.Equal(Plan(config, 220, 300) with { ColumnWidth = 0 }, Plan(config, 520, 300) with { ColumnWidth = 0 });
-
-        var plan = Plan(config, 300, 300);
-        Assert.True(plan.Subtitle && plan.Badges && plan.When && plan.Preview);
-        Assert.Equal(3, plan.Lines);
-
-        // [S-2270] No envelope leads a row at any size: the sender starts at the inset.
-        Assert.False(plan.Lead);
-
-        // Two lines: the sender and the subject; Compact never previews.
-        Assert.False(Plan(new EmailConfig { Lines = 2 }, 300, 300).Preview);
-        config.Style = EmailStyle.Compact;
-        Assert.Equal(2, Plan(config, 300, 300).Lines);
-        Assert.False(Plan(config, 300, 300).Preview);
-    }
-
-    [Fact]
-    public void S11402_a_table_shows_every_chosen_column_and_its_width_range_holds_them()
-    {
-        MailColumn[] all = [MailColumn.From, MailColumn.Subject, MailColumn.Date, MailColumn.Preview, MailColumn.Account];
-
-        Assert.Equal(all, Columns(all, 600));
-        Assert.Equal(all, Columns(all, 260));
-
-        // [S-11800] Five columns need more than the table's 320: its least is raised to hold them, so no width drops one.
-        var config = new EmailConfig { Style = EmailStyle.Table, RowColumns = [.. all] };
-        var least = Themia.Sdk.Kit.KitPlanner.TableLeast([.. all.Select(Themia.Widget.Email.MailSpec.Kit)], lead: false);
-        Assert.True(least > EmailConfig.TableWidths.Min);
-        Assert.Equal(least, config.Widths!.Value.Min);
-        Assert.Equal(EmailConfig.TableWidths.Min, new EmailConfig { Style = EmailStyle.Table }.Widths!.Value.Min);
-
-        // The user's order is kept; the flexible column takes the slack.
-        var fits = Themia.Sdk.Kit.KitPlanner.TableColumns([Themia.Sdk.Kit.KitColumn.When, Themia.Sdk.Kit.KitColumn.Subtitle], 300, 8);
-        Assert.Equal([MailColumn.Date, MailColumn.Subject], Columns([MailColumn.Date, MailColumn.Subject], 300));
-        Assert.Equal(1, fits[1].Star);
-
-        // With no flexible column the first one stretches so the row still fills.
-        Assert.Equal(1, Themia.Sdk.Kit.KitPlanner.TableColumns([Themia.Sdk.Kit.KitColumn.When, Themia.Sdk.Kit.KitColumn.Badge], 400, 8)[0].Star);
     }
 }

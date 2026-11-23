@@ -18,7 +18,7 @@ using Themia.Widget.Email;
 
 namespace Themia.Widget.Email;
 
-/// <summary>Email: recent mail of the signed-in accounts, as a list, compact or a table. SPEC.md beside this file.</summary>
+/// <summary>Email: recent mail of the signed-in accounts on the item base, in any of its arrangements. SPEC.md beside this file.</summary>
 public sealed class EmailModule : IWidgetModule
 {
     /// <summary>[S-2043] A click on the card opens the mail of the account it reads, on the web ([S-2005]).</summary>
@@ -37,7 +37,7 @@ public sealed class EmailModule : IWidgetModule
         Label = EmailStr.WidgetsA_Catalog_Mail_Label.Local(),
         Description = EmailStr.WidgetsA_Catalog_Mail_Description.Local(),
         Glyph = Glyphs.Mail,
-        Sizing = c => KitSizing.Sizing(((EmailConfig)c).RowsShown, addFooter: false, ((EmailConfig)c).Widths),
+        Sizing = c => Themia.Sdk.Items.ItemLayout.Sizing((EmailConfig)c, MailSpec.Parts),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Both(LinkTopicId.HoveredMessage),
         Add = new(AddFolderId.CalendarMail, 1, 0, Popular: 4),

@@ -30,91 +30,19 @@ public sealed class EmailMenuTests
 
     private static SettingsLine Line(IEnumerable<SettingsLine> lines, string text) => Assert.Single(lines, l => l.Text == text);
 
-    private static string Columns => EmailStr.WidgetsB_Email_Menu_Columns.Text();
-
     [Fact]
-    public void S7512_the_list_style_offers_subject_account_and_preview_lines_under_style()
-        => Assert.Equal(
-            [EmailStr.WidgetsB_Settings_Email_ShowSubject.Text(), EmailStr.WidgetsB_Settings_Email_ShowAccount_Label.Text()],
-            Build(new EmailConfig { Style = EmailStyle.List }).StyleLines.Select(l => l.Text));
-
-    [Fact]
-    public void S7512_compact_offers_the_two_lines_and_the_table_its_columns()
-    {
-        Assert.Equal(
-            [EmailStr.WidgetsB_Settings_Email_ShowSubject.Text(), EmailStr.WidgetsB_Settings_Email_ShowAccount_Label.Text()],
-            Build(new EmailConfig { Style = EmailStyle.Compact }).StyleLines.Select(l => l.Text));
-        Assert.Equal([Columns, EmailStr.Email_ColumnTitles.Text()], Build(new EmailConfig { Style = EmailStyle.Table }).StyleLines.Select(l => l.Text));
-    }
-
-    [Fact]
-    public void S7512_the_first_level_is_appearance_the_accounts_and_the_folder()
+    public void S16971_the_page_is_the_item_lines_then_the_accounts_and_the_folder()
     {
         var lines = Build(new EmailConfig());
 
         Assert.Equal(
-            [Str.Kit_Rows.Text(), Str.Kit_Lines.Text(), string.Empty, Str.WidgetUi_AccountsLabel.Text(), EmailStr.Email_Folder_Label.Text()],
+            [Str.Items_Parts.Text(), string.Empty, Str.Items_Gap.Text(), Str.Kit_Rows.Text(), string.Empty, Str.WidgetUi_AccountsLabel.Text(), EmailStr.Email_Folder_Label.Text()],
             lines.Lines.Select(l => l.IsSeparator ? string.Empty : l.Text));
-        Assert.Equal(EmailFolders.Listable.Select(f => f.Label()), lines.Lines[4].Children!.Select(c => c.Text));
-    }
+        Assert.Equal(EmailFolders.Listable.Select(f => f.Label()), lines.Lines[^1].Children!.Select(c => c.Text));
 
-    [Fact]
-    public void S11402_rows_always_lines_up_to_three_in_list_two_in_compact_and_none_in_the_table()
-    {
-        int Most(EmailConfig c) => Line(Build(c).Lines, Str.Kit_Lines.Text()).Children!.Count(l => !l.IsSeparator);
-
-        Assert.Equal(3, Most(new EmailConfig { Style = EmailStyle.List }));
-        Assert.Equal(2, Most(new EmailConfig { Style = EmailStyle.Compact }));
-        Assert.DoesNotContain(Build(new EmailConfig { Style = EmailStyle.Table }).Lines, l => l.Text == Str.Kit_Lines.Text());
-        Assert.Contains(Build(new EmailConfig { Style = EmailStyle.Table }).Lines, l => l.Text == Str.Kit_Rows.Text());
-    }
-
-    [Fact]
-    public void S11402_column_titles_turned_off_are_saved()
-    {
-        var config = new EmailConfig { Style = EmailStyle.Table };
-        Line(Build(config).StyleLines, EmailStr.Email_ColumnTitles.Text()).Action!();
-        Assert.False(config.ColumnTitles);
-    }
-
-    [Fact]
-    public void S7512_a_line_turned_off_keeps_the_others_in_their_order()
-    {
-        var config = new EmailConfig { ListFields = [MailListField.Subject, MailListField.Account] };
-        Line(Build(config).StyleLines, EmailStr.WidgetsB_Settings_Email_ShowSubject.Text()).Action!();
-
-        Assert.Equal([MailListField.Account], config.ListFields);
-        Line(Build(config).StyleLines, EmailStr.WidgetsB_Settings_Email_ShowSubject.Text()).Action!();
-        Assert.Equal([MailListField.Subject, MailListField.Account], config.ListFields);
-        Assert.Equal(2, _saves);
-    }
-
-    [Fact]
-    public void S7512_the_columns_move_and_the_last_one_cannot_be_removed()
-    {
-        var config = new EmailConfig { Style = EmailStyle.Table, RowColumns = [MailColumn.From, MailColumn.Subject] };
-        var subject = Line(Line(Build(config).StyleLines, Columns).Children!, MailColumn.Subject.Label());
-        subject.Order!.Move(1, 0);
-        Assert.Equal([MailColumn.Subject, MailColumn.From], config.RowColumns);
-
-        Line(Line(Line(Build(config).StyleLines, Columns).Children!, MailColumn.From.Label()).Children!, Str.Common_Remove.Text()).Action!();
-        Assert.Equal([MailColumn.Subject], config.RowColumns);
-
-        var last = Line(Line(Build(config).StyleLines, Columns).Children!, MailColumn.Subject.Label());
-        Assert.True(Line(last.Children!, Str.Common_Remove.Text()).Disabled);
-    }
-
-    [Fact]
-    public void S7512_a_column_that_is_off_is_added_at_the_end()
-    {
-        var config = new EmailConfig { Style = EmailStyle.Table };
-        var columns = Line(Build(config).StyleLines, Columns).Children!;
-
-        // From, Subject and Date are on by default: Preview and Account are offered to add.
-        Assert.Single(columns, c => c.Text == MailColumn.Preview.Label() && c.Children is null).Action!();
-
-        Assert.Equal([.. EmailConfig.DefaultColumns, MailColumn.Preview], config.RowColumns);
-        Assert.Equal(1, _saves);
+        // The parts in their order with the preview's switch; a table offers its column titles in the gap's place.
+        Assert.Equal(["From", "Subject", "Account", "Date", "Preview"], lines.Lines[0].Children!.Select(c => c.Text));
+        Assert.Contains(Build(new EmailConfig { Style = Themia.Sdk.Items.ItemStyle.Table }).Lines, l => l.Text == Str.Items_ColumnTitles.Text());
     }
 
     [Fact]
