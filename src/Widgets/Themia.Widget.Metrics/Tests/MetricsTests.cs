@@ -422,11 +422,6 @@ public sealed class MetricsTests
         Assert.Equal("88%", MetricFaceRules.Template("12%"));
         Assert.Equal("8.8 MB/s", MetricFaceRules.Template("3.4 MB/s"));
         Assert.Equal("--", MetricFaceRules.Template("--"));
-
-        // Without a reading its room is a reading's of its own form.
-        Assert.Equal("88%", MetricFaceRules.Template(MetricFormat.Reading(English, MetricCatalog.Of("cpu"), MetricFormat.Typical(MetricCatalog.Of("cpu"), MetricShape.One))));
-        Assert.Equal("88° / 88°", MetricFaceRules.Template(MetricFormat.Reading(English, MetricCatalog.Of("temperature"), MetricFormat.Typical(MetricCatalog.Of("temperature"), MetricShape.Pair))));
-        Assert.All(MetricCatalog.All, m => Assert.NotEqual(MetricFormat.None, MetricFormat.Reading(English, m, MetricFormat.Typical(m, m.Feeds[0].Shape))));
     }
 
     [Fact]

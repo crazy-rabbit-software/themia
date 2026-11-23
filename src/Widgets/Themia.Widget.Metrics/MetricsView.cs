@@ -102,6 +102,12 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _block.Children.Add(_blockValue);
         _block.RenderTransform = _blockScale;
 
+        // Measured unrounded: a box rounded up to the next device pixel is a fraction of a DIP the block's scale makes many.
+        foreach (var part in new FrameworkElement[] { _block, _caption, _blockGlyph, _blockName, _blockValue })
+        {
+            part.UseLayoutRounding = false;
+        }
+
         // [S-16326] The graph first, the card's whole box; the head over it; the status's mark last.
         Children.Add(_plot);
         Children.Add(_head);
@@ -275,9 +281,7 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         // template's (a held reading, judged by it), and the block's ink down is read as drawn (the glyph's own room in its
         // box), so it is the ink that fills the card's height. Its own size alone: a width or margin set by the pass
         // before would stand in the measure.
-        // Without a reading the box is a reading's all the same ("--" stands where "88%" would), so nothing moves when one comes.
-        var shown = unavailable ? MetricFormat.Reading(Strings.Current, def, MetricFormat.Typical(def, _config.Feed.Shape), _currency) : reading;
-        _blockValue.Text = MetricFaceRules.Template(shown);
+        _blockValue.Text = MetricFaceRules.Template(reading);
         _blockValue.Width = double.NaN;
         _block.Width = double.NaN;
         _block.Margin = default;
@@ -288,8 +292,8 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
 
         // Across, the block's extent: from its start (the reading's box, its template's, where every value it shows stands) to
         // the further of that box's end and the caption's last ink.
-        var caption = Ink.Of(_caption);
-        var end = Math.Max(_blockValue.DesiredSize.Width, _caption.DesiredSize.Width - caption.Right);
+        // The caption ends with its name: its letters' last ink is the name's, its side bearing read on the font.
+        var end = Math.Max(_blockValue.DesiredSize.Width, _caption.DesiredSize.Width - Ink.Of(_blockName).Right);
         var face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink, 0, Math.Max(0, box.Width - end));
         _blockScale.ScaleX = face.Scale;
         _blockScale.ScaleY = face.Scale;
