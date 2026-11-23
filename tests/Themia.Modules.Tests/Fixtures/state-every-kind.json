@@ -480,6 +480,9 @@
           "config": {
             "kind": "bluetooth",
             "rows": 3,
+            "style": "list",
+            "columnTitles": true,
+            "partOrder": [],
             "showConnection": true,
             "showSignal": false,
             "connectedOnly": false,
@@ -1605,6 +1608,9 @@
             "order": [],
             "gap": 0,
             "hiddenParts": [],
+            "partOrder": [],
+            "style": "list",
+            "columnTitles": true,
             "rows": 3
           }
         },
@@ -1631,7 +1637,8 @@
             "kind": "drive",
             "style": "bar",
             "drive": "",
-            "hiddenParts": []
+            "hiddenParts": [],
+            "partOrder": []
           }
         },
         {
@@ -1730,9 +1737,16 @@
           "itemTextColor": "",
           "scale": 1,
           "config": {
-            "kind": "nextMeeting",
+            "kind": "meeting",
+            "pick": "Next",
+            "chosen": "",
             "showPlace": true,
             "showOrganizer": true,
+            "hiddenParts": [
+              "Lead",
+              "Bar"
+            ],
+            "partOrder": [],
             "accountIds": [],
             "calendars": {},
             "calendarColors": {},
