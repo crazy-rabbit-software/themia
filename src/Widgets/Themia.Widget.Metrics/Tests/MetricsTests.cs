@@ -587,6 +587,13 @@ public sealed class MetricsTests
         var inkTop = tall.Top + (MetricFaceRules.HeadInk.Over * tall.Scale);
         Assert.Equal(400 - inkTop - (ink * tall.Scale), inkTop, 6);
 
+        // Its ink, not its box, on the insets and centred: the glyph's and the reading's side bearings stand outside them.
+        var bearing = MetricFaceRules.Row(200, 400, 150, ink: new LineInk(6, 7), inkLeft: 4, inkRight: 6);
+        Assert.Equal((200 - (2 * FamilySpace.Inset)) / 140.0, bearing.Scale, 6);
+        Assert.Equal(FamilySpace.Inset, bearing.Left + (4 * bearing.Scale), 6);
+        var measured = MetricFaceRules.Head.LineHeight - 13;
+        Assert.Equal(400 - (bearing.Top + (6 * bearing.Scale)) - (measured * bearing.Scale), bearing.Top + (6 * bearing.Scale), 6);
+
         // Never under the head's least; the row's width is the glyph, the name, the held box and their gaps.
         Assert.Equal(MetricFaceRules.LeastScale, MetricFaceRules.Row(40, 30, 150).Scale);
         Assert.Equal(FamilyShape.Icon + FamilySpace.GlyphGap + 50 + FamilySpace.ColumnGap + 60, MetricFaceRules.RowWidth(50, 60));

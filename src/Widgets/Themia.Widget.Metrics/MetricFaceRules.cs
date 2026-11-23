@@ -158,24 +158,27 @@ public static class MetricFaceRules
 
     /// <summary>
     /// [S-16903] The value face (owner, 2026-11-23: "when only the metric value is shown it should show the title one the left
-    /// and metric on the right. left and right aligned respectively."): the head's one row, the glyph and the name from the left
-    /// inset, the reading's held box ending on the right inset (<paramref name="room"/> the status mark's beside it), scaled as
-    /// one until the width (the row <paramref name="row"/> wide at its own size) or the height (its ink between the insets)
-    /// stops it, never under the head's least; its ink centred down the card. What the width leaves stands between the name
-    /// and the reading.
+    /// and metric on the right. left and right aligned respectively."): the head's one row, the glyph's ink and the name from
+    /// the left inset, the reading's held box's ink ending on the right inset (<paramref name="room"/> the status mark's beside
+    /// it), scaled as one until the width (the row <paramref name="row"/> wide at its own size, less the room beside its ink,
+    /// <paramref name="inkLeft"/> and <paramref name="inkRight"/>) or the height (its ink, <paramref name="ink"/> the room over
+    /// and under it in its line, between the insets) stops it, never under the head's least; its ink centred down the card.
+    /// What the width leaves stands between the name and the reading.
     /// </summary>
-    public static ValueFace Row(double width, double height, double row, double room = 0)
+    public static ValueFace Row(double width, double height, double row, double room = 0, LineInk? ink = null, double inkLeft = 0, double inkRight = 0)
     {
         if (!(width > 0) || !(height > 0))
         {
             return new ValueFace(1, FamilySpace.Inset, FamilySpace.Inset);
         }
 
-        var across = Math.Max(1, width - (2 * FamilySpace.Inset) - room) / Math.Max(1, row);
-        var down = Math.Max(1, height - (2 * FamilySpace.Inset)) / HeadInkHeight;
+        var line = ink ?? HeadInk;
+        var inkHeight = Math.Max(1, Head.LineHeight - line.Over - line.Under);
+        var across = Math.Max(1, width - (2 * FamilySpace.Inset) - room) / Math.Max(1, row - inkLeft - inkRight);
+        var down = Math.Max(1, height - (2 * FamilySpace.Inset)) / inkHeight;
         var k = Math.Max(LeastScale, Math.Min(across, down));
-        var top = ((height - (HeadInkHeight * k)) / 2) - (HeadInk.Over * k);
-        return new ValueFace(k, FamilySpace.Inset, top);
+        var top = ((height - (inkHeight * k)) / 2) - (line.Over * k);
+        return new ValueFace(k, FamilySpace.Inset - (inkLeft * k), top);
     }
 
     /// <summary>[S-16325] Where a new value face lands at least: 200 wide.</summary>

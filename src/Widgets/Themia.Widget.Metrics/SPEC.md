@@ -119,7 +119,11 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   graph style), right-aligned, on one line; the row scaled as one until the width (the glyph, the name, the widest reading whole
   and their gaps, `MetricFaceRules.RowWidth`) or the height (its ink between the insets) stops it, never under the head's least
   (its text at 9, its glyph at 12, WR-14), its ink centred down the card (`MetricFaceRules.Row`); what the width leaves stands
-  between the name and the reading. No graph, no hover, no press; the click and the light ([S-16329]) as in the graph style.
+  between the name and the reading. The row's ink, not its box, stands on the insets and is centred: the head measured as
+  drawn (`Ink`: the glyph's side bearing, the reading's held template's, the least room over and under the glyph, the name and
+  the held box, `RowInk`). Where a source fails the status's mark (its glyph, and without a reading the word why where it fits
+  whole) stands after the name on the row's line, so the reading keeps the right inset. No graph, no hover, no press; the
+  click and the light ([S-16329]) as in the graph style.
 - **[S-16324]** **A running reading keeps its block** (WR-15, as the clock): the reading stands in a held box, the metric's widest
   reading (`MetricFormat.Widest`: its largest form, every figure an 8: "888%", "-88° / -88°", "888 / 888 MB/s") drawn unseen
   under it (`HoldMark`); the block is laid out by that box, so "31%", "100%" and "--" stand in one place at one scale.
@@ -139,7 +143,7 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   word read whole (`MetricFormat.Why`: "Offline", "Unavailable", "No data") where it fits (a third of the card's width in the
   graph style), else the glyph alone; its tooltip always says
   every problem. The reading stays
-  clear of the mark in the head. The same in the value style.
+  clear of the mark in the head. The same in the value style, its mark after the name ([S-16903]).
 - **[S-16328]** *(Retired by [S-16903]: the value face's mark is the status's, at the row's end, as in the graph style.)*
 - **[S-16326]** **Hover**: the pointer over the graph puts the value of the slot under it (a gap's nearest reading) and its time
   in the head's reading's place, and marks it: a hairline down the plot and a dot on each of its values. Nothing changes size

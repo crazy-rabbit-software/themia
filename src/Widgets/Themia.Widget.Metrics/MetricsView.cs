@@ -274,8 +274,9 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         var inset = FamilySpace.Inset;
         _status.Say(unavailable ? _why : null, (_width - (2 * inset)) / 3);
 
-        // [S-16326] The status's problem glyph stands at the head's end, on its line; the reading keeps clear of it.
-        var room = _status.Room > 0 ? _status.Room + FamilySpace.GlyphGap : 0;
+        // [S-16326] The status's problem glyph stands at the head's end, on its line; the reading keeps clear of it. [S-16903]
+        // In the value face it stands after the name instead, so the reading keeps the right inset.
+        var room = graph && _status.Room > 0 ? _status.Room + FamilySpace.GlyphGap : 0;
 
         // The name and the reading's held box (the metric's widest reading) at the head's own size.
         _glyph.Glyph = def.Glyph;
@@ -297,24 +298,28 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
             ? MetricGraphRules.Nearest(folded.Slots, slot)
             : null;
 
-        // [S-16321] Its glyph read to 12 DIP however far the head scales down.
-        _headScale.ScaleX = scale;
-        _headScale.ScaleY = scale;
-        var glyph = MetricFaceRules.GlyphSize(scale);
-        _glyph.FontSize = glyph;
-        _glyph.Width = glyph;
-        _glyph.Height = glyph;
-        _head.Width = Math.Max(0, (_width - (2 * inset) - room) / scale);
+        void Lay(double scale, double beside)
+        {
+            // [S-16321] Its glyph read to 12 DIP however far the head scales down.
+            _headScale.ScaleX = scale;
+            _headScale.ScaleY = scale;
+            var glyph = MetricFaceRules.GlyphSize(scale);
+            _glyph.FontSize = glyph;
+            _glyph.Width = glyph;
+            _glyph.Height = glyph;
+            _head.Width = Math.Max(0, ((_width - (2 * inset) - room) / scale) + beside);
 
-        // [S-16321] [S-16324] The name keeps its room first: the reading's held box at the share of its Title line that leaves
-        // the name whole, the share following the head's width smoothly; under the pointer the name's place says the time and the
-        // box the value there (nothing changes size, WR-12).
-        var share = MetricFaceRules.ReadingShare(_head.Width - glyph - FamilySpace.GlyphGap - FamilySpace.ColumnGap, _nameProbe.DesiredSize.Width, held);
-        _readingCell.Width = held;
-        _readingBox.Width = held * share;
-        _readingBox.Height = MetricFaceRules.Head.LineHeight * share;
-        _readingBox.Margin = new Thickness(0, MetricFaceRules.Head.LineHeight * LineInk.FaceBaseline * (1 - share), 0, 0);
+            // [S-16321] [S-16324] The name keeps its room first: the reading's held box at the share of its Title line that
+            // leaves the name whole, the share following the head's width smoothly; under the pointer the name's place says the
+            // time and the box the value there (nothing changes size, WR-12).
+            var share = MetricFaceRules.ReadingShare(_head.Width - beside - glyph - FamilySpace.GlyphGap - FamilySpace.ColumnGap, _nameProbe.DesiredSize.Width, held);
+            _readingCell.Width = held;
+            _readingBox.Width = held * share;
+            _readingBox.Height = MetricFaceRules.Head.LineHeight * share;
+            _readingBox.Margin = new Thickness(0, MetricFaceRules.Head.LineHeight * LineInk.FaceBaseline * (1 - share), 0, 0);
+        }
 
+        Lay(scale, 0);
         _value.Inlines.Clear();
         if (hovered is { } at && folded.Slots[at] is { } shown)
         {
@@ -327,16 +332,60 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
             _value.Inlines.Add(Family.Run(MetricFaceRules.Head, unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary, reading));
         }
 
-        _head.Margin = new Thickness(inset, headTop, 0, 0);
-        _status.StandAt(headTop + (((MetricFaceRules.Head.LineHeight * scale) - KitStatus.Side) / 2), null);
+        var left = inset;
         if (!graph)
         {
+            // [S-16903] The row's ink, not its box, on the side insets and centred down: the head measured as it is drawn (the
+            // glyph's and the reading's side bearings, the room over its first ink and under its last), again at the scale that
+            // gives where it changes the glyph's size. The reading's side is its held template's ink (WR-15: the box every value stands in).
+            for (var pass = 0; pass < 2; pass++)
+            {
+                _head.Margin = default;
+                _head.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+                var across = Ink.Of(_head);
+                var bearings = across.Left + (Ink.Of(_readingHeld).Right * (_readingBox.Width / Math.Max(1e-6, held)));
+                row = MetricFaceRules.Row(_width, _height, MetricFaceRules.RowWidth(_nameProbe.DesiredSize.Width, held), room, RowInk(), across.Left, bearings - across.Left);
+                (scale, headTop, left) = (row.Scale, row.Top, row.Left);
+                Lay(scale, bearings);
+            }
+
+            // [S-16903] The status's mark after the name, on the row's line: its word where it fits whole before the reading.
+            _head.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            var nameEnd = left + ((_glyph.DesiredSize.Width + _name.DesiredSize.Width - _name.Margin.Right) * scale) + FamilySpace.GlyphGap;
+            var readingStart = left + ((_head.Width - _readingBox.Width) * scale);
+            _status.Say(unavailable ? _why : null, readingStart - nameEnd - FamilySpace.GlyphGap - KitStatus.Side - FamilySpace.S2);
+            var mark = Math.Max(0, _status.Room - FamilySpace.S2);
+            _head.Margin = new Thickness(left, headTop, 0, 0);
+            _status.StandAt(headTop + (((MetricFaceRules.Head.LineHeight * scale) - KitStatus.Side) / 2), Math.Max(0, _width - nameEnd - mark));
             return;
         }
+
+        _head.Margin = new Thickness(left, headTop, 0, 0);
+        _status.StandAt(headTop + (((MetricFaceRules.Head.LineHeight * scale) - KitStatus.Side) / 2), null);
 
         _plot.Width = _width;
         _plot.Height = _height;
         _range = MetricGraphRules.Steady(_range, folded, def.FromZero, def.Unit == MetricUnit.Share);
         _plot.Draw(new PlotLook(folded, type, _range.Value, def.Unit == MetricUnit.Share, face.PlotTop, face.Behind, hovered), _width, _height);
+    }
+
+    /// <summary>
+    /// [S-16903] The head's ink down in its line, as drawn: the least room over the first ink and under the last of its glyph
+    /// (centred on the line), its name (dropped to the reading's baseline) and its reading's held box (at its share, its
+    /// template's ink and the reading's), each measured (<see cref="Ink"/>).
+    /// </summary>
+    private LineInk RowInk()
+    {
+        var line = MetricFaceRules.Head.LineHeight;
+        var glyph = Ink.Of(_glyph);
+        var name = Ink.Of(_name);
+        var reading = Ink.Of(_readingCell);
+        var share = _readingBox.Height / line;
+        var glyphTop = (line - glyph.Height) / 2;
+        var readingTop = _readingBox.Margin.Top;
+        var over = Math.Min(glyphTop + glyph.Ink.Over, Math.Min(name.Ink.Over, readingTop + (reading.Ink.Over * share)));
+        var under = Math.Min(line - glyphTop - glyph.Height + glyph.Ink.Under,
+            Math.Min(line - name.Height + name.Ink.Under, line - readingTop - (reading.Height * share) + (reading.Ink.Under * share)));
+        return new LineInk(Math.Max(0, over), Math.Max(0, under));
     }
 }
