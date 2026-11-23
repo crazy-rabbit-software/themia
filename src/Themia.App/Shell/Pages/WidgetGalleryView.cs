@@ -682,6 +682,7 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
             _laid = null;
             _marks.Frame.Hide();
             _unplaced = make();
+            _unplaced.InGallery = true;
             _unplaced.Width = Math.Max(0, frame.Well.Width);
             _unplaced.FillHeight = frame.Well.Height;
             _unplacedRoom.Content = _unplaced;
@@ -689,7 +690,8 @@ internal sealed partial class WidgetGalleryView : Grid, IDisposable
 
         _unplacedRoom.Visibility = Visibility.Visible;
         _input.Visibility = Visibility.Collapsed;
-        _grid.Visibility = Visibility.Collapsed;
+        // [S-17227] The well's own grid stays, as on every other tab: the page draws none of its own here.
+        _grid.Visibility = Visibility.Visible;
         _scrollBar.Visibility = Visibility.Collapsed;
         _scrollBarX.Visibility = Visibility.Collapsed;
         foreach (PageTabButton tab in _tabs.Children)

@@ -3606,6 +3606,10 @@ able to set the width of a column in blocks exactly."*). Owning files as above; 
   way to the bottom as it does in other screens as well."*): with icons to show, the page's icons' area (and the desktop's
   grid drawn on it, [S-13712]) is at least as tall as the well leaves under its search box (`UnplacedPageView.FillHeight`,
   set by the gallery to the well's height), as the other tabs' grid fills their well.
+- **[S-17227]** **Not on view shows the gallery's own grid** (owner, 2026-11-24: *"the grid on not on home should look the same
+  as in the other pages"*): on the Not on view tab the well keeps the grid every other tab shows, down to its foot, with icons
+  to show or none; the Unplaced page hosted there draws no grid of its own and its icons' area has no padding of its own, so
+  its icons stand on the same cell lines (`UnplacedPageView.InGallery`). The page elsewhere keeps its own grid ([S-13712]).
 - **[S-17165]** **Quick settings, 2026-11-23**: the switch rows are one line now, 5 blocks tall (were 6); Brightness has its
   own section there under the switches (owner: *"brightness slider should be moved to the quick settings and should have a
   row design"*), a wide, one-row box (24 by 5 blocks, held to its kind's sizing), no longer on Devices.

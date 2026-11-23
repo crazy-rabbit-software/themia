@@ -316,6 +316,25 @@ internal sealed partial class UnplacedPageView : Grid, IPagePreview
     /// [S-17164] The room the page stands in, DIPs tall (the gallery's well, owner 2026-11-23: "not on home should have the grid
     /// expand all the way to the bottom as it does in other screens as well"): the icons' area, the grid on it, reaches its foot.
     /// </summary>
+    /// <summary>
+    /// [S-17227] Shown in the widget gallery's well (owner, 2026-11-24: "the grid on not on home should look the same as in the
+    /// other pages"): the gallery's own grid stands under it, so the page draws none of its own and its icons' area starts on
+    /// the well's cell lines (no padding of its own).
+    /// </summary>
+    internal bool InGallery
+    {
+        get => _inGallery;
+        set
+        {
+            _inGallery = value;
+            _grid.Visibility = value ? Visibility.Collapsed : Visibility.Visible;
+            _desk.Padding = value ? default : new Thickness(Fluent.Space2);
+            Fill();
+        }
+    }
+
+    private bool _inGallery;
+
     internal double FillHeight
     {
         get => _fill;
