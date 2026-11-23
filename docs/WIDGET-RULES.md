@@ -129,6 +129,10 @@ pass/fail per kind × rule. A widget change is done only when that audit passes.
   less than one cell, is not a WR-3 or WR-5 failure; only the last line is cut, by the foot (WR-4).
 - **The Metric widget's head: name top left, value top right.** 2026-11-23: "the metric should have the name and an icon for
   the metric on the topleft and then the current value of the metric on the topright".
+- **The Metric widget's value face: title left, value right.** 2026-11-23: "when only the metric value is shown it should
+  show the title one the left and metric on the right. left and right aligned respectively." In the value style the title
+  stands at the left inset and the value at the right inset on one line, centred down the card; the room between them on
+  a wide card and the bands over and under the line on a tall one are not WR-1, WR-3 or WR-4 failures.
 - **Quick toggles go under the least widget.** 2026-11-23, of the quick settings, whose least then stood at the 32 of WR-14:
   "the toggle buttons should be possible to be even smaller". A quick setting's (and a power button's) tile goes down to its
   glyph at 12 in a 4 inset (20); its words keep the 9 floor of WR-14 and give way before the glyph.

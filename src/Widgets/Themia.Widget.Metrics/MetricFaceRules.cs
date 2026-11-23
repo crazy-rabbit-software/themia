@@ -12,7 +12,7 @@ public enum MetricsStyle
     /// <summary>The name and glyph top left, the value top right, the graph under them to the card's edges and foot.</summary>
     Graph = 0,
 
-    /// <summary>The glyph and name over the value, one block scaled to fill the card: no graph.</summary>
+    /// <summary>[S-16903] The glyph and name at the left and the value at the right, on one line centred down the card: no graph.</summary>
     Value = 1,
 }
 
@@ -22,14 +22,14 @@ public enum MetricsStyle
 /// </summary>
 public readonly record struct GraphFace(double Scale, double HeadTop, double HeadHeight, double PlotTop, bool Behind);
 
-/// <summary>[S-16323] The value face at one size: the scale of its block and where the block's box stands.</summary>
+/// <summary>[S-16903] The value face at one size: the scale of its row (the head's) and where the row's box stands.</summary>
 public readonly record struct ValueFace(double Scale, double Left, double Top);
 
 /// <summary>
 /// [S-16321]..[S-16324] The face's rules, pure: one arrangement at every size (owner: "it should scale to the size properly but
 /// it should not change its layout drastically"), its head scaled with the card, the graph under it to the card's sides and
 /// foot, and behind it where the card is too low for both (owner: "the graph should still be shown the full width but it
-/// should go under / behind the text"); the value style a block of its own; and the sizes each holds.
+/// should go under / behind the text"); the value style the head alone, one row centred down the card; and the sizes each holds.
 /// </summary>
 public static class MetricFaceRules
 {
@@ -78,30 +78,6 @@ public static class MetricFaceRules
     public const double MarkRoom = FamilyShape.Icon + FamilySpace.S2 + FamilySpace.GlyphGap;
 
     /// <summary>
-    /// [S-16325] The value face's least size for a name and a widest reading of these widths (a Body caption, a Big28 reading),
-    /// and the room its caption line gives a problem's mark and word (<paramref name="mark"/>, <see cref="CaptionMark"/>): the
-    /// block at its least scale (its glyphs at 12) inside the insets; never under the grid's least widget.
-    /// </summary>
-    public static SizeDip ValueLeast(double name, double widestAtBig, double mark = 0)
-    {
-        var caption = ValueGlyph + FamilySpace.GlyphGap + name + mark;
-        var block = Math.Max(caption, widestAtBig);
-        var ink = FamilyType.Body.LineHeight + FamilyType.Big28.LineHeight - LineInk.Of(FamilyType.Body).Over - LineInk.Of(FamilyType.Big28).Under;
-        return new SizeDip(
-            Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (block * ValueLeastScale))),
-            Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (ink * ValueLeastScale))));
-    }
-
-    /// <summary>[S-16323] A glyph of the value face's caption at its least scale, in the block's own DIPs (12 on the card).</summary>
-    public static double ValueGlyph => FamilyShape.Icon * Math.Max(1, ScaleFloor.Glyph / FamilyShape.Icon / ValueLeastScale);
-
-    /// <summary>
-    /// [S-16327] The room the value face's caption line gives a problem: its mark (a glyph) and the word that says why
-    /// (<paramref name="why"/> wide), each after a glyph's gap. The mark stands in the block, never over it.
-    /// </summary>
-    public static double CaptionMark(double why) => FamilySpace.GlyphGap + ValueGlyph + FamilySpace.GlyphGap + why;
-
-    /// <summary>
     /// [S-16325] How much wider a text may draw than the family's width estimate says (its average advance, 0.58 em, against
     /// capitals' up to about 0.72 em): the sizing's estimate of a name or a word times this, so it is whole at the least.
     /// </summary>
@@ -116,12 +92,6 @@ public static class MetricFaceRules
     /// </summary>
     public static double GlyphSize(double scale)
         => FamilyShape.Icon * Math.Max(1, ScaleFloor.Glyph / FamilyShape.Icon / Math.Max(1e-6, scale));
-
-    /// <summary>[S-16323] The value block's least: its caption a Body line at 9.1, the family's least read (WR-14).</summary>
-    public const double ValueLeastScale = 0.65;
-
-    /// <summary>[S-16325] Where a new value face lands at least: 200 × 90.</summary>
-    public static SizeDip ValueNatural { get; } = new(200, 90);
 
     /// <summary>[S-16322] The least the graph keeps under the head before it goes behind it: under this the card is too low for both.</summary>
     public const double LeastPlot = 24;
@@ -176,43 +146,40 @@ public static class MetricFaceRules
         return new GraphFace(k, top, line, plot, behind);
     }
 
-    /// <summary>
-    /// [S-16323] The value face: its block (the caption over the value, <paramref name="blockWidth"/> × <paramref name="blockHeight"/>
-    /// at scale 1, <paramref name="ink"/> the room over its first ink and under its last, <paramref name="inkLeft"/> and
-    /// <paramref name="inkRight"/> the room beside it) scaled as one until the width or the
-    /// height stops it, never under <see cref="ValueLeastScale"/>; its ink on the insets of the axis that stops it, centred on the
-    /// other (the owner's "Centred is fine").
-    /// </summary>
-    public static ValueFace Value(double width, double height, double blockWidth, double blockHeight, LineInk ink, double inkLeft = 0, double inkRight = 0)
-    {
-        var inkHeight = Math.Max(1, blockHeight - ink.Over - ink.Under);
-        var inkWidth = Math.Max(1, blockWidth - inkLeft - inkRight);
-        var across = Math.Max(1, width - (2 * FamilySpace.Inset)) / inkWidth;
-        var down = Math.Max(1, height - (2 * FamilySpace.Inset)) / inkHeight;
-        var k = Math.Max(ValueLeastScale, Math.Min(across, down));
-        var left = ((width - (inkWidth * k)) / 2) - (inkLeft * k);
-        var top = ((height - (inkHeight * k)) / 2) - (ink.Over * k);
-        return new ValueFace(k, left, top);
-    }
+    /// <summary>[S-16903] The head's ink down at its own size: the line less the room over its first ink and under its last.</summary>
+    public static double HeadInkHeight => Head.LineHeight - HeadInk.Over - HeadInk.Under;
 
     /// <summary>
-    /// [S-16323] The room beside the value face's ink in its block (<paramref name="block"/> wide): the held box
-    /// (<paramref name="held"/> wide, the widest reading's whole box) and the caption's ink (<paramref name="captionInk"/> wide),
-    /// each centred in the block (<see cref="InkCentre"/>). The unseen template counts whole, so the reading drawn in it is
-    /// centred however wide it is (WR-15).
+    /// [S-16903] The value face's row at its own size for a name and a widest reading of these widths (the reading a Title, whole):
+    /// the glyph, the name, the reading's held box and the gaps between them.
     /// </summary>
-    public static (double Before, double After) ValueAcross(double block, double held, double captionInk)
-    {
-        var start = Math.Min((block - held) / 2, (block - captionInk) / 2);
-        var end = Math.Max((block + held) / 2, (block + captionInk) / 2);
-        return (Math.Max(0, start), Math.Max(0, block - end));
-    }
+    public static double RowWidth(double name, double widestAtTitle)
+        => FamilyShape.Icon + FamilySpace.GlyphGap + name + FamilySpace.ColumnGap + widestAtTitle;
 
     /// <summary>
-    /// [S-16323] How far a line centred by its box moves so its ink is centred instead: half its ink's room after
-    /// (<paramref name="after"/>) less its room before (<paramref name="before"/>), a glyph's or a text's side bearings.
+    /// [S-16903] The value face (owner, 2026-11-23: "when only the metric value is shown it should show the title one the left
+    /// and metric on the right. left and right aligned respectively."): the head's one row, the glyph and the name from the left
+    /// inset, the reading's held box ending on the right inset (<paramref name="room"/> the status mark's beside it), scaled as
+    /// one until the width (the row <paramref name="row"/> wide at its own size) or the height (its ink between the insets)
+    /// stops it, never under the head's least; its ink centred down the card. What the width leaves stands between the name
+    /// and the reading.
     /// </summary>
-    public static double InkCentre(double before, double after) => (after - before) / 2;
+    public static ValueFace Row(double width, double height, double row, double room = 0)
+    {
+        if (!(width > 0) || !(height > 0))
+        {
+            return new ValueFace(1, FamilySpace.Inset, FamilySpace.Inset);
+        }
+
+        var across = Math.Max(1, width - (2 * FamilySpace.Inset) - room) / Math.Max(1, row);
+        var down = Math.Max(1, height - (2 * FamilySpace.Inset)) / HeadInkHeight;
+        var k = Math.Max(LeastScale, Math.Min(across, down));
+        var top = ((height - (HeadInkHeight * k)) / 2) - (HeadInk.Over * k);
+        return new ValueFace(k, FamilySpace.Inset, top);
+    }
+
+    /// <summary>[S-16325] Where a new value face lands at least: 200 wide.</summary>
+    public const double ValueNaturalWidth = 200;
 
     /// <summary>
     /// [S-16324] The text a value is measured by: every figure an 8 (the widest), so a running reading's block keeps its size
@@ -232,12 +199,12 @@ public static class MetricFaceRules
 
     /// <summary>
     /// [S-16325] The sizes a style holds for a metric whose name and widest reading are <paramref name="name"/> and
-    /// <paramref name="widest"/> wide at the face's own sizes (a Title reading in the graph, a Big28 in the value): its least where
-    /// both read whole at the 9 DIP text floor and the 12 DIP glyph (WR-14: no lower limit but one where the widget is still read;
-    /// the grid's least widget the floor), its natural the face at its own size (the graph's 240 × 120 at least). Relaxed past
-    /// that by the host.
+    /// <paramref name="widest"/> wide at the face's own sizes (a Body name, a Title reading): its least where both read whole at
+    /// the 9 DIP text floor and the 12 DIP glyph beside the status mark's room (WR-14: no lower limit but one where the widget is
+    /// still read; the grid's least widget the floor), its natural the face at its own size (the graph's 240 × 120 at least; the
+    /// value's row one line tall in its insets, 200 wide at least). Relaxed past that by the host.
     /// </summary>
-    public static WidgetSizing Sizing(MetricsStyle style, double name, double widest, double mark = 0)
+    public static WidgetSizing Sizing(MetricsStyle style, double name, double widest)
     {
         if (style != MetricsStyle.Value)
         {
@@ -246,8 +213,11 @@ public static class MetricFaceRules
             return WidgetSizing.Range(new(least, WidgetSizing.LeastScaled), new(natural, NaturalHeight), new(natural * 2, NaturalHeight * 2));
         }
 
-        var min = ValueLeast(name, widest, mark);
-        var own = new SizeDip(Math.Max(ValueNatural.Width, Math.Ceiling(min.Width / ValueLeastScale)), Math.Max(ValueNatural.Height, Math.Ceiling(min.Height / ValueLeastScale)));
+        // [S-16903] The value face is the head's row alone: as wide as the graph's least, as tall as its ink at the least scale.
+        var min = new SizeDip(GraphLeastWidth(name, widest), Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (HeadInkHeight * LeastScale))));
+        var own = new SizeDip(
+            Math.Max(min.Width, Math.Max(ValueNaturalWidth, Math.Ceiling((2 * FamilySpace.Inset) + RowWidth(name, widest) + MarkRoom))),
+            Math.Max(min.Height, Math.Ceiling((2 * FamilySpace.Inset) + Head.LineHeight)));
         return WidgetSizing.Range(min, own, new(own.Width * 2, own.Height * 2));
     }
 }

@@ -571,52 +571,25 @@ public sealed class MetricsTests
     }
 
     [Fact]
-    public void S16323_the_value_face_centres_the_held_box_and_the_caption_so_a_short_reading_leaves_its_room_alike()
+    public void S16903_the_value_face_is_one_row_the_name_at_the_left_the_value_at_the_right_centred_down_the_card()
     {
-        // The held box wider than the caption: it alone is the block's ink across, whole, however short the reading drawn in it.
-        Assert.Equal((0.0, 0.0), MetricFaceRules.ValueAcross(120, 120, 80));
+        var ink = MetricFaceRules.HeadInkHeight;
 
-        // The caption's ink wider: centred, it sets the room either side alike.
-        var (before, after) = MetricFaceRules.ValueAcross(150, 100, 146);
-        Assert.Equal(2, before, 6);
-        Assert.Equal(2, after, 6);
+        // Wide and low: the height stops it; its ink on the insets over and under, the row from the left inset.
+        var wide = MetricFaceRules.Row(600, 60, 150);
+        Assert.Equal(FamilySpace.Inset, wide.Left);
+        Assert.Equal((60 - (2 * FamilySpace.Inset)) / ink, wide.Scale, 6);
+        Assert.Equal(FamilySpace.Inset, wide.Top + (MetricFaceRules.HeadInk.Over * wide.Scale), 6);
 
-        // A line centred by its box moves by half its bearings' difference: a thin glyph's wide room before moves it back.
-        Assert.Equal(-3, MetricFaceRules.InkCentre(8, 2), 6);
-        Assert.Equal(0, MetricFaceRules.InkCentre(2, 2), 6);
+        // Tall: the width stops it (the row less the status mark's room); its ink centred down the card.
+        var tall = MetricFaceRules.Row(200, 400, 150, room: 20);
+        Assert.Equal((200 - (2 * FamilySpace.Inset) - 20) / 150.0, tall.Scale, 6);
+        var inkTop = tall.Top + (MetricFaceRules.HeadInk.Over * tall.Scale);
+        Assert.Equal(400 - inkTop - (ink * tall.Scale), inkTop, 6);
 
-        // Centred on the card: the held box's leftover on the stopping axis stands alike either side of the card.
-        var block = 150.0;
-        var across = MetricFaceRules.ValueAcross(block, 100, 148);
-        var face = MetricFaceRules.Value(520, 600, block, 60, new LineInk(6, 7), across.Before, across.After);
-        var heldLeft = face.Left + ((block - 100) / 2 * face.Scale);
-        var heldRight = 520 - heldLeft - (100 * face.Scale);
-        Assert.Equal(heldLeft, heldRight, 6);
-    }
-
-    [Fact]
-    public void S16323_the_value_block_fills_the_axis_that_stops_it_and_stands_centred_on_the_other()
-    {
-        var ink = new LineInk(6, 7);
-
-        // Wide: the height stops it; its ink on the insets over and under, centred across.
-        var wide = MetricFaceRules.Value(600, 100, 100, 60, ink);
-        Assert.Equal(FamilySpace.Inset, wide.Top + (ink.Over * wide.Scale), 6);
-        Assert.Equal(600 - wide.Left - (100 * wide.Scale), wide.Left, 6);
-
-        // Tall: the width stops it; on the side insets, centred down.
-        var tall = MetricFaceRules.Value(200, 400, 100, 60, ink);
-        Assert.Equal(FamilySpace.Inset, tall.Left, 6);
-        Assert.Equal((200 - (2 * FamilySpace.Inset)) / 100.0, tall.Scale, 6);
-
-        // Its ink, not its box, fills and centres: the room beside the ink stands outside the insets.
-        var bearing = MetricFaceRules.Value(200, 400, 110, 60, ink, inkLeft: 4, inkRight: 6);
-        Assert.Equal(FamilySpace.Inset, bearing.Left + (4 * bearing.Scale), 6);
-        Assert.Equal((200 - (2 * FamilySpace.Inset)) / 100.0, bearing.Scale, 6);
-
-        // Never under its least.
-        Assert.Equal(MetricFaceRules.ValueLeastScale, MetricFaceRules.Value(40, 30, 100, 60, ink).Scale);
-        Assert.True(FamilyType.Body.FontSize * MetricFaceRules.ValueLeastScale >= 9);
+        // Never under the head's least; the row's width is the glyph, the name, the held box and their gaps.
+        Assert.Equal(MetricFaceRules.LeastScale, MetricFaceRules.Row(40, 30, 150).Scale);
+        Assert.Equal(FamilyShape.Icon + FamilySpace.GlyphGap + 50 + FamilySpace.ColumnGap + 60, MetricFaceRules.RowWidth(50, 60));
     }
 
     [Fact]
@@ -667,30 +640,26 @@ public sealed class MetricsTests
         var inkFoot = least.HeadTop + least.HeadHeight - (MetricFaceRules.HeadInk.Under * least.Scale);
         Assert.True(inkTop > 0 && inkFoot < cpu.Height);
 
-        // The value style's least holds its block at its least scale: wider for a pair's reading than a share's.
-        var share = MetricFaceRules.ValueLeast(Name("CPU"), FamilyType.EstimateWidth(FamilyType.Big28, 4));
-        var pair = MetricFaceRules.ValueLeast(Name("Drive I/O"), FamilyType.EstimateWidth(FamilyType.Big28, 14));
-        Assert.True(share.Width < pair.Width);
-        Assert.Equal(Math.Ceiling((2 * FamilySpace.Inset) + (FamilyType.EstimateWidth(FamilyType.Big28, 14) * MetricFaceRules.ValueLeastScale)), pair.Width);
+        // [S-16903] The value style's least is the head's row at its least: as wide as the graph's, one line of ink tall; its
+        // natural the row at its own size, one line in its insets.
+        var value = MetricFaceRules.Sizing(MetricsStyle.Value, Name("CPU"), 60);
+        var graph = MetricFaceRules.Sizing(MetricsStyle.Graph, Name("CPU"), 60);
+        Assert.Equal(graph.Min.Width, value.Min.Width);
+        Assert.Equal(Math.Max(WidgetSizing.LeastScaled, Math.Ceiling((2 * FamilySpace.Inset) + (MetricFaceRules.HeadInkHeight * k))), value.Min.Height);
+        Assert.Equal(Math.Ceiling((2 * FamilySpace.Inset) + MetricFaceRules.Head.LineHeight), value.Natural.Height);
+        Assert.True(value.Natural.Width >= MetricFaceRules.ValueNaturalWidth);
+        Assert.True(value.Natural.Width >= (2 * FamilySpace.Inset) + MetricFaceRules.RowWidth(Name("CPU"), 60));
     }
 
     [Fact]
-    public void S16325_the_sizing_measures_names_as_wide_as_capitals_draw_and_the_value_face_keeps_its_marks_room()
+    public void S16325_the_sizing_measures_names_as_wide_as_capitals_draw_and_both_styles_keep_the_marks_room()
     {
         // A name of capitals ("CPU", "MSFT") draws up to about 0.72 em a letter: the sizing's width holds it.
         Assert.True(MetricFaceRules.WordWidth(MetricFaceRules.Name, 3) >= 3 * 0.72 * MetricFaceRules.Name.FontSize);
 
-        // The value face's caption gives a problem's mark (a glyph at 12 on the card) and its word room, so the mark is in the
-        // block, never over it, and its least holds it.
-        var why = MetricFaceRules.WordWidth(FamilyType.Body, "Unavailable".Length);
-        Assert.True(MetricFaceRules.CaptionMark(why) >= why + MetricFaceRules.ValueGlyph);
-        Assert.Equal(ScaleFloor.Glyph, MetricFaceRules.ValueGlyph * MetricFaceRules.ValueLeastScale, 6);
-        var name = MetricFaceRules.WordWidth(MetricFaceRules.Name, 3);
-        var plain = MetricFaceRules.ValueLeast(name, FamilyType.EstimateWidth(FamilyType.Big28, 4));
-        var marked = MetricFaceRules.ValueLeast(name, FamilyType.EstimateWidth(FamilyType.Big28, 4), MetricFaceRules.CaptionMark(why));
-        Assert.True(marked.Width > plain.Width);
-        Assert.Equal(marked.Width, MetricsModule.Sized(new MetricsConfig { Style = MetricsStyle.Value }).Min.Width);
-        Assert.True(FamilyType.Body.FontSize * MetricFaceRules.ValueLeastScale >= ScaleFloor.Text); // the word at 9 DIP at the least
+        // [S-16903] The value face is the head's row: its least the graph's, the status mark's room beside the reading in both.
+        var cpu = new MetricsConfig();
+        Assert.Equal(MetricsModule.Sized(cpu).Min.Width, MetricsModule.Sized(new MetricsConfig { Style = MetricsStyle.Value }).Min.Width);
     }
 
     [Fact]

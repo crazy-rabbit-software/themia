@@ -94,8 +94,8 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
 
 ## The face
 
-- **[S-16320]** **Two styles** (`MetricsStyle`): **Graph** (the default) and **Value**, a design of its own, not the graph with
-  its graph hidden ([S-16323]).
+- **[S-16320]** **Two styles** (`MetricsStyle`): **Graph** (the default) and **Value**, the head alone as one row centred down
+  the card ([S-16903]).
 - **[S-16321]** **The graph face's head**: the glyph and the name (Body, secondary, cut by its ellipsis) top left and the reading
   (Title) top right, on one baseline; one head scaled with the card (its scale the card's against 240 × 120, the smaller axis,
   up to 2.5: owner, "it should scale to the size properly but it should not change its layout drastically"; down to where its
@@ -111,13 +111,15 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   the plot is the card's whole box behind the head, drawn faint (a third, `BehindShare`; owner: "the graph should only be a
   little visible behind the text"), the head over it, in the middle of a card too low for its inset over and under it. The same
   head, the same graph: only where the plot stands. The rule is `MetricFaceRules.Graph`, tested on its threshold.
-- **[S-16323]** **The value face**: the glyph and the name (Body, secondary) over the reading (Big28), one block scaled as one
-  until the width or the height stops it (WR-7), never under 0.65 (its caption at 9.1, WR-14), its glyph held at 12 DIP however
-  far it scales down; its ink on the insets of the axis that stops it, centred on the
-  other ("Centred is fine"). The caption and the reading's held box are centred in the block and the reading in its held box
-  (`MetricFaceRules.ValueAcross`): the held box counts whole, so what a shorter reading leaves of it stands alike either side;
-  the caption and the reading each centred by their ink, not their box (`InkCentre`: a thin glyph's or a text's side bearings).
-  No graph, no hover, no press.
+- **[S-16323]** *(Retired by [S-16903]: the value face is no longer the caption over the reading.)*
+- **[S-16903]** **The value face is one row: the title left, the value right.** Owner, 2026-11-23: "when only the metric value
+  is shown it should show the title one the left and metric on the right. left and right aligned respectively." The value
+  style is the graph face's head alone (the same glyph, name and held reading, `_head`, one path): the glyph and the name from
+  the left inset, left-aligned, the reading's held box ending on the right inset (the status mark's room beside it, as in the
+  graph style), right-aligned, on one line; the row scaled as one until the width (the glyph, the name, the widest reading whole
+  and their gaps, `MetricFaceRules.RowWidth`) or the height (its ink between the insets) stops it, never under the head's least
+  (its text at 9, its glyph at 12, WR-14), its ink centred down the card (`MetricFaceRules.Row`); what the width leaves stands
+  between the name and the reading. No graph, no hover, no press; the click and the light ([S-16329]) as in the graph style.
 - **[S-16324]** **A running reading keeps its block** (WR-15, as the clock): the reading stands in a held box, the metric's widest
   reading (`MetricFormat.Widest`: its largest form, every figure an 8: "888%", "-88° / -88°", "888 / 888 MB/s") drawn unseen
   under it (`HoldMark`); the block is laid out by that box, so "31%", "100%" and "--" stand in one place at one scale.
@@ -125,8 +127,9 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   family's width estimate with its slack for capitals, `MetricFaceRules.WordWidth`, `MetricsModule.Sized`): the graph's least the grid's least widget tall and as wide as the name, whole,
   and the widest reading at its least share read side by side at the head's least scale beside the status mark's room (text at
   9 DIP, the glyph at 12, WR-14,
-  `GraphLeastWidth`), 240 × 120 natural at least; the value's least its block at its least scale (`ValueLeast`), its natural
-  the block at its own size, 200 × 90 at least; never under the grid's least widget (32); relaxed by the host ([S-12411]).
+  `GraphLeastWidth`), 240 × 120 natural at least; the value's least as wide as the graph's and its row's ink tall at the head's
+  least scale, its natural the row at its own size in its insets (one Title line tall, 200 wide at least) ([S-16903]); never
+  under the grid's least widget (32); relaxed by the host ([S-12411]).
   A style switched refits the card.
 - **[S-16327]** **No answer, or a stale one, keeps the face** (WR-10, owner: "it should show the default values in the graph and not
   just not show the graph"): no answer is the graph's default across its foot ([S-16314]), the reading "--" (disabled) and why
@@ -137,10 +140,7 @@ not on the metric, meter, atom, text or icon bases). Tests: `Tests/MetricsTests.
   graph style), else the glyph alone; its tooltip always says
   every problem. The reading stays
   clear of the mark in the head. The same in the value style.
-- **[S-16328]** **The value face's mark is in its block**: where a source fails, the value face's caption line ends with the
-  problem's glyph (Caution, 12 DIP at least, its tooltip every problem) and, without a reading, the word that says why: in the
-  block, counted in its width, so it never stands over the block; the status's own mark is not shown in this style. The value
-  face's least holds that line (`MetricFaceRules.CaptionMark`, the longest word's room), whatever the metric.
+- **[S-16328]** *(Retired by [S-16903]: the value face's mark is the status's, at the row's end, as in the graph style.)*
 - **[S-16326]** **Hover**: the pointer over the graph puts the value of the slot under it (a gap's nearest reading) and its time
   in the head's reading's place, and marks it: a hairline down the plot and a dot on each of its values. Nothing changes size
   (WR-12); off the graph the reading again. `--render widget metrics … --hover fx,fy` draws it (the plot's look at a point,

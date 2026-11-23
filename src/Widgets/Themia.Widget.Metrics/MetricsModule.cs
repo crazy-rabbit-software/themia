@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.App.Services.Web;
 using Themia.Core.Model;
-using Themia.Core.Sync;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Kit;
@@ -49,12 +48,7 @@ public sealed class MetricsModule : IWidgetModule
         var locale = Themia.Core.Localization.Strings.Current;
         var widest = MetricFormat.Widest(locale, config.Def, config.Feed.Shape, config.Def.Unit == MetricUnit.Price ? "MMM" : string.Empty);
         var name = MetricFaceRules.WordWidth(MetricFaceRules.Name, config.Caption().Length);
-
-        // [S-16327] The value face's caption holds a problem's mark and its word whenever a source fails: the longest word's room.
-        var why = new[] { MetricFormat.Why(null), MetricFormat.Why(FetchStatus.Offline), MetricFormat.Why(FetchStatus.Unreachable) }.Max(w => w.Length);
-        return MetricFaceRules.Sizing(config.Style, name,
-            FamilyType.EstimateWidth(config.Style == MetricsStyle.Value ? FamilyType.Big28 : MetricFaceRules.Head, widest.Length),
-            MetricFaceRules.CaptionMark(MetricFaceRules.WordWidth(FamilyType.Body, why)));
+        return MetricFaceRules.Sizing(config.Style, name, FamilyType.EstimateWidth(MetricFaceRules.Head, widest.Length));
     }
 
     /// <summary>[S-16308] Every option is on the selection's page ([S-3719]).</summary>

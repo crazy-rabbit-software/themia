@@ -256,9 +256,6 @@ internal sealed partial class MetricsView
     /// <summary>[S-16327] What the status's compact line says where the face has no reading: a short word (the tooltip says all).</summary>
     private string? _why;
 
-    /// <summary>[S-16327] The problems the status says (the value face's own mark says them in its tooltip).</summary>
-    private IReadOnlyList<string> _problems = [];
-
     /// <summary>[S-16327] The state the status's compact line names, set with its problems.</summary>
     private FetchStatus? _whyStatus;
 
@@ -266,7 +263,6 @@ internal sealed partial class MetricsView
     private void Say(IReadOnlyList<string> problems, bool busy)
     {
         _why = problems.Count > 0 ? MetricFormat.Why(_whyStatus) : null;
-        _problems = problems;
         _whyStatus = null;
         if (problems.Count > 0 || busy)
         {

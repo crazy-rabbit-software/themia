@@ -19,9 +19,9 @@ namespace Themia.Widget.Metrics;
 /// [S-16320]..[S-16326] The Metric widget's face, written for it alone: in the graph style the glyph and the name top left and
 /// the reading top right, one head scaled with the card (<see cref="MetricFaceRules.Graph"/>), and under it the graph to the
 /// card's sides and foot (<see cref="MetricsPlot"/>), behind the head where the card is too low for both; the pointer over the
-/// graph puts the value it is on (and its time) where the reading stands, and marks it. In the value style the glyph and the
-/// name over the value, one block scaled to fill (<see cref="MetricFaceRules.Value"/>). Its data comes from the host's
-/// answers through <see cref="MetricsView"/>'s feeds, only the one its metric reads.
+/// graph puts the value it is on (and its time) where the reading stands, and marks it. In the value style the same head alone,
+/// the glyph and the name at the left and the reading at the right, one row centred down the card (<see cref="MetricFaceRules.Row"/>).
+/// Its data comes from the host's answers through <see cref="MetricsView"/>'s feeds, only the one its metric reads.
 /// </summary>
 internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware, IWidgetTopEdge, IWidgetContextActions, IWidgetOpens,
     IWidgetSurfaceAware, IWidgetKeys
@@ -51,26 +51,6 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
     private readonly Viewbox _readingBox = new() { Stretch = Stretch.Uniform, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top };
     private readonly Grid _readingCell = new();
     private readonly TextBlock _readingHeld = Family.Text(MetricFaceRules.Head);
-
-    // ---- the value style's block: glyph and name over the value
-    private readonly StackPanel _block = new() { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, IsHitTestVisible = false };
-    private readonly FontIcon _blockGlyph = Family.Glyph(Glyphs.Cpu);
-    private readonly TextBlock _blockName = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
-    private readonly TextBlock _blockValue = Family.Text(FamilyType.Big28);
-
-    /// <summary>[S-16324] The reading's held box: the reading over its template (the metric's widest reading, unseen), as wide as the wider.</summary>
-    private readonly Grid _valueCell = new() { HorizontalAlignment = HorizontalAlignment.Left };
-    private readonly TextBlock _blockHeld = Family.Text(FamilyType.Big28);
-    private readonly StackPanel _caption = new();
-
-    /// <summary>[S-16327] The value face's own problem mark and word, on its caption line: in the block, never over it.</summary>
-    private readonly FontIcon _blockProblem = Family.Glyph(Glyphs.Warning, FamilyShape.Icon, ColourRole.Caution);
-    private readonly TextBlock _blockWhy = Family.Text(FamilyType.Body, ColourRole.TextSecondary);
-    private readonly ScaleTransform _blockScale = new();
-
-    /// <summary>[S-16323] Each line of the value face centred by its ink, not its box: a glyph's or a text's side bearings.</summary>
-    private readonly TranslateTransform _captionShift = new();
-    private readonly TranslateTransform _valueShift = new();
 
     private MetricsConfig _config = new();
     private MetricSeries? _series;
@@ -126,54 +106,9 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _head.Children.Add(_name);
         _head.Children.Add(_readingBox);
 
-        // The value style: the caption row over the reading.
-        _caption.Orientation = Orientation.Horizontal;
-        _caption.Spacing = FamilySpace.GlyphGap;
-        var caption = _caption;
-        _blockGlyph.VerticalAlignment = VerticalAlignment.Center;
-        _blockName.TextWrapping = TextWrapping.NoWrap;
-        caption.Children.Add(_blockGlyph);
-        caption.Children.Add(_blockName);
-        _blockProblem.VerticalAlignment = VerticalAlignment.Center;
-        _blockWhy.VerticalAlignment = VerticalAlignment.Center;
-        _blockWhy.TextWrapping = TextWrapping.NoWrap;
-        caption.Children.Add(_blockProblem);
-        caption.Children.Add(_blockWhy);
-        _blockValue.TextWrapping = TextWrapping.NoWrap;
-        Family.Figures(_blockValue);
-
-        // [S-16323] Both centred in the block: the caption over the held box, the reading inside it, so whatever a reading
-        // leaves of its widest template's box stands alike on both sides (the box itself never moves, WR-15).
-        caption.HorizontalAlignment = HorizontalAlignment.Center;
-        _valueCell.HorizontalAlignment = HorizontalAlignment.Center;
-        _blockValue.HorizontalAlignment = HorizontalAlignment.Center;
-        _blockHeld.HorizontalAlignment = HorizontalAlignment.Center;
-        caption.RenderTransform = _captionShift;
-        _blockValue.RenderTransform = _valueShift;
-
-        // [S-16324] The reading stands in its template's box, the metric's widest reading drawn unseen under it: the block is
-        // laid out by that box, and the checks judge it by it (WR-15: a running value never moves or rescales the block).
-        _blockHeld.Opacity = 0;
-        _blockHeld.IsHitTestVisible = false;
-        _blockHeld.TextWrapping = TextWrapping.NoWrap;
-        Family.Figures(_blockHeld);
-        _valueCell.Children.Add(_blockHeld);
-        _valueCell.Children.Add(_blockValue);
-        HoldMark.Mark(_valueCell);
-        _block.Children.Add(caption);
-        _block.Children.Add(_valueCell);
-        _block.RenderTransform = _blockScale;
-
-        // Measured unrounded: a box rounded up to the next device pixel is a fraction of a DIP the block's scale makes many.
-        foreach (var part in new FrameworkElement[] { _block, _caption, _blockGlyph, _blockName, _blockValue, _valueCell, _blockHeld, _blockProblem, _blockWhy })
-        {
-            part.UseLayoutRounding = false;
-        }
-
         // [S-16326] The graph first, the card's whole box; the head over it; the status's mark last.
         Children.Add(_plot);
         Children.Add(_head);
-        Children.Add(_block);
         _status.Place(this);
 
         _plot.PointerMoved += OnPointerMoved;
@@ -331,44 +266,18 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         var def = _config.Def;
         var locale = Strings.Current;
         var graph = _config.Style == MetricsStyle.Graph;
-        _head.Visibility = graph ? Visibility.Visible : Visibility.Collapsed;
         _plot.Visibility = graph ? Visibility.Visible : Visibility.Collapsed;
-        _block.Visibility = graph ? Visibility.Collapsed : Visibility.Visible;
         var reading = MetricFormat.Reading(locale, def, series.Now, _currency);
         var unavailable = series.Now is null;
-
-        if (!graph)
-        {
-            DrawValue(def, reading, unavailable);
-            return;
-        }
-
-        var face = MetricFaceRules.Graph(_width, _height);
-        var type = _config.GraphInForce;
-        var folded = MetricGraphRules.Fold(series, MetricGraphRules.MostSlots(type, series, _width), _config.Feed.Fold);
-        int? hovered = _pointer is { } x && MetricGraphRules.SlotAt(type, x, folded.Slots.Count, _width) is { } slot
-            ? MetricGraphRules.Nearest(folded.Slots, slot)
-            : null;
 
         // [S-16327] Why there is no reading, in the status's compact line beside its glyph (whole, or the glyph alone).
         var inset = FamilySpace.Inset;
         _status.Say(unavailable ? _why : null, (_width - (2 * inset)) / 3);
 
-        // [S-16321] Its glyph read to 12 DIP however far the head scales down.
-        _headScale.ScaleX = face.Scale;
-        _headScale.ScaleY = face.Scale;
-        var glyph = MetricFaceRules.GlyphSize(face.Scale);
-        _glyph.FontSize = glyph;
-        _glyph.Width = glyph;
-        _glyph.Height = glyph;
-
         // [S-16326] The status's problem glyph stands at the head's end, on its line; the reading keeps clear of it.
         var room = _status.Room > 0 ? _status.Room + FamilySpace.GlyphGap : 0;
-        _head.Width = Math.Max(0, (_width - (2 * inset) - room) / face.Scale);
 
-        // [S-16321] [S-16324] The name keeps its room first: the reading's held box (the metric's widest reading) at the share of
-        // its Title line that leaves the name whole, the share following the head's width smoothly; under the pointer the name's
-        // place says the time and the box the value there (nothing changes size, WR-12).
+        // The name and the reading's held box (the metric's widest reading) at the head's own size.
         _glyph.Glyph = def.Glyph;
         var name = _config.Caption();
         _nameProbe.Text = name;
@@ -377,6 +286,29 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
         _readingCell.Width = double.NaN;
         _readingCell.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
         var held = _readingHeld.DesiredSize.Width;
+
+        // [S-16321] The graph face's head over its plot; [S-16903] the value face's the head alone, one row centred down the card.
+        var face = MetricFaceRules.Graph(_width, _height);
+        var row = MetricFaceRules.Row(_width, _height, MetricFaceRules.RowWidth(_nameProbe.DesiredSize.Width, held), room);
+        var (scale, headTop) = graph ? (face.Scale, face.HeadTop) : (row.Scale, row.Top);
+        var type = _config.GraphInForce;
+        var folded = MetricGraphRules.Fold(series, MetricGraphRules.MostSlots(type, series, _width), _config.Feed.Fold);
+        int? hovered = graph && _pointer is { } x && MetricGraphRules.SlotAt(type, x, folded.Slots.Count, _width) is { } slot
+            ? MetricGraphRules.Nearest(folded.Slots, slot)
+            : null;
+
+        // [S-16321] Its glyph read to 12 DIP however far the head scales down.
+        _headScale.ScaleX = scale;
+        _headScale.ScaleY = scale;
+        var glyph = MetricFaceRules.GlyphSize(scale);
+        _glyph.FontSize = glyph;
+        _glyph.Width = glyph;
+        _glyph.Height = glyph;
+        _head.Width = Math.Max(0, (_width - (2 * inset) - room) / scale);
+
+        // [S-16321] [S-16324] The name keeps its room first: the reading's held box at the share of its Title line that leaves
+        // the name whole, the share following the head's width smoothly; under the pointer the name's place says the time and the
+        // box the value there (nothing changes size, WR-12).
         var share = MetricFaceRules.ReadingShare(_head.Width - glyph - FamilySpace.GlyphGap - FamilySpace.ColumnGap, _nameProbe.DesiredSize.Width, held);
         _readingCell.Width = held;
         _readingBox.Width = held * share;
@@ -395,79 +327,16 @@ internal sealed partial class MetricsView : Grid, IWidgetView, IWidgetSizeAware,
             _value.Inlines.Add(Family.Run(MetricFaceRules.Head, unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary, reading));
         }
 
-        _head.Margin = new Thickness(inset, face.HeadTop, 0, 0);
-        _status.StandAt(face.HeadTop + (((face.HeadHeight) - KitStatus.Side) / 2), null);
+        _head.Margin = new Thickness(inset, headTop, 0, 0);
+        _status.StandAt(headTop + (((MetricFaceRules.Head.LineHeight * scale) - KitStatus.Side) / 2), null);
+        if (!graph)
+        {
+            return;
+        }
 
         _plot.Width = _width;
         _plot.Height = _height;
         _range = MetricGraphRules.Steady(_range, folded, def.FromZero, def.Unit == MetricUnit.Share);
         _plot.Draw(new PlotLook(folded, type, _range.Value, def.Unit == MetricUnit.Share, face.PlotTop, face.Behind, hovered), _width, _height);
-    }
-
-    /// <summary>
-    /// [S-16323] [S-16324] The value style: the caption over the reading, scaled as one block to fill the card. The block is laid
-    /// out by the reading's held box (its template, the metric's widest reading), so whatever it shows ("31%", "100%", "--")
-    /// stands in one place at one scale; its glyph is held at 12 DIP however far the block scales down (WR-14).
-    /// </summary>
-    private void DrawValue(MetricDef def, string reading, bool unavailable)
-    {
-        _blockGlyph.Glyph = def.Glyph;
-        _blockName.Text = _config.Caption();
-        _blockValue.Foreground = Family.Brush(unavailable ? ColourRole.TextDisabled : ColourRole.TextPrimary);
-        _blockValue.Text = reading;
-        _blockHeld.Text = MetricFormat.Widest(Strings.Current, def, _config.Feed.Shape, _currency);
-
-        // [S-16327] In the value face the status's mark stands on the caption line, in the block (counted in its width, never
-        // over it): the problem's glyph, its tooltip every problem, and without a reading the word that says why.
-        _status.Visibility = Visibility.Collapsed;
-        var problem = _problems.Count > 0;
-        _blockProblem.Visibility = problem ? Visibility.Visible : Visibility.Collapsed;
-        ToolTipService.SetToolTip(_blockProblem, problem ? string.Join("\n", _problems) : null);
-        _blockWhy.Text = unavailable && problem ? _why ?? string.Empty : string.Empty;
-        _blockWhy.Visibility = _blockWhy.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-
-        // Its own size alone (a width or margin set by the pass before would stand in the measure), again with its glyph held
-        // where the scale it comes to would draw it under its floor.
-        var glyph = FamilyShape.Icon;
-        var face = default(ValueFace);
-        var box = default(PartBox);
-        for (var pass = 0; pass < 3; pass++)
-        {
-            foreach (var icon in new[] { _blockGlyph, _blockProblem })
-            {
-                icon.FontSize = glyph;
-                icon.Width = glyph;
-                icon.Height = glyph;
-            }
-
-            _block.Width = double.NaN;
-            _block.Margin = default;
-            _block.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-            box = Ink.Of(_block);
-
-            // Across: the held box and the caption's ink, each centred in the block; the face fills the stopping axis with them.
-            var last = _blockWhy.Visibility == Visibility.Visible ? _blockWhy : _blockProblem.Visibility == Visibility.Visible ? _blockProblem : (FrameworkElement)_blockName;
-            var captionBefore = Ink.Of(_blockGlyph).Left;
-            var captionAfter = Ink.Of(last).Right;
-            var drawn = Ink.Of(_blockValue);
-            _captionShift.X = MetricFaceRules.InkCentre(captionBefore, captionAfter);
-            _valueShift.X = MetricFaceRules.InkCentre(drawn.Left, drawn.Right);
-            var (before, after) = MetricFaceRules.ValueAcross(box.Width, _valueCell.DesiredSize.Width, _caption.DesiredSize.Width - captionBefore - captionAfter);
-            face = MetricFaceRules.Value(_width, _height, box.Width, box.Height, box.Ink, before, after);
-            var held = MetricFaceRules.GlyphSize(face.Scale);
-            if (Math.Abs(held - glyph) < 0.01)
-            {
-                break;
-            }
-
-            glyph = held;
-        }
-
-        _blockScale.ScaleX = face.Scale;
-        _blockScale.ScaleY = face.Scale;
-        _block.Width = box.Width;
-        _block.Margin = new Thickness(face.Left, face.Top, 0, 0);
-
-
     }
 }
