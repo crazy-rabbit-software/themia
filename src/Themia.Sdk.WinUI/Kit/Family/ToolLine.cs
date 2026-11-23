@@ -99,6 +99,41 @@ public sealed partial class ToolLine : Grid, IInked
 
     public bool IsRow => false;
 
+    /// <summary>
+    /// [S-16444] Its first ink on its box's top (WR-1, owner 2026-11-19: "there should not be a space at the top"): the line
+    /// is drawn raised by the room over its first ink (<see cref="Ink"/>: the label's capitals, or a button's glyph where
+    /// that stands higher), so a line laid at the card's inset inks from the inset, its buttons or alone its words (a
+    /// narrow calendar's period stood its capitals 18 down once its arrows gave way). Drawn only: its band keeps its room.
+    /// </summary>
+    public bool InkOnTop
+    {
+        get => _inkOnTop;
+        set
+        {
+            if (value != _inkOnTop)
+            {
+                _inkOnTop = value;
+                RenderTransform = value ? _lift : null;
+                InvalidateArrange();
+            }
+        }
+    }
+
+    private bool _inkOnTop;
+    private readonly Microsoft.UI.Xaml.Media.TranslateTransform _lift = new();
+
+    protected override Windows.Foundation.Size ArrangeOverride(Windows.Foundation.Size finalSize)
+    {
+        var size = base.ArrangeOverride(finalSize);
+        var lift = _inkOnTop ? -Ink.Over : 0;
+        if (!_lift.Y.Equals(lift))
+        {
+            _lift.Y = lift;
+        }
+
+        return size;
+    }
+
     /// <summary>The line stands while it has a label or a part to show; collapsed it takes no room.</summary>
     private void Decide() => Visibility = _label.Text.Length > 0 || Parts.Any ? Visibility.Visible : Visibility.Collapsed;
 
