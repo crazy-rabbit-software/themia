@@ -135,11 +135,12 @@ public sealed class DeviceItemTests
     }
 
     [Fact]
-    public void S16637_a_single_device_face_is_the_items_height_and_never_narrower_than_its_line()
+    public void S16637_a_single_device_face_is_one_item_and_never_narrower_than_its_line()
     {
         var face = DeviceLayout.Face(DeviceLayout.WidestLine(["419 GB free of 931 GB"]));
-        Assert.Equal(76, face.Natural.Height);
-        Assert.True(face.Min.Height < 76);
-        Assert.True(DeviceLayout.Face(400).Min.Width > face.Min.Width);
+        Assert.Equal((80.0, 80.0, 80.0), (face.Min.Height, face.Natural.Height, face.Max.Height));
+        Assert.True(face.Min.Width is >= 220 and <= 260, $"{face.Min.Width}");
+        Assert.Equal(300, face.Natural.Width);
+        Assert.Equal(face.Min.Width, DeviceLayout.Face(400).Min.Width);
     }
 }

@@ -31,10 +31,11 @@ public sealed class DriveTests
     [Fact]
     public void S4672_the_bar_is_one_height_and_the_ring_its_dial_with_its_line()
     {
-        var bar = DriveFace.Sizing(DriveStyle.Bar);
-        Assert.Equal(12 + 36 + 12 + 4 + 12, bar.Natural.Height);
+        // [S-16637] The bar style is the device item itself: one item tall (76, 80 on the grid), 220..520 wide at least.
+        var bar = DriveFace.Scaled(DriveStyle.Bar);
+        Assert.Equal(80, bar.Natural.Height);
         Assert.True(bar.FixedHeight);
-        Assert.Equal((160, 220, 360), (bar.Min.Width, bar.Natural.Width, bar.Max.Width));
+        Assert.True(bar.Min.Width >= 220 && bar.Natural.Width >= 300 && bar.Max.Width >= 520);
 
         var ring = DriveFace.Sizing(DriveStyle.Ring);
         Assert.Empty(ring.Problems());
@@ -43,7 +44,6 @@ public sealed class DriveTests
     }
 
     [Theory]
-    [InlineData(DriveStyle.Bar, 12)]
     [InlineData(DriveStyle.Ring, 14)]
     public void S15749_the_drive_scales_down_as_one_block_to_its_line_at_9(DriveStyle style, double line)
     {

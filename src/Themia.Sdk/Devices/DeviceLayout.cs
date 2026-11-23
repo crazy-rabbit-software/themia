@@ -108,28 +108,16 @@ public static class DeviceLayout
     }
 
     /// <summary>
-    /// [S-16637] [S-15749] [S-15759] One device's face's sizing (a Drive, a USB stick, a network drive, a Bluetooth device):
-    /// one height, the item's (88), 160..320 wide, a new one 200; scaled down as one block to where its line (Caption) is
-    /// still read at 9 (WR-14) in the card's inset, which does not scale, and never narrower than its widest line beside
-    /// its icon at that scale (<paramref name="widestLine"/>: the line's widest form at its own size, in DIPs).
+    /// [S-16637] One device's face's sizing (a Drive, a USB stick, a network drive, a Bluetooth device): one item, the list's
+    /// one height (80 on the default grid), 220..520 wide, a new one 300; never narrower than its icon, its percentage and
+    /// the start of its details (<paramref name="widestLine"/> up to 96 DIP: past it the details are cut with their ellipsis).
     /// </summary>
     public static WidgetSizing Face(double widestLine)
     {
-        var sizing = WidgetSizing.Range(new(160, Natural), new(220, Natural), new(360, Natural));
-        var k = ScaleFloor.Least(FamilyType.Caption.FontSize);
-        var natural = sizing.Natural;
-        var scaled = sizing.ScalesDownTo(new SizeDip(
-            ((natural.Width - (2 * FamilySpace.Inset)) * k) + (2 * FamilySpace.Inset),
-            ((natural.Height - FamilySpace.ContentTop - FamilySpace.Inset) * k) + FamilySpace.ContentTop + FamilySpace.Inset));
-        var row = FamilyType.Big28.LineHeight + FamilySpace.GlyphGap + widestLine + FamilySpace.S3 + ReadingWidth;
-        var least = Math.Ceiling((row * k) + (2 * FamilySpace.Inset));
-        var min = new SizeDip(Math.Max(scaled.Min.Width, least), scaled.Min.Height);
-        return scaled with
-        {
-            Min = min,
-            Natural = new SizeDip(Math.Max(scaled.Natural.Width, min.Width), scaled.Natural.Height),
-            Max = new SizeDip(Math.Max(scaled.Max.Width, min.Width), scaled.Max.Height),
-        };
+        var h = Height(ItemGrid.Default());
+        // The details are cut with their ellipsis where the card is narrow, as in a list; the icon and percentage stay whole.
+        var least = Math.Max(LeastWidth, Math.Ceiling(Math.Min(widestLine, FamilySpace.ColumnGap * 8) + FamilyType.Big28.LineHeight + FamilySpace.GlyphGap + FamilySpace.S3 + ReadingWidth + (2 * FamilySpace.Inset)));
+        return WidgetSizing.Range(new(least, h), new(Math.Max(NaturalWidth, least), h), new(Math.Max(MostWidth, least), h));
     }
 
     /// <summary>[S-16631] The reading's widest form ("100%") at 28, estimated.</summary>

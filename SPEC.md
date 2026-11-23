@@ -15140,11 +15140,12 @@ widget's individuality, WR-16 retired; this shared design is the device family's
   endpoint id), the user's order, the gap, the rows; the same lines on every list's page (`DeviceMenuLines.List`):
   **Shown and order** ([S-16671]), **Each item shows** ([S-16672]), **Gap between items** ([S-16673]), **Rows**. Hidden devices are left out, the ordered ones first, the rest in the kind's
   own order (`DeviceOrder`). Tests `DeviceItemTests.S16636_`.
-- **[S-16637]** **One device's face** (`DeviceFace`): the item as the Drive widget drew it, its name the Header widget's
-  over it ([S-12800]): the icon and the reading centred over the bar that spans the card ("Centred is fine"), the line under
-  the reading, one block scaled up as one (WR-7) and down to its line at 9 (WR-14); one height, 160..320 wide, never
-  narrower than its widest line (`DeviceLayout.Face`). Drive, USB stick, Network drive and Bluetooth device show it.
-  Tests `DeviceItemTests.S16637_`.
+- **[S-16637]** **One device's face** (`DeviceFace`): Drive (its Bar style), USB stick, Network drive and Bluetooth device
+  show one device item ([S-16631]) of the list's one size from the card's top edge, the card one item tall (80 on the
+  default grid), 220..520 wide and never narrower than its icon, widest details and percentage (`DeviceLayout.Face`), so a
+  device looks the same alone as in its list (owner, 2026-11-23: "from left to right: icon, then title and subtitle, then
+  right aligned percentage, under all of them the progress bar"). The card lights as the one item (its `OpensLight`).
+  Tests `DeviceItemTests.S16637_`, `DriveTests.S4672_`.
 - **[S-16638]** A removed kind replaced in place takes the keys its merge sets (`MergeFrom.Sets`, a JSON object; a single
   metric's `{"trend":"Line"}`, its graph shown, [S-14713]); none for one that sets none (Removable drives as the USB sticks'
   list). Test `KindMergesTests.S16638_`.

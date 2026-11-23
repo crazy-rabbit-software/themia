@@ -74,10 +74,7 @@ internal sealed partial class BluetoothDeviceView : Grid, IWidgetView, IWidgetOp
     }
 
     /// <summary>The box only: what the card shows does not change with it ([S-2438]).</summary>
-    public void ApplySize(WidgetArea area)
-    {
-        // ignore: the face scales as one block in its own panel.
-    }
+    public void ApplySize(WidgetArea area) => _face.Size(area);
 
     public void Detach()
     {

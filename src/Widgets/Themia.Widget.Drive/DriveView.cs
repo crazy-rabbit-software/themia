@@ -85,7 +85,11 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
     }
 
     /// <summary>The box only: what the card shows does not change with it ([S-2438]).</summary>
-    public void ApplySize(WidgetArea area) => Lay();
+    public void ApplySize(WidgetArea area)
+    {
+        _face.Size(area);
+        Lay();
+    }
 
     private void OnLanguage(Locale locale) => Show();
 
@@ -128,7 +132,6 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         _face.Visibility = Visibility.Visible;
-        _face.Hold(DriveFace.SpaceTemplates(locale));
         _face.Show(item, _config.HiddenParts, stock: _previewDrive is not null);
     }
 

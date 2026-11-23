@@ -43,6 +43,9 @@ public sealed partial class DeviceList : Panel
     /// <summary>What a click, a double-click or Enter on an item does (null: nothing); it is not asked in edit mode.</summary>
     public Action<DeviceItem>? Opened { get; set; }
 
+    /// <summary>Whether an item lights under the pointer and pressed (off where its card lights as the one item: a device's face).</summary>
+    public bool LightsItems { get; set; } = true;
+
     /// <summary>Whether an item opens now (false in edit mode, in a preview).</summary>
     public Func<bool>? CanOpen { get; set; }
 
@@ -269,7 +272,10 @@ public sealed partial class DeviceList : Panel
         view.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnReleased), handledEventsToo: true);
         view.Tapped += OnTapped;
         view.RightTapped += OnRightTapped;
-        PointerPreview.Register(view, pressed => ItemFill.Paint(view, ItemRole.Row, pressed ? ItemState.Pressed : ItemState.Hover));
+        if (LightsItems)
+        {
+            PointerPreview.Register(view, pressed => ItemFill.Paint(view, ItemRole.Row, pressed ? ItemState.Pressed : ItemState.Hover));
+        }
     }
 
     private void Unhook(DeviceItemView view)
@@ -285,7 +291,7 @@ public sealed partial class DeviceList : Panel
 
     private void OnEntered(object sender, PointerRoutedEventArgs args)
     {
-        if (sender is DeviceItemView view)
+        if (sender is DeviceItemView view && LightsItems)
         {
             ItemFill.Paint(view, ItemRole.Row, ItemState.Hover);
         }
@@ -314,7 +320,7 @@ public sealed partial class DeviceList : Panel
         if (sender is DeviceItemView view)
         {
             _pressed = null;
-            ItemFill.Paint(view, ItemRole.Row, ItemState.Hover);
+            ItemFill.Paint(view, ItemRole.Row, LightsItems ? ItemState.Hover : ItemState.Rest);
         }
     }
 
