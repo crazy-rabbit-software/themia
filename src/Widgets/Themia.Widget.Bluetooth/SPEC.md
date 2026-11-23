@@ -95,12 +95,12 @@ them, `BluetoothRulesTests`, which carried these tags with no SPEC line):
 
 - **[S-16660]** **On the device design** ([S-16630], owner, 2026-11-23): the list is every paired device as a device
   item (`BluetoothItems`): the kind's glyph (primary connected, secondary paired), the name, the battery the reading with
-  its bar (Critical at or below 20 %; "--" for a device that reports none; no reading drawn with Battery off), the kind,
+  its bar (Critical at or below 20 %; a device that reports none has neither, [S-16670]; none read with both left out, [S-16672]), the kind,
   connection and signal its line. Its rows are device items (three by default; [S-1254]'s rows, the Lines choice and the
-  Device icon switch went with them: the icon is the item's). Every empty list keeps the face, one item: "--" and which
+  Device icon and Battery switches went with them: the parts are the section's, [S-16672]). Every empty list keeps the face, one item: "--" and which
   empty list it is ([S-244], WR-10). Read-only: its menu is Refresh. Tests `BluetoothLadderTests.S16660_`.
-- **[S-16661]** Its page after what an item shows: the device list's lines ([S-16636]): Shown (the checklist), Order, Gap
-  between items, Rows; the paired devices it lists are the host's last pass (`BluetoothList`, installed at start).
+- **[S-16661]** Its page after what an item shows: the device list's lines ([S-16636]): Shown and order (one checklist, [S-16671]), Each item
+  shows (its connection word and signal with the parts, [S-16672]), Gap between items in blocks ([S-16673]), Rows; the paired devices it lists are the host's last pass (`BluetoothList`, installed at start).
 - **[S-16662]** **Bluetooth device** (`bluetoothDevice`; owner, 2026-11-23: "there should be individual widgets for the
   drive, bluetooth device, usb stick, network drive"): one paired device on the device family's face ([S-16637]): its glyph
   and its battery over the bar, its kind, connection and signal as the line; the device named, else the first (a connected

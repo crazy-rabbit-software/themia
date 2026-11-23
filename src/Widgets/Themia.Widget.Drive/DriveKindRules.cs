@@ -35,6 +35,6 @@ public static class DriveKindRules
     {
         ArgumentNullException.ThrowIfNull(kind);
         var why = kind.Nothing(locale);
-        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(kind.Glyph), DeviceReading.None(), why, 0, ColourRole.Accent, why);
+        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(kind.Glyph), null, why, null, ColourRole.Accent, why);
     }
 }

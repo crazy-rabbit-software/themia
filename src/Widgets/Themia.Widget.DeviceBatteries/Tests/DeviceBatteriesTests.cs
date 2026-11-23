@@ -117,7 +117,7 @@ public sealed class DeviceBatteriesTests
 
         Assert.Equal(ColourRole.Critical, low.FillRole);
         Assert.Equal(ColourRole.Accent, fine.FillRole);
-        Assert.Equal(("20", "%", 0.2), (low.Reading!.Value.Value, low.Reading.Value.Unit, low.Fill));
+        Assert.Equal(("20", "%", (double?)0.2), (low.Reading!.Value.Value, low.Reading.Value.Unit, low.Fill));
     }
 
     [Fact]
@@ -183,8 +183,8 @@ public sealed class DeviceBatteriesTests
         DeviceBatteriesMenu.Lines(menu, config);
 
         Assert.Equal(
-            [DeviceBatteriesStr.DeviceBatteries_Settings_Low.Text(), DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), Str.Devices_Gap.Text(), Str.Kit_Rows.Text()],
-            menu.Lines.Select(l => l.Text));
+            [DeviceBatteriesStr.DeviceBatteries_Settings_Low.Text(), DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), Str.Devices_Parts.Text(), Str.Devices_Gap.Text(), Str.Kit_Rows.Text()],
+            menu.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
 
         menu.Lines[1].Action!();
         Assert.False(config.ShowCharging);
@@ -195,9 +195,9 @@ public sealed class DeviceBatteriesTests
     public void S11028_S16665_its_rows_of_device_items_are_its_natural_height_and_every_cell_between()
     {
         var kind = ModuleCatalog.Of(new WidgetId("deviceBatteries"));
-        Assert.Equal(3 * 90, kind.SizingOf().Natural.Height);
-        Assert.Equal(90, kind.SizingOf().Min.Height);
-        Assert.Equal((2 * 90) + 10, kind.SizingOf(new DeviceBatteriesConfig { Rows = 2, Gap = true }).Natural.Height);
+        Assert.Equal(3 * 80, kind.SizingOf().Natural.Height);
+        Assert.Equal(80, kind.SizingOf().Min.Height);
+        Assert.Equal((2 * 80) + 10, kind.SizingOf(new DeviceBatteriesConfig { Rows = 2, Gap = 1 }).Natural.Height);
         Assert.Equal(6, ((DeviceBatteriesConfig)new DeviceBatteriesConfig { Rows = 6 }.Clone()).Rows);
     }
 }

@@ -53,17 +53,17 @@ public sealed class DrivesTests
         foreach (var id in new[] { "drives", "usbSticks", "networkDrives" })
         {
             var kind = ModuleCatalog.Of(new WidgetId(id));
-            Assert.Equal((300.0, 270.0), (kind.SizingOf().Natural.Width, kind.SizingOf().Natural.Height));
-            Assert.Equal(90, kind.SizingOf().Min.Height);
+            Assert.Equal((300.0, 240.0), (kind.SizingOf().Natural.Width, kind.SizingOf().Natural.Height));
+            Assert.Equal(80, kind.SizingOf().Min.Height);
         }
 
-        Assert.Equal(190, ModuleCatalog.Of(new WidgetId("usbSticks")).SizingOf(new UsbSticksConfig { Rows = 2, Gap = true }).Natural.Height);
+        Assert.Equal(180, ModuleCatalog.Of(new WidgetId("usbSticks")).SizingOf(new UsbSticksConfig { Rows = 2, Gap = 2 }).Natural.Height);
     }
 
     [Fact]
     public void S16655_its_config_is_repaired_and_copied_whole_as_its_own_kind()
     {
-        var config = new UsbSticksConfig { Hidden = ["E:\\", "nonsense", "e:"], Order = ["Z:\\"], Rows = 40, Gap = true };
+        var config = new UsbSticksConfig { Hidden = ["E:\\", "nonsense", "e:"], Order = ["Z:\\"], Rows = 40, Gap = 1 };
         Assert.Equal(3, config.Repair().Count);
         Assert.Equal(["E:\\"], config.Hidden);
         Assert.Equal(20, config.Rows);
@@ -80,7 +80,7 @@ public sealed class DrivesTests
     {
         var config = Assert.IsType<UsbSticksConfig>(ConfigJson.Read("RemovableDrives", """{ "kind": "removableDrives", "rows": 5 }"""));
 
-        Assert.Equal((5, false), (config.Rows, config.Gap));
+        Assert.Equal((5, 0), (config.Rows, config.Gap));
         Assert.Equal("E G", Roots(DrivesRules.Arrange(Walk, DriveListKinds.UsbSticks, config)));
     }
 

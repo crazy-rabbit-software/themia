@@ -480,11 +480,11 @@
           "config": {
             "kind": "bluetooth",
             "rows": 3,
-            "showBattery": true,
             "showConnection": true,
             "showSignal": false,
             "connectedOnly": false,
-            "gap": false,
+            "gap": 0,
+            "hiddenParts": [],
             "hidden": [],
             "order": []
           }
@@ -1603,7 +1603,8 @@
             "kind": "usbSticks",
             "hidden": [],
             "order": [],
-            "gap": false,
+            "gap": 0,
+            "hiddenParts": [],
             "rows": 3
           }
         },
@@ -1629,7 +1630,8 @@
           "config": {
             "kind": "drive",
             "style": "bar",
-            "drive": ""
+            "drive": "",
+            "hiddenParts": []
           }
         },
         {

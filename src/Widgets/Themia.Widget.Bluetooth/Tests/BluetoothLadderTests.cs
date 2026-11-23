@@ -17,13 +17,13 @@ public class BluetoothLadderTests
         var kind = Themia.Sdk.ModuleCatalog.Of(new Themia.Sdk.WidgetId("bluetooth"));
         var sizing = kind.Sizing(new BluetoothConfig());
 
-        Assert.Equal(3 * 90, sizing.Natural.Height);
+        Assert.Equal(3 * 80, sizing.Natural.Height);
         Assert.Equal(20, KitClamp(40));
         Assert.Equal((220d, Themia.Sdk.SizeStretch.Ceiling), (sizing.Min.Width, sizing.Max.Width)); // relaxed, [S-12411]: no practical Max
 
         // [S-14500] One item at least, every cell taller too; [S-16661] the gap between two.
-        Assert.Equal(90, sizing.Min.Height);
-        Assert.Equal((2 * 90) + 10, kind.Sizing(new BluetoothConfig { Rows = 2, Gap = true }).Natural.Height);
+        Assert.Equal(80, sizing.Min.Height);
+        Assert.Equal((2 * 80) + 10, kind.Sizing(new BluetoothConfig { Rows = 2, Gap = 1 }).Natural.Height);
     }
 
     private static int KitClamp(int rows)
@@ -39,14 +39,16 @@ public class BluetoothLadderTests
         var config = new BluetoothConfig();
         var pen = BluetoothItems.Item(new BluetoothDeviceEntry("Slim Pen", "pen", true, BluetoothDeviceKind.Pen, 18), config.Shows, Locale.En);
         Assert.Equal(("Slim Pen", "18", "Pen · Connected", Themia.Sdk.Kit.ColourRole.Critical), (pen.Name, pen.Reading!.Value.Value, pen.Line, pen.FillRole));
-        Assert.Equal(0.18, pen.Fill, 6);
+        Assert.Equal(0.18, pen.Fill!.Value, 6);
 
         var phone = BluetoothItems.Item(new BluetoothDeviceEntry("Pixel", "phone", false, BluetoothDeviceKind.Phone, null), config.Shows, Locale.En);
         Assert.True(phone.Absent);
-        Assert.Equal(("Phone · Paired", 0.0, Themia.Sdk.Kit.ColourRole.TextSecondary), (phone.Line, phone.Fill, phone.Icon.Role));
+        // [S-16670] No battery is no percentage and no bar: not drawn, never greyed out.
+        Assert.Equal(("Phone · Paired", (double?)null, Themia.Sdk.Kit.ColourRole.TextSecondary), (phone.Line, phone.Fill, phone.Icon.Role));
 
-        var noBattery = BluetoothItems.Item(new BluetoothDeviceEntry("Pixel", "phone", true, BluetoothDeviceKind.Phone, 50), new BluetoothConfig { ShowBattery = false }.Shows, Locale.En);
+        var noBattery = BluetoothItems.Item(new BluetoothDeviceEntry("Pixel", "phone", true, BluetoothDeviceKind.Phone, 50), new BluetoothConfig { HiddenParts = [Themia.Sdk.Devices.DevicePart.Reading, Themia.Sdk.Devices.DevicePart.Bar] }.Shows, Locale.En);
         Assert.Null(noBattery.Reading);
+        Assert.Null(noBattery.Fill);
 
         var off = BluetoothItems.Empty(BluetoothStatus.RadioOff, Locale.En);
         Assert.True(off.Absent);

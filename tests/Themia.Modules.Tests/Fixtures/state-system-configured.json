@@ -440,7 +440,8 @@
           "config": {
             "kind": "drive",
             "style": "ring",
-            "drive": "E:\\"
+            "drive": "E:\\",
+            "hiddenParts": []
           }
         },
         {
@@ -465,7 +466,8 @@
             "kind": "usbSticks",
             "hidden": [],
             "order": [],
-            "gap": false,
+            "gap": 0,
+            "hiddenParts": [],
             "rows": 3
           }
         },

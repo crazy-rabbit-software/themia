@@ -121,7 +121,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
             return;
         }
 
-        // [S-12813] Not connected, no media: the drive's default (its icon, "--", the empty bar), the reason under it.
+        // [S-12813] [S-16670] Not connected, no media: its icon and name, the reason under it, no percentage and no bar.
         if (_ringParts is not null)
         {
             _ringParts.Root.Visibility = Visibility.Collapsed;
@@ -129,7 +129,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
 
         _face.Visibility = Visibility.Visible;
         _face.Hold(DriveFace.SpaceTemplates(locale));
-        _face.Show(item, stock: _previewDrive is not null);
+        _face.Show(item, _config.HiddenParts, stock: _previewDrive is not null);
     }
 
     public IReadOnlyList<WidgetAction> ContextActions

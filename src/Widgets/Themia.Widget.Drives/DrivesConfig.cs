@@ -9,7 +9,7 @@ namespace Themia.Core.Model;
 /// the user's order, the block gap, the rows). Each kind is its own config type (a config's type is how it knows its id).
 /// Every property is stored; copy each in <see cref="Clone"/>.
 /// </summary>
-public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfig
+public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfig, IDeviceParts
 {
     /// <inheritdoc />
     public List<string> Hidden { get; set; } = [];
@@ -18,7 +18,10 @@ public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfi
     public List<string> Order { get; set; } = [];
 
     /// <inheritdoc />
-    public bool Gap { get; set; }
+    public int Gap { get; set; }
+
+    /// <inheritdoc />
+    public List<DevicePart> HiddenParts { get; set; } = [];
 
     /// <inheritdoc cref="IDeviceListConfig.Rows" />
     public int Rows { get; set; } = DeviceLayout.DefaultRows;
@@ -43,6 +46,8 @@ public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfi
         var notes = new List<string>();
         Hidden = Roots(Hidden, "hidden", notes);
         Order = Roots(Order, "order", notes);
+        Gap = DeviceOrder.Repaired(Gap, Kind.Value, notes);
+        HiddenParts = DeviceOrder.Repaired(HiddenParts, Kind.Value, notes);
         var rows = KitSizing.ClampRows(Rows);
         if (rows != Rows)
         {
@@ -79,6 +84,7 @@ public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfi
         copy.Hidden = [.. Hidden];
         copy.Order = [.. Order];
         copy.Gap = Gap;
+        copy.HiddenParts = [.. HiddenParts];
         copy.Rows = Rows;
         return copy;
     }

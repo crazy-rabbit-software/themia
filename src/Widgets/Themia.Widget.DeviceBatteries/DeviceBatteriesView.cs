@@ -110,7 +110,7 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetSu
             ? [.. rows.Select(row => DeviceBatteriesItems.Item(row, _config.EffectiveThreshold, locale))]
             : [DeviceBatteriesItems.Empty(snapshot.Status, locale)];
         _list.Gap = _config.Gap;
-        _list.Show(items, stock: true);
+        _list.Show(items, _config.HiddenParts, stock: true);
     }
 
     /// <summary>[S-10005] Windows' Bluetooth &amp; devices page; a preview opens nothing.</summary>

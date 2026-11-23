@@ -95,7 +95,7 @@ public static class DriveFace
         if (style == DriveStyle.Bar)
         {
             var h = BarHeight;
-            return WidgetSizing.Range(new(160, h), new(200, h), new(320, h));
+            return WidgetSizing.Range(new(160, h), new(220, h), new(360, h));
         }
 
         var (least, start) = MeterSizing.RingDiameters(Worst);

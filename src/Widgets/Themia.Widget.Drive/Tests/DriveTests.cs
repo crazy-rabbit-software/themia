@@ -32,9 +32,9 @@ public sealed class DriveTests
     public void S4672_the_bar_is_one_height_and_the_ring_its_dial_with_its_line()
     {
         var bar = DriveFace.Sizing(DriveStyle.Bar);
-        Assert.Equal(12 + 36 + 16 + 8 + 4 + 12, bar.Natural.Height);
+        Assert.Equal(12 + 36 + 12 + 4 + 12, bar.Natural.Height);
         Assert.True(bar.FixedHeight);
-        Assert.Equal((160, 200, 320), (bar.Min.Width, bar.Natural.Width, bar.Max.Width));
+        Assert.Equal((160, 220, 360), (bar.Min.Width, bar.Natural.Width, bar.Max.Width));
 
         var ring = DriveFace.Sizing(DriveStyle.Ring);
         Assert.Empty(ring.Problems());
@@ -53,7 +53,7 @@ public sealed class DriveTests
         var natural = DriveFace.Sizing(style).Natural;
         var k = 9 / line;
         // [S-15759] The bar's never narrower than its widest line beside its icon at that scale.
-        var least = style == DriveStyle.Bar ? Math.Max(Math.Ceiling(((natural.Width - 24) * k) + 24), Math.Ceiling((DriveFace.WidestLine(Locale.En) * k) + 24)) : Math.Ceiling(((natural.Width - 24) * k) + 24);
+        var least = style == DriveStyle.Bar ? Math.Max(Math.Ceiling(((natural.Width - 24) * k) + 24), Math.Ceiling(((DriveFace.WidestLine(Locale.En) + 12 + Themia.Sdk.Devices.DeviceLayout.ReadingWidth) * k) + 24)) : Math.Ceiling(((natural.Width - 24) * k) + 24);
         Assert.Equal(least, sizing.Min.Width);
         Assert.Equal(Math.Ceiling(((natural.Height - 24) * k) + 24), sizing.Min.Height);
         Assert.Empty(sizing.Problems());

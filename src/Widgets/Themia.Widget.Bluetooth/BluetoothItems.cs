@@ -16,6 +16,10 @@ public readonly record struct BluetoothShows(bool Battery, bool Connection, bool
 /// </summary>
 public static class BluetoothItems
 {
+    /// <summary>[S-3252] [S-16672] Whether a battery is read: its percentage or its bar is shown.</summary>
+    public static bool ReadsBattery(IReadOnlyCollection<DevicePart> hidden)
+        => !(hidden ?? []).Contains(DevicePart.Reading) || !(hidden ?? []).Contains(DevicePart.Bar);
+
     /// <summary>[S-16660] The glyph of the list and the device widget: the Bluetooth mark.</summary>
     public static string Glyph => Glyphs.Bluetooth;
 
@@ -27,7 +31,7 @@ public static class BluetoothItems
     public static DeviceItem Item(BluetoothDeviceEntry device, BluetoothShows config, Locale locale)
     {
         var percent = device.BatteryPercent is >= 0 and <= 100 ? device.BatteryPercent : null;
-        DeviceReading? reading = !config.Battery ? null : percent is { } p ? DeviceReading.Percent(locale, p / 100.0) : DeviceReading.None();
+        DeviceReading? reading = config.Battery && percent is { } p ? DeviceReading.Percent(locale, p / 100.0) : null;
         var line = BluetoothRules.DetailLine(device, config.Connection, showBattery: false, config.Signal, locale);
         return new DeviceItem(
             device.Id,
@@ -35,7 +39,7 @@ public static class BluetoothItems
             new DeviceIcon(DeviceItems.Glyph((DeviceKind)device.Kind), device.Connected ? ColourRole.TextPrimary : ColourRole.TextSecondary),
             reading,
             line,
-            config.Battery && percent is { } fill ? fill / 100.0 : 0,
+            config.Battery && percent is { } fill ? fill / 100.0 : null,
             BluetoothRules.IsLowBattery(percent) ? ColourRole.Critical : ColourRole.Accent,
             $"{device.Name} · {BluetoothRules.DetailLine(device, true, true, true, locale)}");
     }
@@ -61,7 +65,7 @@ public static class BluetoothItems
     {
         var why = BluetoothRules.StatusMessage(status, locale);
         var problem = status is BluetoothStatus.Failed or BluetoothStatus.PermissionDenied;
-        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(Glyphs.Bluetooth, problem ? ColourRole.Caution : ColourRole.TextSecondary), DeviceReading.None(), why, 0, ColourRole.Accent, why);
+        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(Glyphs.Bluetooth, problem ? ColourRole.Caution : ColourRole.TextSecondary), null, why, null, ColourRole.Accent, why);
     }
 
     /// <summary>[S-1259] A device's menu: Refresh, the radios read again now (read-only: nothing connects or unpairs).</summary>

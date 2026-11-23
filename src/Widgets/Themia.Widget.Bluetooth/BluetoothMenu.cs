@@ -23,24 +23,26 @@ internal static class BluetoothMenu
         ArgumentNullException.ThrowIfNull(menu);
         ArgumentNullException.ThrowIfNull(config);
 
-        var lines = menu.Lines;
-        lines.Add(menu.Toggle(Glyphs.Link, BluetoothStr.WidgetsA_Bluetooth_Settings_ConnectedOnly_Label.Text(), config.ConnectedOnly, on => config.ConnectedOnly = on));
-        lines.Add(SettingsLine.Separator);
-        if (config.Offers(BluetoothSetting.Connection))
-        {
-            lines.Add(menu.Toggle(Glyphs.Info, BluetoothStr.WidgetsA_Bluetooth_Settings_Connection_Label.Text(), config.ShowConnection, on => config.ShowConnection = on));
-        }
-
-        // The battery read opens a connection to each device (the slowest part of a refresh), and
-        // [S-1256] the signal costs a short radio scan: both off the row unless asked for.
-        lines.Add(menu.Toggle(Glyphs.Battery, BluetoothStr.Widget_Battery_Label.Text(), config.ShowBattery, on => config.ShowBattery = on));
-        lines.Add(menu.Toggle(Glyphs.Signal, BluetoothStr.WidgetsA_Bluetooth_Settings_Signal_Label.Text(), config.ShowSignal, on => config.ShowSignal = on));
-
-        // [S-16661] The device list's lines: which devices show, their order, the gap, how many a new card stands.
-        lines.Add(SettingsLine.Separator);
+        // Which devices it lists, then [S-16661] the device list's lines: the checklist in its order, what an item shows
+        // (with the connection word and the signal, [S-1256]: a short radio scan), the gap, the rows.
+        menu.Lines.Add(menu.Toggle(Glyphs.Link, BluetoothStr.WidgetsA_Bluetooth_Settings_ConnectedOnly_Label.Text(), config.ConnectedOnly, on => config.ConnectedOnly = on));
+        menu.Lines.Add(SettingsLine.Separator);
         var locale = Strings.Current;
         var paired = BluetoothList.Now() is { Status: BluetoothStatus.Ok } pass ? BluetoothRules.Arrange(pass.Devices, config.ConnectedOnly, locale) : [];
-        DeviceMenuLines.List(menu, config, [.. paired.Select(d => new DeviceChoice(d.Id, d.Name, DeviceItems.Glyph((DeviceKind)d.Kind)))]);
+        DeviceMenuLines.List(menu, config, [.. paired.Select(d => new DeviceChoice(d.Id, d.Name, DeviceItems.Glyph((DeviceKind)d.Kind)))], Own(menu, config.Offers(BluetoothSetting.Connection), config.ShowConnection, on => config.ShowConnection = on, config.ShowSignal, on => config.ShowSignal = on));
+    }
+
+    /// <summary>[S-16672] A Bluetooth item's own parts in the parts' section: its connection word (where it can say one), its signal.</summary>
+    private static List<SettingsLine> Own(WidgetMenuLines menu, bool connection, bool showConnection, Action<bool> setConnection, bool showSignal, Action<bool> setSignal)
+    {
+        var lines = new List<SettingsLine>();
+        if (connection)
+        {
+            lines.Add(menu.Toggle(null, BluetoothStr.WidgetsA_Bluetooth_Settings_Connection_Label.Text(), showConnection, setConnection));
+        }
+
+        lines.Add(menu.Toggle(null, BluetoothStr.WidgetsA_Bluetooth_Settings_Signal_Label.Text(), showSignal, setSignal));
+        return lines;
     }
 
     /// <summary>
@@ -67,9 +69,6 @@ internal static class BluetoothMenu
         var held = options.First(o => string.Equals(o.Value, config.Device, StringComparison.OrdinalIgnoreCase)).Value;
         var lines = menu.Lines;
         lines.Add(menu.Choice(Glyphs.Bluetooth, BluetoothStr.Bluetooth_Device_Which.Text(), options, held, value => config.Device = value));
-        lines.Add(SettingsLine.Separator);
-        lines.Add(menu.Toggle(Glyphs.Battery, BluetoothStr.Widget_Battery_Label.Text(), config.ShowBattery, on => config.ShowBattery = on));
-        lines.Add(menu.Toggle(Glyphs.Info, BluetoothStr.WidgetsA_Bluetooth_Settings_Connection_Label.Text(), config.ShowConnection, on => config.ShowConnection = on));
-        lines.Add(menu.Toggle(Glyphs.Signal, BluetoothStr.WidgetsA_Bluetooth_Settings_Signal_Label.Text(), config.ShowSignal, on => config.ShowSignal = on));
+        lines.Add(DeviceMenuLines.Parts(menu, config, Own(menu, true, config.ShowConnection, on => config.ShowConnection = on, config.ShowSignal, on => config.ShowSignal = on)));
     }
 }

@@ -22,9 +22,11 @@ internal static class DriveMenu
 
         // [S-4674] The look (Style, Appearance), a divider, then which drive.
         menu.Lines.Add(SettingsLine.Separator);
+        // [S-16672] What the face shows, grouped in one section, after which drive.
         if (kind.Group is not { } group)
         {
             menu.Lines.Add(DriveMenuLines.Drive(menu, config.Drive, value => config.Drive = value, drives));
+            menu.Lines.Add(Themia.Sdk.WinUI.Devices.DeviceMenuLines.Parts(menu, config));
             return;
         }
 
@@ -40,5 +42,6 @@ internal static class DriveMenu
 
         var held = options.First(o => string.Equals(o.Value, current, StringComparison.OrdinalIgnoreCase)).Value;
         menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.Drive, menu.Choice(kind.Glyph, Str.Details_Disk_Drive.Text(), options, held, value => config.Drive = value)));
+        menu.Lines.Add(Themia.Sdk.WinUI.Devices.DeviceMenuLines.Parts(menu, config));
     }
 }

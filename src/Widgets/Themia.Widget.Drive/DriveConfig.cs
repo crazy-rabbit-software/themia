@@ -22,7 +22,7 @@ public enum DriveStyle
 /// [S-4670] [S-16646] One drive's widget, whatever its kind (a Drive, a USB stick, a network drive): which drive and its
 /// look. Each kind is its own config type (a config's type is how it knows its id); everything else is this one's.
 /// </summary>
-public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice
+public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice, Themia.Sdk.Devices.IDeviceParts
 {
     private static readonly StyleOption[] DriveStyles =
     [
@@ -44,23 +44,28 @@ public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice
     /// <summary>The drive's root (<c>C:\</c>); empty for the kind's default (the system drive, the first stick or share there).</summary>
     public string Drive { get; set; } = string.Empty;
 
+    /// <summary>[S-16672] The parts its face leaves out.</summary>
+    public List<Themia.Sdk.Devices.DevicePart> HiddenParts { get; set; } = [];
+
     /// <summary>Anything that is not a drive letter (a folder, a typo) is the kind's default again, loudly.</summary>
     public override IReadOnlyList<string> Repair()
     {
+        var notes = new List<string>();
+        HiddenParts = Themia.Sdk.Devices.DeviceOrder.Repaired(HiddenParts, Kind.Value, notes);
         if (string.IsNullOrEmpty(Drive))
         {
-            return [];
+            return notes;
         }
 
         if (DiskRules.Root(Drive) is not { } root)
         {
-            var bad = Drive;
+            notes.Add($"{Kind} widget named '{Drive}', which is not a drive; showing its default");
             Drive = string.Empty;
-            return [$"{Kind} widget named '{bad}', which is not a drive; showing its default"];
+            return notes;
         }
 
         Drive = root;
-        return [];
+        return notes;
     }
 
     /// <summary>A copy of the kind's own type with this one's settings.</summary>
@@ -69,6 +74,7 @@ public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice
     {
         copy.Drive = Drive;
         copy.Style = Style;
+        copy.HiddenParts = [.. HiddenParts];
         return copy;
     }
 }

@@ -136,7 +136,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
             ? [.. devices.Select(d => BluetoothItems.Item(d, _config.Shows, locale))]
             : [BluetoothItems.Empty(snapshot.Status, locale)];
         _list.Gap = _config.Gap;
-        _list.Show(items, stock: true);
+        _list.Show(items, _config.HiddenParts, stock: true);
     }
 
     /// <summary>Hold <paramref name="snapshot"/> in place of the radio's.</summary>

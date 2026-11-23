@@ -10,7 +10,7 @@ namespace Themia.Widget.DeviceBatteries;
 /// [S-10000] [S-10004] What one Device batteries widget remembers: where a battery counts as low, and
 /// whether a device on its charger is listed. Every property is stored; copy each in <see cref="Clone"/>.
 /// </summary>
-public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows
+public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows, IDeviceParts
 {
     /// <summary>[S-11028] [S-16665] How many devices a new card stands (its natural height), 1..20; a new list three.</summary>
     public int Rows { get; set; } = DeviceLayout.DefaultRows;
@@ -30,7 +30,10 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows
     }
 
     /// <summary>[S-16666] One grid cell between two devices, so each stands as a card of its own.</summary>
-    public bool Gap { get; set; }
+    public int Gap { get; set; }
+
+    /// <summary>[S-16672] The parts its items leave out.</summary>
+    public List<DevicePart> HiddenParts { get; set; } = [];
 
     /// <summary>[S-10003] The thresholds offered: the tray's 20 % in the middle.</summary>
     public static readonly IReadOnlyList<int> Thresholds = [10, 15, 20, 25, 30];
@@ -68,6 +71,8 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows
             Rows = rows;
         }
 
+        Gap = DeviceOrder.Repaired(Gap, "deviceBatteries", notes);
+        HiddenParts = DeviceOrder.Repaired(HiddenParts, "deviceBatteries", notes);
         return notes;
     }
 
@@ -76,6 +81,7 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows
         LowThreshold = LowThreshold,
         ShowCharging = ShowCharging,
         Gap = Gap,
+        HiddenParts = [.. HiddenParts],
         Rows = Rows,
     };
 }

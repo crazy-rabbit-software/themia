@@ -27,7 +27,7 @@ public sealed class DriveMenuTests
         var menu = new WidgetMenuLines(() => _saves++);
         DriveMenu.Lines(menu, OneDriveKinds.Drive, config, Drives);
         Assert.True(menu.Lines[0].IsSeparator);
-        return Assert.Single(menu.Lines, l => !l.IsSeparator);
+        return menu.Lines.First(l => !l.IsSeparator);
     }
 
     [Fact]

@@ -66,7 +66,7 @@ public static class DeviceBatteriesItems
             _ => DeviceBatteriesStr.DeviceBatteries_Empty.Text(locale),
         };
         var role = status == DeviceBatteryStatus.Failed ? ColourRole.Caution : ColourRole.TextSecondary;
-        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(Glyphs.Devices, role), DeviceReading.None(), why, 0, ColourRole.Accent, why);
+        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(Glyphs.Devices, role), null, why, null, ColourRole.Accent, why);
     }
 
     /// <summary>[S-10005] A device's menu: Windows' Bluetooth &amp; devices page, and Refresh.</summary>

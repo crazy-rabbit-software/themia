@@ -17,7 +17,7 @@ public enum BluetoothSetting
 /// <summary>
 /// Paired Bluetooth devices, their connection state, and their battery where they report one, as device items ([S-16660]).
 /// </summary>
-public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSetting>, IKitRows, IDeviceListConfig
+public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSetting>, IKitRows, IDeviceListConfig, IDeviceParts
 {
     /// <summary>[S-11310] [S-16660] How many devices a new card stands (its natural height), 1 to 20; a new list three.</summary>
     public int Rows { get; set; } = DeviceLayout.DefaultRows;
@@ -36,16 +36,6 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
         }
     }
 
-    /// <summary>
-    /// [S-3252] Show each connected device's battery: the level Windows holds for it, else a GATT read.
-    /// <para>
-    /// Off-by-choice is a real option: the GATT read opens a BLE connection per device and is by far the
-    /// slowest part of a refresh, so a desktop that only wants to know what is connected should not
-    /// have to pay for it.
-    /// </para>
-    /// </summary>
-    public bool ShowBattery { get; set; } = true;
-
     /// <summary>[S-1257] Draw the connection word (the original's "connection" metric) in the item's line.</summary>
     public bool ShowConnection { get; set; } = true;
 
@@ -58,8 +48,14 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
     /// <summary>List only what is connected, rather than everything ever paired.</summary>
     public bool ConnectedOnly { get; set; }
 
-    /// <summary>[S-16661] One grid cell between two devices, so each stands as a card of its own.</summary>
-    public bool Gap { get; set; }
+    /// <summary>[S-16673] The grid blocks between two devices (0..4), each then a card of its own.</summary>
+    public int Gap { get; set; }
+
+    /// <summary>
+    /// [S-16672] The parts its items leave out. [S-3252] With both the percentage and the bar left out no battery is read:
+    /// the GATT read opens a BLE connection per device, the slowest part of a refresh.
+    /// </summary>
+    public List<DevicePart> HiddenParts { get; set; } = [];
 
     /// <summary>[S-16661] The devices hidden by their endpoint ids: the checklist's off ones.</summary>
     public List<string> Hidden { get; set; } = [];
@@ -69,7 +65,7 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
 
     /// <summary>[S-16660] What an item says besides its name.</summary>
     [JsonIgnore]
-    public Themia.Widget.Bluetooth.BluetoothShows Shows => new(ShowBattery, DrawsConnection, ShowSignal);
+    public Themia.Widget.Bluetooth.BluetoothShows Shows => new(Themia.Widget.Bluetooth.BluetoothItems.ReadsBattery(HiddenParts), DrawsConnection, ShowSignal);
 
     /// <summary>
     /// [S-3256] Whether an item says its connection: never while only connected devices are listed,
@@ -91,11 +87,11 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
 
     public override WidgetConfig Clone() => new BluetoothConfig
     {
-        ShowBattery = ShowBattery,
         ShowConnection = ShowConnection,
         ShowSignal = ShowSignal,
         ConnectedOnly = ConnectedOnly,
         Gap = Gap,
+        HiddenParts = [.. HiddenParts],
         Hidden = [.. Hidden],
         Order = [.. Order],
         Rows = Rows,
@@ -107,6 +103,8 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
         var notes = new List<string>();
         Hidden = DeviceOrder.Repaired(Hidden, "bluetooth", "hidden", notes);
         Order = DeviceOrder.Repaired(Order, "bluetooth", "order", notes);
+        Gap = DeviceOrder.Repaired(Gap, "bluetooth", notes);
+        HiddenParts = DeviceOrder.Repaired(HiddenParts, "bluetooth", notes);
         if (Rows != KitSizing.ClampRows(Rows))
         {
             notes.Add($"bluetooth rows {Rows} out of range");
@@ -118,13 +116,13 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
 }
 
 /// <summary>[S-16662] One paired Bluetooth device's widget: which device and what its face says besides its battery.</summary>
-public sealed class BluetoothDeviceConfig : WidgetConfig
+public sealed class BluetoothDeviceConfig : WidgetConfig, IDeviceParts
 {
     /// <summary>[S-16662] The device's endpoint id; empty for the first connected one (else the first paired).</summary>
     public string Device { get; set; } = string.Empty;
 
-    /// <summary>[S-3252] Its battery as the reading (off: the bar stays empty, no GATT read is asked for it).</summary>
-    public bool ShowBattery { get; set; } = true;
+    /// <summary>[S-16672] The parts its face leaves out (its percentage and bar both: no battery is read).</summary>
+    public List<DevicePart> HiddenParts { get; set; } = [];
 
     /// <summary>[S-1257] Its connection word in the line.</summary>
     public bool ShowConnection { get; set; } = true;
@@ -134,12 +132,12 @@ public sealed class BluetoothDeviceConfig : WidgetConfig
 
     /// <summary>[S-16662] What its face says besides its name.</summary>
     [JsonIgnore]
-    public Themia.Widget.Bluetooth.BluetoothShows Shows => new(ShowBattery, ShowConnection, ShowSignal);
+    public Themia.Widget.Bluetooth.BluetoothShows Shows => new(Themia.Widget.Bluetooth.BluetoothItems.ReadsBattery(HiddenParts), ShowConnection, ShowSignal);
 
     public override WidgetConfig Clone() => new BluetoothDeviceConfig
     {
         Device = Device,
-        ShowBattery = ShowBattery,
+        HiddenParts = [.. HiddenParts],
         ShowConnection = ShowConnection,
         ShowSignal = ShowSignal,
     };

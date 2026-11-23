@@ -106,7 +106,7 @@ internal sealed partial class DrivesView : Grid, IWidgetView, IWidgetSizeAware, 
         var drives = DrivesRules.Arrange(_held ?? _host.Drives.Drives, _kind, _config);
         IReadOnlyList<DeviceItem> items = drives.Count > 0 ? [.. drives.Select(d => DeviceItems.Drive(locale, d))] : [Nothing(locale)];
         _list.Gap = _config.Gap;
-        _list.Show(items, stock: _held is not null || _host.IsPreview);
+        _list.Show(items, _config.HiddenParts, stock: _held is not null || _host.IsPreview);
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ internal sealed partial class DrivesView : Grid, IWidgetView, IWidgetSizeAware, 
     private DeviceItem Nothing(Locale locale)
     {
         var why = _kind.Nothing(locale);
-        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(_kind.Glyph), DeviceReading.None(), why, 0, ColourRole.Accent, why);
+        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(_kind.Glyph), null, why, null, ColourRole.Accent, why);
     }
 
     private DriveEntry? DriveOf(DeviceItem item) => item.Icon.Drive;
