@@ -1,4 +1,6 @@
+using Themia.Core.Widgets;
 using System.Text.Json.Serialization;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Core.Model;
 using Themia.Sdk.Devices;
@@ -10,10 +12,30 @@ namespace Themia.Widget.DeviceBatteries;
 /// [S-10000] [S-10004] What one Device batteries widget remembers: where a battery counts as low, and
 /// whether a device on its charger is listed. Every property is stored; copy each in <see cref="Clone"/>.
 /// </summary>
-public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows, IDeviceParts
+public sealed class DeviceBatteriesConfig : WidgetConfig, IItemList, IStyled
 {
     /// <summary>[S-11028] [S-16665] How many devices a new card stands (its natural height), 1..20; a new list three.</summary>
-    public int Rows { get; set; } = DeviceLayout.DefaultRows;
+    public int Rows { get; set; } = ItemLayout.DefaultRows;
+
+    /// <summary>[S-16940] How its devices are arranged: the item base's styles, the device list first.</summary>
+    public ItemStyle Style { get; set; } = ItemStyle.List;
+
+    [JsonIgnore]
+    ItemStyle IItemList.Arrangement => Style;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => ItemStyles.All;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (ItemStyle)value;
+    }
+
+    /// <summary>[S-16952] A table's column titles over its rows.</summary>
+    public bool ColumnTitles { get; set; } = true;
+
+    /// <summary>[S-16950] The parts' order: a table's columns.</summary>
+    public List<ItemPart> PartOrder { get; set; } = [];
 
     /// <summary>[S-16665] A device item has its one face: the menu offers no lines.</summary>
     [JsonIgnore]
@@ -33,7 +55,7 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows, IDeviceParts
     public int Gap { get; set; }
 
     /// <summary>[S-16672] The parts its items leave out.</summary>
-    public List<DevicePart> HiddenParts { get; set; } = [];
+    public List<ItemPart> HiddenParts { get; set; } = [];
 
     /// <summary>[S-10003] The thresholds offered: the tray's 20 % in the middle.</summary>
     public static readonly IReadOnlyList<int> Thresholds = [10, 15, 20, 25, 30];
@@ -64,15 +86,7 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows, IDeviceParts
             LowThreshold = DefaultThreshold;
         }
 
-        var rows = KitSizing.ClampRows(Rows);
-        if (rows != Rows)
-        {
-            notes.Add($"deviceBatteries: {Rows} rows is outside {KitSizing.MinRows}..{KitSizing.MaxRows}; using {rows}");
-            Rows = rows;
-        }
-
-        Gap = DeviceOrder.Repaired(Gap, "deviceBatteries", notes);
-        HiddenParts = DeviceOrder.Repaired(HiddenParts, "deviceBatteries", notes);
+        notes.AddRange(ItemOrder.Repair(this, "deviceBatteries"));
         return notes;
     }
 
@@ -82,6 +96,9 @@ public sealed class DeviceBatteriesConfig : WidgetConfig, IKitRows, IDeviceParts
         ShowCharging = ShowCharging,
         Gap = Gap,
         HiddenParts = [.. HiddenParts],
+        PartOrder = [.. PartOrder],
         Rows = Rows,
+        Style = Style,
+        ColumnTitles = ColumnTitles,
     };
 }

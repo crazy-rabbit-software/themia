@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Themia.App.Shell;
 using Themia.Core.Links;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Sdk.Devices;
 using Themia.Sdk.WinUI;
@@ -26,7 +27,7 @@ public sealed class DeviceBatteriesModule : IWidgetModule
         Label = DeviceBatteriesStr.DeviceBatteries_Label.Local(),
         Description = DeviceBatteriesStr.DeviceBatteries_Desc.Local(),
         Glyph = Glyphs.Devices,
-        Sizing = c => DeviceLayout.Sizing(((DeviceBatteriesConfig)c).Rows, ((DeviceBatteriesConfig)c).Gap),
+        Sizing = c => ItemLayout.Sizing((DeviceBatteriesConfig)c, DeviceItems.Parts, reading: true),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDevice], [LinkTopicId.HoveredDevice]),
         Add = new(AddFolderId.Devices, 1, 3),

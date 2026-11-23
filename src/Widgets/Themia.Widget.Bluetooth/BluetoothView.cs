@@ -7,14 +7,15 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk.Devices;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Devices;
+using Themia.Sdk.Items;
+using Themia.Sdk.WinUI.Items;
 using Themia.Widget.Bluetooth;
 using Themia.Core.Geometry;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// The paired Bluetooth devices as device items (<see cref="DeviceList"/>, [S-16660]) over the host's one pass over the
+/// The paired Bluetooth devices as items (<see cref="ItemList"/>, [S-16660]) over the host's one pass over the
 /// radios (<see cref="IWidgetHost.Bluetooth"/>, [S-4474]: every Bluetooth widget shares it, a connected device's battery the
 /// host's one battery inventory's), each mapped by <see cref="BluetoothItems"/>.
 /// <para>
@@ -32,7 +33,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     public CardOpen? Opens => BluetoothModule.Opens;
 
     private readonly IWidgetHost _host;
-    private readonly DeviceList _list;
+    private readonly ItemList _list;
     private BluetoothConfig _config = new();
     private IDisposable? _watch;
     private Ticker? _ticker;
@@ -45,7 +46,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     public BluetoothView(IWidgetHost host)
     {
         _host = host;
-        _list = new DeviceList(host)
+        _list = new ItemList(host)
         {
             Menu = _ => BluetoothItems.Menu(Refresh),
             Decorate = LinkItem,
@@ -59,7 +60,7 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
     public event Action? GroundsChanged;
 
     /// <summary>[S-16661] With the gap on, every device's box (the list stands the inset over the view's top).</summary>
-    public IReadOnlyList<DipRect>? Grounds => _list.Grounds?.Select(r => new DipRect(r.X, r.Y + _list.Margin.Top, r.Width, r.Height)).ToList();
+    public IReadOnlyList<DipRect>? Grounds => _list.ViewGrounds;
 
     /// <summary>[S-1259] Refresh: read the radios again now.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), Refresh)];
@@ -130,13 +131,13 @@ internal sealed partial class BluetoothView : Grid, IWidgetView, IWidgetOpens, I
         var locale = Strings.Current;
         // [S-16661] The devices not hidden, the user's order first.
         var devices = snapshot.Status == BluetoothStatus.Ok
-            ? DeviceOrder.Arrange(BluetoothRules.Arrange(snapshot.Devices, _config.ConnectedOnly, locale), d => d.Id, _config.Hidden, _config.Order)
+            ? ItemOrder.Arrange(BluetoothRules.Arrange(snapshot.Devices, _config.ConnectedOnly, locale), d => d.Id, _config.Hidden, _config.Order)
             : [];
-        IReadOnlyList<DeviceItem> items = devices.Count > 0
+        IReadOnlyList<Item> items = devices.Count > 0
             ? [.. devices.Select(d => BluetoothItems.Item(d, _config.Shows, locale))]
             : [BluetoothItems.Empty(snapshot.Status, locale)];
-        _list.Gap = _config.Gap;
-        _list.Show(items, _config.HiddenParts, stock: true);
+        _list.PartTitle = ItemMenuLines.DevicePartName;
+        _list.Show(items, _config, DeviceItems.Parts, stock: true, reading: true);
     }
 
     /// <summary>Hold <paramref name="snapshot"/> in place of the radio's.</summary>

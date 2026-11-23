@@ -1,6 +1,7 @@
 using Themia.App.Shell;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
+using Themia.Sdk.Items;
 using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
 
@@ -34,7 +35,7 @@ public static class DeviceBatteriesItems
     /// or below <paramref name="threshold"/>), the kind and "Charging" (where its source says so) its line, the kind's
     /// glyph its icon, and all of it in the tooltip.
     /// </summary>
-    public static DeviceItem Item(DeviceBatteryRow row, int threshold, Locale locale)
+    public static Item Item(DeviceBatteryRow row, int threshold, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(row);
 
@@ -42,22 +43,21 @@ public static class DeviceBatteriesItems
         var kind = KindLabel(row.Kind, locale);
         var line = row.Charging == true ? $"{kind} · {DeviceBatteriesStr.DeviceBatteries_Charging.Text(locale)}" : kind;
         var name = row.Name.Length > 0 ? row.Name : DeviceBatteriesStr.DeviceBatteries_Unknown.Text(locale);
-        return new DeviceItem(
+        return new Item(
             row.Id,
             name,
-            new DeviceIcon(DeviceItems.Glyph(row.Kind), ColourRole.TextPrimary),
-            DeviceReading.Percent(locale, row.Percent / 100.0),
+            new ItemLead(DeviceItems.Glyph(row.Kind), ColourRole.TextPrimary),
             line,
-            row.Percent / 100.0,
-            DeviceItems.BatteryRole(row.Percent, threshold),
-            $"{name} · {percent} · {line}");
+            ItemEnd.Percent(locale, row.Percent / 100.0),
+            new ItemBar(row.Percent / 100.0, 0, DeviceItems.BatteryRole(row.Percent, threshold)),
+            Tooltip: $"{name} · {percent} · {line}");
     }
 
     /// <summary>
     /// [S-10000] [S-16665] WR-10: no battery to show keeps the face, one item: the devices glyph, "--", the empty bar and why
     /// ("No connected device reports its battery", "Couldn't read the batteries", reading).
     /// </summary>
-    public static DeviceItem Empty(DeviceBatteryStatus status, Locale locale)
+    public static Item Empty(DeviceBatteryStatus status, Locale locale)
     {
         var why = status switch
         {
@@ -66,7 +66,7 @@ public static class DeviceBatteriesItems
             _ => DeviceBatteriesStr.DeviceBatteries_Empty.Text(locale),
         };
         var role = status == DeviceBatteryStatus.Failed ? ColourRole.Caution : ColourRole.TextSecondary;
-        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(Glyphs.Devices, role), null, why, null, ColourRole.Accent, why);
+        return new Item(string.Empty, string.Empty, new ItemLead(Glyphs.Devices, role), why, Tooltip: why);
     }
 
     /// <summary>[S-10005] A device's menu: Windows' Bluetooth &amp; devices page, and Refresh.</summary>

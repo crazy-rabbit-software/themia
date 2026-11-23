@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Themia.App.Widgets;
 using Themia.Core.Links;
+using Themia.Sdk.Items;
 using Themia.Sdk.Devices;
 
 namespace Themia.Widget.DeviceBatteries;
@@ -21,7 +22,7 @@ internal sealed partial class DeviceBatteriesView
     private LinkLights<DeviceLink> Devices => _devices ??= new LinkLights<DeviceLink>(_links, LinkTopics.HoveredDevice);
 
     /// <summary>An item the list drew: its device; the face with no battery to show is none.</summary>
-    private void LinkItem(DeviceItem item, FrameworkElement view)
+    private void LinkItem(Item item, FrameworkElement view)
     {
         if (item.Id.Length > 0)
         {

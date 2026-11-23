@@ -1,3 +1,5 @@
+using Themia.Sdk.Items;
+using Themia.Sdk.WinUI.Items;
 using Microsoft.UI.Xaml;
 using Themia.Core.Links;
 using Themia.Core.Widgets;
@@ -22,7 +24,7 @@ internal sealed partial class BluetoothView : IWidgetSurfaceAware
     public void Bind(IWidgetSurface surface) => _surface = surface;
 
     /// <summary>An item the list drew: its device (the item's id is its endpoint id); the face of an empty list is none.</summary>
-    private void LinkItem(DeviceItem item, FrameworkElement view)
+    private void LinkItem(Item item, FrameworkElement view)
     {
         if (item.Id.Length > 0)
         {

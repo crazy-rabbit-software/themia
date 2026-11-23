@@ -38,21 +38,21 @@ public class BluetoothLadderTests
     {
         var config = new BluetoothConfig();
         var pen = BluetoothItems.Item(new BluetoothDeviceEntry("Slim Pen", "pen", true, BluetoothDeviceKind.Pen, 18), config.Shows, Locale.En);
-        Assert.Equal(("Slim Pen", "18", "Pen · Connected", Themia.Sdk.Kit.ColourRole.Critical), (pen.Name, pen.Reading!.Value.Value, pen.Line, pen.FillRole));
-        Assert.Equal(0.18, pen.Fill!.Value, 6);
+        Assert.Equal(("Slim Pen", "18", "Pen · Connected", Themia.Sdk.Kit.ColourRole.Critical), (pen.Title, pen.End!.Value, pen.Subtitle, pen.Bar!.Role));
+        Assert.Equal(0.18, pen.Bar!.To, 6);
 
         var phone = BluetoothItems.Item(new BluetoothDeviceEntry("Pixel", "phone", false, BluetoothDeviceKind.Phone, null), config.Shows, Locale.En);
         Assert.True(phone.Absent);
         // [S-16670] No battery is no percentage and no bar: not drawn, never greyed out.
-        Assert.Equal(("Phone · Paired", (double?)null, Themia.Sdk.Kit.ColourRole.TextSecondary), (phone.Line, phone.Fill, phone.Icon.Role));
+        Assert.Equal(("Phone · Paired", (Themia.Sdk.Items.ItemBar?)null, Themia.Sdk.Kit.ColourRole.TextSecondary), (phone.Subtitle, phone.Bar, phone.Lead!.Role));
 
-        var noBattery = BluetoothItems.Item(new BluetoothDeviceEntry("Pixel", "phone", true, BluetoothDeviceKind.Phone, 50), new BluetoothConfig { HiddenParts = [Themia.Sdk.Devices.DevicePart.Reading, Themia.Sdk.Devices.DevicePart.Bar] }.Shows, Locale.En);
-        Assert.Null(noBattery.Reading);
-        Assert.Null(noBattery.Fill);
+        var noBattery = BluetoothItems.Item(new BluetoothDeviceEntry("Pixel", "phone", true, BluetoothDeviceKind.Phone, 50), new BluetoothConfig { HiddenParts = [Themia.Sdk.Items.ItemPart.End, Themia.Sdk.Items.ItemPart.Bar] }.Shows, Locale.En);
+        Assert.Null(noBattery.End);
+        Assert.Null(noBattery.Bar);
 
         var off = BluetoothItems.Empty(BluetoothStatus.RadioOff, Locale.En);
         Assert.True(off.Absent);
-        Assert.Equal(BluetoothRules.StatusMessage(BluetoothStatus.RadioOff, Locale.En), off.Line);
+        Assert.Equal(BluetoothRules.StatusMessage(BluetoothStatus.RadioOff, Locale.En), off.Subtitle);
     }
 
     [Theory]

@@ -1,4 +1,5 @@
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.App.Widgets;
 using Themia.Core.Localization;
@@ -115,9 +116,9 @@ public sealed class DeviceBatteriesTests
         var low = DeviceBatteriesItems.Item(new DeviceBatteryRow("a", "Mouse", DeviceKind.Mouse, 20, null, DeviceBatterySource.DeviceContainer), 20, Locale.En);
         var fine = DeviceBatteriesItems.Item(new DeviceBatteryRow("b", "Mouse", DeviceKind.Mouse, 21, null, DeviceBatterySource.DeviceContainer), 20, Locale.En);
 
-        Assert.Equal(ColourRole.Critical, low.FillRole);
-        Assert.Equal(ColourRole.Accent, fine.FillRole);
-        Assert.Equal(("20", "%", (double?)0.2), (low.Reading!.Value.Value, low.Reading.Value.Unit, low.Fill));
+        Assert.Equal(ColourRole.Critical, low.Bar!.Role);
+        Assert.Equal(ColourRole.Accent, fine.Bar!.Role);
+        Assert.Equal(("20", "%", (double?)0.2), (low.End!.Value, low.End.Unit, (double?)low.Bar!.To));
     }
 
     [Fact]
@@ -145,13 +146,13 @@ public sealed class DeviceBatteriesTests
     {
         var item = DeviceBatteriesItems.Item(new DeviceBatteryRow("pad", "Xbox Wireless Controller", DeviceKind.Gamepad, 64, true, DeviceBatterySource.GameController), 20, Locale.En);
 
-        Assert.Equal("Xbox Wireless Controller", item.Name);
-        Assert.Equal(DeviceItems.Glyph(DeviceKind.Gamepad), item.Icon.Glyph);
-        Assert.Equal("Controller · Charging", item.Line);
+        Assert.Equal("Xbox Wireless Controller", item.Title);
+        Assert.Equal(DeviceItems.Glyph(DeviceKind.Gamepad), item.Lead!.Glyph);
+        Assert.Equal("Controller · Charging", item.Subtitle);
 
         var none = DeviceBatteriesItems.Empty(DeviceBatteryStatus.Ok, Locale.En);
         Assert.True(none.Absent);
-        Assert.Equal(DeviceBatteriesStr.DeviceBatteries_Empty.Text(Locale.En), none.Line);
+        Assert.Equal(DeviceBatteriesStr.DeviceBatteries_Empty.Text(Locale.En), none.Subtitle);
     }
 
     [Fact]
@@ -183,7 +184,7 @@ public sealed class DeviceBatteriesTests
         DeviceBatteriesMenu.Lines(menu, config);
 
         Assert.Equal(
-            [DeviceBatteriesStr.DeviceBatteries_Settings_Low.Text(), DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), Str.Devices_Parts.Text(), Str.Devices_Gap.Text(), Str.Kit_Rows.Text()],
+            [DeviceBatteriesStr.DeviceBatteries_Settings_Low.Text(), DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), Str.Items_Parts.Text(), Str.Items_Gap.Text(), Str.Kit_Rows.Text()],
             menu.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));
 
         menu.Lines[1].Action!();

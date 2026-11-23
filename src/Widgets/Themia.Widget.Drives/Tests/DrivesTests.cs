@@ -2,6 +2,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Tests;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Sdk.Devices;
 using Xunit;
@@ -88,7 +89,7 @@ public sealed class DrivesTests
     public void S16650_a_shown_drive_is_a_device_item()
     {
         var items = DrivesRules.Arrange(Walk, DriveListKinds.NetworkDrives, new NetworkDrivesConfig()).Select(d => DeviceItems.Drive(Locale.En, d)).ToList();
-        Assert.Equal(["projects (\\\\server) (W:)", "media (\\\\nas) (Z:)"], items.Select(i => i.Name));
+        Assert.Equal(["projects (\\\\server) (W:)", "media (\\\\nas) (Z:)"], items.Select(i => i.Title));
         Assert.True(items[^1].Absent);
     }
 }

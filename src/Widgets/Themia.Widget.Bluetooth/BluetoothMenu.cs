@@ -7,7 +7,8 @@ using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Bluetooth;
 using Themia.Sdk.Devices;
-using Themia.Sdk.WinUI.Devices;
+using Themia.Sdk.Items;
+using Themia.Sdk.WinUI.Items;
 
 namespace Themia.App.Shell.Config;
 
@@ -29,7 +30,7 @@ internal static class BluetoothMenu
         menu.Lines.Add(SettingsLine.Separator);
         var locale = Strings.Current;
         var paired = BluetoothList.Now() is { Status: BluetoothStatus.Ok } pass ? BluetoothRules.Arrange(pass.Devices, config.ConnectedOnly, locale) : [];
-        DeviceMenuLines.List(menu, config, [.. paired.Select(d => new DeviceChoice(d.Id, d.Name, DeviceItems.Glyph((DeviceKind)d.Kind)))], Own(menu, config.Offers(BluetoothSetting.Connection), config.ShowConnection, on => config.ShowConnection = on, config.ShowSignal, on => config.ShowSignal = on));
+        ItemMenuLines.List(menu, config, DeviceItems.Parts, [.. paired.Select(d => new ItemChoice(d.Id, d.Name, DeviceItems.Glyph((DeviceKind)d.Kind)))], Own(menu, config.Offers(BluetoothSetting.Connection), config.ShowConnection, on => config.ShowConnection = on, config.ShowSignal, on => config.ShowSignal = on), ItemMenuLines.DevicePartName);
     }
 
     /// <summary>[S-16672] A Bluetooth item's own parts in the parts' section: its connection word (where it can say one), its signal.</summary>
@@ -69,6 +70,6 @@ internal static class BluetoothMenu
         var held = options.First(o => string.Equals(o.Value, config.Device, StringComparison.OrdinalIgnoreCase)).Value;
         var lines = menu.Lines;
         lines.Add(menu.Choice(Glyphs.Bluetooth, BluetoothStr.Bluetooth_Device_Which.Text(), options, held, value => config.Device = value));
-        lines.Add(DeviceMenuLines.Parts(menu, config, Own(menu, true, config.ShowConnection, on => config.ShowConnection = on, config.ShowSignal, on => config.ShowSignal = on)));
+        lines.Add(ItemMenuLines.Parts(menu, config, DeviceItems.Parts, Own(menu, true, config.ShowConnection, on => config.ShowConnection = on, config.ShowSignal, on => config.ShowSignal = on), ItemMenuLines.DevicePartName));
     }
 }

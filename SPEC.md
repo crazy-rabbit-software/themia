@@ -15158,7 +15158,86 @@ Moved with the widget into its module: `src/Widgets/Themia.Widget.Stopwatch/SPEC
   connected".
 - [S-4671], [S-4675], [S-4672], [S-4673], [S-6274], [S-4674]: moved with the Drive widget into its module's `SPEC.md` (`src/Widgets/Themia.Widget.Drive/`).
 
-### Device items (DEVICES)
+### The item base and device items (ITEMS, DEVICES)
+
+The owner, 2026-11-23, after the device items' design: "notifications and upcoming meetings should get the same base
+widget as the bluetooth and drive devices for example. they have to share the base but they dont neccesarily need to have
+an icon as well. it is just so that they look as similar as possible. the meetings should get a join button on the right
+side for example instead of the percent thingy ... same should be done for email and contacts too, although contacts has
+the search box that should be kept. there should also be a base style where this data is shown as a table and not the
+list. the weather should be integrated into the same component too, the current weather forecast row view will be the new
+table view for this widget. (maybe you have to extend the shared widget too to support all of those because weather should
+not loose any features, be sure to implement this for all the other widgets too: row list, column list, grid view, list
+view (current bluetooth))". The device items below became the item base; their rules stand for every kind on it.
+
+- **[S-16940]** **One item base.** The device widgets, the meetings, the notifications, mail, contacts and the weather
+  forecast draw their items on one base: the SDK's `Themia.Sdk/Items` (`Item`, `ItemLayout`, `ItemTable`, `ItemOrder`,
+  `ItemScroll`, `ItemStyles`) and WinUI `Themia.Sdk.WinUI/Items` (`ItemView`, `ItemList`, `ItemFace`, `ItemLeadSlot`,
+  `ItemMenuLines`). An item has slots: a lead (an icon, a drive's picture, a monogram, an app's icon; optional), a title, a
+  subtitle under it, an end (a reading "55 %", an action button "Join", or a time or value), a bar under all and a small
+  note; a slot it has none of takes no room. A widget maps its own data onto it and keeps its own data, actions and samples.
+  Its styles are the base's arrangements (`ItemStyle`, the style picker's, [S-6001]): **List** (the device list's), **Row
+  list**, **Column list**, **Grid** and **Table**; every kind on the base offers all of them. Tests `ItemBaseTests`.
+- **[S-16941]** **List**: each item its own block stacked from the card's top edge ([S-16631], [S-16633]).
+- **[S-16942]** **Row list**: the items side by side from the card's left edge, each a column of its one width (the kind's,
+  else 140; the forecast's 60) from the card's top edge to its foot: its title, its 32 lead, its end, its bar standing up in
+  the room the parts leave, its subtitle (Body, secondary) and its note (Caption), 4 apart, centred; one height (its parts'
+  and the insets: the forecast's 184 with the rain), the last column cut by the card's right edge. Tests `ItemBaseTests.S16942_`.
+- **[S-16943]** **Column list**: the items in one column of compact rows, the family's row of one line (28, 30 on the default
+  grid) or two with a subtitle (40): a 16 lead, the title and its subtitle, the end in Body; the bar's track 4 under the row
+  where it has one. Tests `ItemBaseTests.S16946_`.
+- **[S-16944]** **Grid**: the items as cards of one size (the kind's, else 140 wide and its parts' height: the title, the 32
+  lead, the end, the subtitle, the note, a bar's track under them, 8 over and under), from the card's left and top edges, the
+  whole columns the width holds (the room past them empty, WR-4), lines down as the items fill, the last cut by the foot; the
+  block gap between them both ways. A new one three across. Tests `ItemBaseTests.S16944_`.
+- **[S-16945]** **Table** (owner: "a base style where this data is shown as a table"; the forecast's Rows view is its model):
+  the items as rows of 28 (30 on the default grid) from the card's top edge, their parts as columns ([S-16956]), under the
+  column titles (Caption, secondary, a band one row tall) where **Column titles** is on (the default); a table's rows touch:
+  no gap line. 260..720 wide, a new one 320. Tests `ItemBaseTests.S16945_`.
+- **[S-16946]** **A part left out is no part** ([S-16670] for every kind): which parts a list draws (`ItemShape`: the kind's
+  parts less the ones left out) decides its items' one size: a List item without a bar is 60, without a lead or a reading its
+  title over its subtitle (Body, Caption), never under an action's 28 button. Tests `ItemBaseTests.S16946_`.
+- **[S-16947]** **The lead** (`ItemLeadSlot`): a glyph in its role, a drive's own picture ([S-16631]), a person's monogram
+  (their initials on the subtle fill, round, [S-586]) or a picture only its widget draws (an app's icon); 36 in a List item,
+  16 in a compact row and a table, 32 in a column and a card.
+- **[S-16948]** **The end** (`ItemEnd`): a reading (its figure and unit, at 28 in a List item), a text in its role with an
+  optional second value (a day's low after its high), or an action's button (the accent's, "Join"): the button acts, never in
+  edit mode or a render, and a click elsewhere on the item opens it.
+- **[S-16949]** **The bar** (`ItemBar`): the share from..to of its track in its role (a drive's load, a battery, a day's
+  range); an item with a bar and nothing read keeps its empty track (WR-10).
+- **[S-16950]** **Each item shows, its parts in order** (owner, 2026-11-23: "Table columns: You pick and order"): the parts
+  section on every item widget's page is one checklist of the kind's parts in their order (`ItemMenuLines.Parts`; ticked
+  shown, dragged or Ctrl+Up/Down to order them, `IItemParts.PartOrder`), then the kind's own lines; in the table each part
+  shown is a column in that order (`ItemOrder.Shown`; never none: with every part left out, the title). Tests
+  `ItemBaseTests.S16950_`.
+- **[S-16951]** **One list config shape** (`IItemList`): its style, gap, rows, parts and their order and its column titles,
+  repaired by one rule (`ItemOrder.Repair`); items the user picks one by one (drives, devices) add `IItemChoice` (hidden,
+  order, [S-16636]); data lists (mail, meetings, notifications) are their kinds' filters and order instead.
+- **[S-16952]** **Column titles** (a table's, on by default): a part's words over its column, the base's ("Icon", "Name",
+  "Details", "Value", "Bar", "Note") or the kind's own ("Percentage", "From", "Subject"). The page shows **Column titles** in
+  the table's place of **Gap between items**.
+- **[S-16953]** A kind's own measures (`ItemCells`): a row list's column width and a grid's card where the base's do not fit
+  its data (the forecast's 60 columns and 80 × 100 cells).
+- **[S-16954]** **One lay** (`ItemLayout.Lay`): each arrangement lays its items at their one size from the card's edges,
+  every edge on a whole device pixel, the boxes the card reaches only (`ItemPlace`); a list's sizing in each arrangement
+  is `ItemLayout.Sizing` (its Rows of items, the gap between them; a row list's side by side at one height, a grid's in lines
+  of three, a table's under its titles). Tests `ItemBaseTests.S16634_S16954_`.
+- **[S-16955]** **Scrolled by whole items** (the forecast's [S-16591] for every item list): the items past the card are
+  scrolled to by whole lines (a row list's columns across, the others' lines down; `ItemScroll`): the wheel and the
+  touchpad a line a notch (a touchpad's small turns add up), the keys move the cursor and the list follows it (a grid's Up
+  and Down a line, Page Up/Down a page, Home/End); the first line shown is whole at the card's edge, the last turn stands
+  the last at the far edge; the rows fade at the foot while more are below ([S-1281]). Tests `ItemBaseTests.S16955_`.
+- **[S-16956]** **A table's columns line up** ([S-16590] for every table, `ItemTable.Columns`): every row's columns are the
+  same: the lead its 16, each text column its widest text on any row (its title's too), the end on the row's end in tabular
+  figures, the bar what the row leaves and never under its share (32 % of the row, at most 140); with no bar the title takes
+  what is left. Where the texts do not fit they give way together, each in proportion to its width (cut with its ellipsis).
+  Tests `ItemBaseTests.S16956_`.
+- **[S-16957]** **One item's face** (`ItemFace`): a kind that shows one item (Drive, a Bluetooth device, the Meeting, the
+  Contact) draws one List item from the card's top edge, its card one item tall (`ItemLayout.Face`), so an item looks the
+  same alone as in its list ([S-16637]).
+
+Device items (the device family, on the item base):
+
 
 The owner, 2026-11-23: "in terms of design, the devices like the bluetooth devices or drives or network drives or usb
 sticks all have a very different design although they are actually very similar (usb drives, network drives, and drives
@@ -15174,9 +15253,8 @@ widget's individuality, WR-16 retired; this shared design is the device family's
 
 - **[S-16630]** **One device design.** The device widgets are one family on one item: Drive, USB stick, Network drive and
   Bluetooth device (one device each), the lists of drives, USB sticks, network drives and Bluetooth devices, and Device
-  batteries. The item is the SDK's (`Themia.Sdk/Devices`: `DeviceItem`, `DeviceLayout`, `DeviceOrder`; WinUI
-  `Themia.Sdk.WinUI/Devices`: `DeviceItemView`, `DeviceFace`, `DeviceList`, `DeviceIconSlot`, `DeviceMenuLines`); a widget
-  maps its own data onto it and keeps its own actions. Network adapters are no device here (an adapter, not a drive).
+  batteries. The item is the item base's ([S-16940]; `DeviceItems` maps a drive, its parts and glyphs); a widget maps its
+  own data onto it and keeps its own actions. Network adapters are no device here (an adapter, not a drive).
 - **[S-16631]** **The item** (owner, 2026-11-23: "the subtext like x free of y space should be directly under the name of
   the drive, the name should be left aligned. from left to right: icon, then title and subtitle, then right aligned
   percentage, under all of them the progress bar."): in the card's inset the device's icon (36: a drive's own picture, else
@@ -15186,34 +15264,35 @@ widget's individuality, WR-16 retired; this shared design is the device family's
   is no proper spacing between the bottom border and the progress bar"). The one-device face ([S-16637]) is the same row.
   A network drive not connected (or connecting) keeps its bar, empty, under its "why" line (owner, 2026-11-23: "the
   network drives should show the progress bar even if they are not connected. otherwise they have empty looking space.");
-  it has no percentage. Tests `DeviceItemTests.S16631_`.
+  it has no percentage. Tests `ItemBaseTests.S16631_`.
 - **[S-16632]** The shared mappings (`DeviceItems`): a drive (its root, its name as This PC names it, the used share, the
   space line or why, the bar in the load's role, Caution from 70 %, Critical from 90 %, [S-4653]); a peripheral's glyph by
-  its kind; a battery's bar Critical at or below its low, never Caution for being full. Tests `DeviceItemTests.S16632_`.
+  its kind; a battery's bar Critical at or below its low, never Caution for being full. Tests `ItemBaseTests.S16632_`.
 - **[S-16633]** **One size, the last cut** (WR-4, WR-6): an item is 76 (the inset, 36, 12, the 4 track, the inset), 80 on
   the default grid, at every size of its card. A list lays them down (each the card's whole width from its top edge,
   touching, WR-1..WR-3, as many as the card reaches, the last cut by its foot), or across where the card holds one item's
-  height but two items' width (each 240 wide from the left edge, the last cut by the right edge) (`DeviceLayout.Lay`).
-  Items past the card are not drawn: the card shows what its box holds ([S-14410]). Tests `DeviceItemTests.S16633_`.
+  height but two items' width (each 240 wide from the left edge, the last cut by the right edge) (`ItemLayout.Lay`).
+  Items past the card are scrolled to ([S-16955]). Tests `ItemBaseTests.S16633_`.
 - **[S-16634]** **The block gap** ("Gap between items", none by default; [S-16673]): grid cells between two items, so each
   stands as a card of its own while the widget stays one and dynamic (items come and go with the devices). A list's sizing is its
   Rows of items down (three by default), the gap between them, one item at its least, 220..520 wide, a new one 300
-  (`DeviceLayout.Sizing`). Tests `DeviceItemTests.S16634_`.
-- **[S-16635]** **The list shell** (`DeviceList`): an item lights under the pointer and pressed (the item layer's row fill,
+  (`ItemLayout.Sizing`). Tests `ItemBaseTests.S16634_S16954_`.
+- **[S-16635]** **The list shell** (`ItemList`): an item lights under the pointer and pressed (the item layer's row fill,
   edge to edge, WR-13; only its fill changes, WR-12); a click opens what the item opens (a drive in File Explorer,
   Bluetooth & devices), never in edit mode or a render; a right click shows its menu; the keys walk the items (Up/Down,
   Left/Right, Home/End), Enter opens, the Menu key shows its menu, Delete is the list's own step (a drive's Eject), Escape
   lets go. A list with nothing to show keeps the face: one item, its kind's glyph, "--" and why (WR-10).
-- **[S-16636]** **One list config shape** (`IDeviceListConfig`): the devices hidden (by id: a drive's root, a device's
-  endpoint id), the user's order, the gap, the rows; the same lines on every list's page (`DeviceMenuLines.List`):
-  **Shown and order** ([S-16671]), **Each item shows** ([S-16672]), **Gap between items** ([S-16673]), **Rows**. Hidden devices are left out, the ordered ones first, the rest in the kind's
-  own order (`DeviceOrder`). Tests `DeviceItemTests.S16636_`.
-- **[S-16637]** **One device's face** (`DeviceFace`): Drive (its Bar style), USB stick, Network drive and Bluetooth device
+- **[S-16636]** **One list config shape** (`IItemList`, `IItemChoice`): the devices hidden (by id: a drive's root, a device's
+  endpoint id), the user's order, the style, the gap, the rows; the same lines on every list's page (`ItemMenuLines.List`):
+  **Shown and order** ([S-16671]), **Each item shows** ([S-16672]), **Gap between items** ([S-16673]; a table's **Column
+  titles**), **Rows**. Hidden devices are left out, the ordered ones first, the rest in the kind's own order (`ItemOrder`).
+  Tests `ItemBaseTests.S16636_`.
+- **[S-16637]** **One device's face** (`ItemFace`): Drive (its Bar style), USB stick, Network drive and Bluetooth device
   show one device item ([S-16631]) of the list's one size from the card's top edge, the card one item tall (80 on the
-  default grid), 220..520 wide and never narrower than its icon, widest details and percentage (`DeviceLayout.Face`), so a
+  default grid), 220..520 wide and never narrower than its icon, widest details and percentage (`ItemLayout.Face`), so a
   device looks the same alone as in its list (owner, 2026-11-23: "from left to right: icon, then title and subtitle, then
   right aligned percentage, under all of them the progress bar"). The card lights as the one item (its `OpensLight`).
-  Tests `DeviceItemTests.S16637_`, `DriveTests.S4672_`.
+  Tests `ItemBaseTests.S16637_`, `DriveTests.S4672_`.
 - **[S-16638]** A removed kind replaced in place takes the keys its merge sets (`MergeFrom.Sets`, a JSON object; a single
   metric's `{"trend":"Line"}`, its graph shown, [S-14713]); none for one that sets none (Removable drives as the USB sticks'
   list). Test `KindMergesTests.S16638_`.
@@ -15222,20 +15301,20 @@ widget's individuality, WR-16 retired; this shared design is the device family's
   Bluetooth device that reports no battery, a drive without figures) has no percentage and no bar, and a part the user
   left out is not drawn either; it takes no room and the others close up (never "--", never an empty track). The details
   say why a device has no reading ("Disconnected network drive", "Not connected", "Bluetooth is off"). Tests
-  `DeviceItemTests.S16670_`, `BluetoothLadderTests.S16660_`.
+  `ItemBaseTests.S16670_S16632_`, `BluetoothLadderTests.S16660_`.
 - **[S-16671]** **Shown and order, one list** (owner, 2026-11-23: "order and which items are shown should be combined."):
   the devices of the kind in the list's order, each its name with its box at its end (ticked shown, empty left out,
-  `Glyphs.Checked`/`Unchecked`), dragged up and down or Ctrl+Up/Down to order them (`DeviceMenuLines.Checklist`); a device
+  `Glyphs.Checked`/`Unchecked`), dragged up and down or Ctrl+Up/Down to order them (`ItemMenuLines.Checklist`); a device
   not there keeps its place in the order.
 - **[S-16672]** **What an item shows, one section** (owner, 2026-11-23: "settings of elements that are shown should be all
   grouped together under a section."): **Each item shows** holds a switch a part (Icon, Details, Percentage, Bar;
-  `DevicePart`, `IDeviceParts.HiddenParts`) and the kind's own (a Bluetooth item's connection word and signal), on every
+  `ItemPart`, `IItemParts.HiddenParts`, in their order, [S-16950]) and the kind's own (a Bluetooth item's connection word and signal), on every
   device widget's page, the one-device ones too. A Bluetooth widget reads no battery while both its percentage and bar are
   off ([S-3252]).
 - **[S-16673]** **The gap in blocks** (owner, 2026-11-23: "gap between items should be settable as blocks, from 0 to x
-  blocks."): **Gap between items** is a choice of None, 1, 2, 3 or 4 grid blocks (`DeviceLayout.MostGap`); 0 touching, 1+
+  blocks."): **Gap between items** is a choice of None, 1, 2, 3 or 4 grid blocks (`ItemLayout.MostGap`); 0 touching, 1+
   that many cells of desktop between two items, each item its own ground ([S-16640]); a stored gap outside it is held to it,
-  loudly. Tests `DeviceItemTests.S16673_`.
+  loudly. Tests `ItemBaseTests.S16673_`.
 - **[S-16640]** **Grounds** (`IWidgetGrounds`): a view drawn as several cards on one (a device list with its gap) names its
   items' boxes; the card's own ground (frost, fill, image, glass, grain, border) steps back and each box is painted as the
   card was (its fill and opacity, the frost of what lies behind it, its border at its weight, the card's corners), nothing

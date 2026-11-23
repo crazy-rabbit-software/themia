@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk;
-using Themia.Sdk.Devices;
+using Themia.Sdk.Items;
 using Themia.Sdk.Kit;
 
 namespace Themia.Core.Model;
@@ -17,10 +17,30 @@ public enum BluetoothSetting
 /// <summary>
 /// Paired Bluetooth devices, their connection state, and their battery where they report one, as device items ([S-16660]).
 /// </summary>
-public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSetting>, IKitRows, IDeviceListConfig, IDeviceParts
+public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSetting>, IItemList, IItemChoice, IStyled
 {
     /// <summary>[S-11310] [S-16660] How many devices a new card stands (its natural height), 1 to 20; a new list three.</summary>
-    public int Rows { get; set; } = DeviceLayout.DefaultRows;
+    public int Rows { get; set; } = ItemLayout.DefaultRows;
+
+    /// <summary>[S-16940] How its devices are arranged: the item base's styles, the device list first.</summary>
+    public ItemStyle Style { get; set; } = ItemStyle.List;
+
+    [JsonIgnore]
+    ItemStyle IItemList.Arrangement => Style;
+
+    IReadOnlyList<StyleOption> IStyled.Styles => ItemStyles.All;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (ItemStyle)value;
+    }
+
+    /// <summary>[S-16952] A table's column titles over its rows.</summary>
+    public bool ColumnTitles { get; set; } = true;
+
+    /// <summary>[S-16950] The parts' order: a table's columns.</summary>
+    public List<ItemPart> PartOrder { get; set; } = [];
 
     /// <summary>[S-16660] A device item has its one face: no lines to choose.</summary>
     [JsonIgnore]
@@ -55,7 +75,7 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
     /// [S-16672] The parts its items leave out. [S-3252] With both the percentage and the bar left out no battery is read:
     /// the GATT read opens a BLE connection per device, the slowest part of a refresh.
     /// </summary>
-    public List<DevicePart> HiddenParts { get; set; } = [];
+    public List<ItemPart> HiddenParts { get; set; } = [];
 
     /// <summary>[S-16661] The devices hidden by their endpoint ids: the checklist's off ones.</summary>
     public List<string> Hidden { get; set; } = [];
@@ -92,37 +112,35 @@ public sealed class BluetoothConfig : WidgetConfig, IShownSettings<BluetoothSett
         ConnectedOnly = ConnectedOnly,
         Gap = Gap,
         HiddenParts = [.. HiddenParts],
+        PartOrder = [.. PartOrder],
         Hidden = [.. Hidden],
         Order = [.. Order],
         Rows = Rows,
+        Style = Style,
+        ColumnTitles = ColumnTitles,
     };
 
     /// <summary>[S-11310] Rows out of range are held to them; ids empty or twice dropped.</summary>
     public override IReadOnlyList<string> Repair()
     {
-        var notes = new List<string>();
-        Hidden = DeviceOrder.Repaired(Hidden, "bluetooth", "hidden", notes);
-        Order = DeviceOrder.Repaired(Order, "bluetooth", "order", notes);
-        Gap = DeviceOrder.Repaired(Gap, "bluetooth", notes);
-        HiddenParts = DeviceOrder.Repaired(HiddenParts, "bluetooth", notes);
-        if (Rows != KitSizing.ClampRows(Rows))
-        {
-            notes.Add($"bluetooth rows {Rows} out of range");
-            Rows = KitSizing.ClampRows(Rows);
-        }
-
+        var notes = ItemOrder.Repair(this, "bluetooth");
+        Hidden = ItemOrder.Repaired(Hidden, "bluetooth", "hidden", notes);
+        Order = ItemOrder.Repaired(Order, "bluetooth", "order", notes);
         return notes;
     }
 }
 
 /// <summary>[S-16662] One paired Bluetooth device's widget: which device and what its face says besides its battery.</summary>
-public sealed class BluetoothDeviceConfig : WidgetConfig, IDeviceParts
+public sealed class BluetoothDeviceConfig : WidgetConfig, IItemParts
 {
     /// <summary>[S-16662] The device's endpoint id; empty for the first connected one (else the first paired).</summary>
     public string Device { get; set; } = string.Empty;
 
     /// <summary>[S-16672] The parts its face leaves out (its percentage and bar both: no battery is read).</summary>
-    public List<DevicePart> HiddenParts { get; set; } = [];
+    public List<ItemPart> HiddenParts { get; set; } = [];
+
+    /// <summary>[S-16950] The parts' order (a face has no columns).</summary>
+    public List<ItemPart> PartOrder { get; set; } = [];
 
     /// <summary>[S-1257] Its connection word in the line.</summary>
     public bool ShowConnection { get; set; } = true;
@@ -138,6 +156,7 @@ public sealed class BluetoothDeviceConfig : WidgetConfig, IDeviceParts
     {
         Device = Device,
         HiddenParts = [.. HiddenParts],
+        PartOrder = [.. PartOrder],
         ShowConnection = ShowConnection,
         ShowSignal = ShowSignal,
     };

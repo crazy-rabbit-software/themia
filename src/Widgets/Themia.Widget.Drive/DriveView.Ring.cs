@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Themia.Sdk.Items;
 using Themia.Sdk.Devices;
 using Themia.Core.Widgets;
 using Themia.Sdk.Kit;
@@ -59,7 +60,7 @@ internal sealed partial class DriveView
     }
 
     /// <summary>[S-15749] [S-16645] The ring at its planned size with the item's share at 28 in its hole and its line under it: the block scales as one.</summary>
-    private void LayRing(DeviceItem item)
+    private void LayRing(Item item)
     {
         if (_ringParts is not { } parts)
         {
@@ -69,14 +70,14 @@ internal sealed partial class DriveView
         _face.Visibility = Visibility.Collapsed;
         parts.Root.Visibility = Visibility.Visible;
 
-        var share = item.Reading ?? new DeviceReading("--", "%");
+        var share = item.End ?? ItemEnd.Reading("--", "%");
         parts.Box.Width = DriveFace.PlannedRing;
         parts.Box.Height = DriveFace.PlannedRing;
         parts.Share.Use(FamilyType.Big28, centred: true);
         parts.Share.Show(share.Value, share.Unit);
-        parts.Ring.Show(item.Fill ?? 0);
-        parts.Ring.Role(item.FillRole);
-        parts.Line.Text = item.Line;
+        parts.Ring.Show(item.Bar?.To ?? 0);
+        parts.Ring.Role(item.Bar?.Role ?? ColourRole.Accent);
+        parts.Line.Text = item.Subtitle;
         parts.Root.Refit();
     }
 }

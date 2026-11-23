@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Themia.Core.Links;
+using Themia.Sdk.Items;
 using Themia.Sdk.Devices;
 
 namespace Themia.App.Widgets;
@@ -17,7 +18,7 @@ internal sealed partial class DrivesView
     private LinkLights<DriveLink> Drives => _drives ??= new LinkLights<DriveLink>(_links, LinkTopics.HoveredDrive);
 
     /// <summary>An item the list drew: its drive (the item's id is its root); the face with nothing to show is none.</summary>
-    private void LinkItem(DeviceItem item, FrameworkElement view)
+    private void LinkItem(Item item, FrameworkElement view)
     {
         if (item.Id.Length > 0)
         {
@@ -29,5 +30,5 @@ internal sealed partial class DrivesView
     private void ForgetItems() => Drives.Clear();
 
     /// <summary>[S-3307] The keyboard cursor publishes its item's drive as the hover; none when it lets go.</summary>
-    private void PointCursor(DeviceItem? item) => Drives.Point(item is { Id.Length: > 0 } ? LinkKeys.DriveLink(item.Id) : null);
+    private void PointCursor(Item? item) => Drives.Point(item is { Id.Length: > 0 } ? LinkKeys.DriveLink(item.Id) : null);
 }

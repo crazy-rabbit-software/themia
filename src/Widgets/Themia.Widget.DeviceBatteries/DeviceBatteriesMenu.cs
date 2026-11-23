@@ -1,8 +1,10 @@
+using Themia.Sdk.Devices;
+using Themia.Sdk.Items;
 using Themia.Sdk.WinUI.Kit;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Devices;
+using Themia.Sdk.WinUI.Items;
 using Themia.Core.Settings;
 
 namespace Themia.Widget.DeviceBatteries;
@@ -29,9 +31,6 @@ internal static class DeviceBatteriesMenu
         menu.Lines.Add(menu.Toggle(Glyphs.ChargingBolt, DeviceBatteriesStr.DeviceBatteries_Settings_Charging.Text(), config.ShowCharging, on => config.ShowCharging = on));
 
         // [S-16672] What an item shows, [S-16673] the gap between the devices, then [S-11028] how many a new card stands.
-        menu.Lines.Add(DeviceMenuLines.Parts(menu, config));
-        menu.Lines.Add(SettingsLine.Separator);
-        menu.Lines.Add(DeviceMenuLines.Gap(menu, config.Gap, value => config.Gap = value));
-        menu.Lines.AddRange(KitMenuLines.Rows(menu, config));
+        ItemMenuLines.List(menu, config, DeviceItems.Parts, name: ItemMenuLines.DevicePartName);
     }
 }

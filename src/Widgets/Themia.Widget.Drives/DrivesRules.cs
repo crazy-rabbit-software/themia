@@ -1,6 +1,7 @@
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Sdk.Devices;
 
@@ -54,9 +55,9 @@ public static class DrivesRules
     }
 
     /// <summary>[S-16650] [S-16651] [S-16652] The drives the list shows: of its kind, not hidden, the user's order first.</summary>
-    public static IReadOnlyList<DriveEntry> Arrange(IEnumerable<DriveEntry> drives, DriveListKind kind, IDeviceListConfig config)
+    public static IReadOnlyList<DriveEntry> Arrange(IEnumerable<DriveEntry> drives, DriveListKind kind, IItemChoice config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return DeviceOrder.Arrange(OfKind(drives, kind), d => d.Root, config.Hidden, config.Order);
+        return ItemOrder.Arrange(OfKind(drives, kind), d => d.Root, config.Hidden, config.Order);
     }
 }

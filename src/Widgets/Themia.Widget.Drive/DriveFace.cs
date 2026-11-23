@@ -1,6 +1,7 @@
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
@@ -23,10 +24,10 @@ public static class DriveFace
     public static readonly ReadoutText Worst = new("100", "%");
 
     /// <summary>
-    /// [S-16645] The Bar style's one height, the device item's (<see cref="DeviceLayout.Natural"/>): the inset, the share and
+    /// [S-16645] The Bar style's one height, the device item's (<see cref="ItemLayout.ListNatural"/>): the inset, the share and
     /// its line, 8, the bar, the inset.
     /// </summary>
-    public static double BarHeight => DeviceLayout.Natural;
+    public static double BarHeight => ItemLayout.ListNatural(ItemShape.Device);
 
     /// <summary>Under the ring: 8, then the space line (Body).</summary>
     public static double RingLine => FamilySpace.S2 + FamilyType.Body.LineHeight;
@@ -42,7 +43,7 @@ public static class DriveFace
         if (style == DriveStyle.Bar)
         {
             // [S-16637] The device family's one face: its sizing, never narrower than its widest line.
-            return DeviceLayout.Face(WidestLine(Strings.Current) - FamilyType.Big28.LineHeight - FamilySpace.GlyphGap);
+            return ItemLayout.Face(ItemShape.Device, WidestLine(Strings.Current) - FamilyType.Big28.LineHeight - FamilySpace.GlyphGap, ItemLayout.ReadingWidth);
         }
 
         var sizing = Sizing(style);

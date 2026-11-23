@@ -27,9 +27,9 @@ public sealed class BluetoothMenuTests
         Assert.Equal(
             [
                 BluetoothStr.WidgetsA_Bluetooth_Settings_ConnectedOnly_Label.Text(),
-                Str.Devices_Shown.Text(),
-                Str.Devices_Parts.Text(),
-                Str.Devices_Gap.Text(),
+                Str.Items_Shown.Text(),
+                Str.Items_Parts.Text(),
+                Str.Items_Gap.Text(),
                 Str.Kit_Rows.Text(),
             ],
             lines.Lines.Where(l => !l.IsSeparator).Select(l => l.Text));

@@ -9,6 +9,7 @@ using Themia.Core.Model;
 using Themia.Core.Widgets;
 using Themia.Sdk;
 using Themia.Sdk.Devices;
+using Themia.Sdk.Items;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Bluetooth;
 
@@ -35,7 +36,7 @@ public sealed class BluetoothModule : IWidgetModule
         Label = BluetoothStr.Bluetooth_List_Label.Local(),
         Description = BluetoothStr.WidgetsA_Catalog_Bluetooth_Description.Local(),
         Glyph = Glyphs.Bluetooth,
-        Sizing = c => DeviceLayout.Sizing(((BluetoothConfig)c).Rows, ((BluetoothConfig)c).Gap),
+        Sizing = c => ItemLayout.Sizing((BluetoothConfig)c, DeviceItems.Parts, reading: true),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDevice], [LinkTopicId.HoveredDevice]),
         Add = new(AddFolderId.Devices, 1, 2),
@@ -62,7 +63,7 @@ public sealed class BluetoothDeviceModule : IWidgetModule
         Label = BluetoothStr.Bluetooth_Device_Label.Local(),
         Description = BluetoothStr.Bluetooth_Device_Desc.Local(),
         Glyph = Glyphs.Bluetooth,
-        Sizing = _ => DeviceLayout.Face(DeviceLayout.WidestLine(["Headphones · Connected · -88 dBm", "Couldn't read the Bluetooth devices"])),
+        Sizing = c => ItemLayout.Face(ItemShape.Of(DeviceItems.Parts, ((BluetoothDeviceConfig)c).HiddenParts, reading: true), ItemLayout.WidestLine(["Headphones · Connected · -88 dBm", "Couldn't read the Bluetooth devices"]), ItemLayout.ReadingWidth),
         Traits = WidgetTraits.HasItems,
         Links = LinkUse.Of([LinkTopicId.HoveredDevice], [LinkTopicId.HoveredDevice]),
         Add = new(AddFolderId.Devices, 1, 1),

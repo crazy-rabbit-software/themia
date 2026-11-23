@@ -5,18 +5,19 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Devices;
+using Themia.Sdk.WinUI.Items;
 using Themia.Widget.Drives;
 using Themia.Core.Geometry;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-16650] [S-16657] Every drive of its kind (<see cref="DriveListKind"/>) as a device item (<see cref="DeviceList"/>) over
+/// [S-16650] [S-16657] Every drive of its kind (<see cref="DriveListKind"/>) as an item (<see cref="ItemList"/>) over
 /// the host's one walk (<see cref="IDrives"/>, walked again on <c>WM_DEVICECHANGE</c>: a stick plugged in or out comes and
 /// goes at once), the drives shown and their order its config's (<see cref="DrivesRules.Arrange"/>). A click opens a drive in File Explorer; its menu has Open, Eject (a
 /// removable drive) and Refresh; Delete ejects the one under the keyboard cursor. With the block gap on every drive stands
@@ -25,7 +26,7 @@ namespace Themia.App.Widgets;
 internal sealed partial class DrivesView : Grid, IWidgetView, IWidgetSizeAware, IWidgetSurfaceAware, IWidgetKeys, IWidgetContextActions, IWidgetGrounds
 {
     private readonly IWidgetHost _host;
-    private readonly DeviceList _list;
+    private readonly ItemList _list;
     private IDisposable? _watch;
     private IWidgetSurface? _surface;
     private DriveListConfig _config = new DrivesConfig();
@@ -38,7 +39,7 @@ internal sealed partial class DrivesView : Grid, IWidgetView, IWidgetSizeAware, 
     {
         _host = host;
         _kind = kind;
-        _list = new DeviceList(host)
+        _list = new ItemList(host)
         {
             Opened = Open,
             CanOpen = () => _surface is not { EditMode: true } && !_host.IsPreview,
@@ -56,7 +57,7 @@ internal sealed partial class DrivesView : Grid, IWidgetView, IWidgetSizeAware, 
     public event Action? GroundsChanged;
 
     /// <summary>[S-16653] With the gap on, every drive's box (the list stands the inset over the view's top).</summary>
-    public IReadOnlyList<DipRect>? Grounds => _list.Grounds?.Select(r => new DipRect(r.X, r.Y + _list.Margin.Top, r.Width, r.Height)).ToList();
+    public IReadOnlyList<DipRect>? Grounds => _list.ViewGrounds;
 
     /// <summary>[S-16657] Refresh: walk the drives again now.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), _host.Drives.Refresh)];
@@ -104,25 +105,25 @@ internal sealed partial class DrivesView : Grid, IWidgetView, IWidgetSizeAware, 
 
         var locale = Strings.Current;
         var drives = DrivesRules.Arrange(_held ?? _host.Drives.Drives, _kind, _config);
-        IReadOnlyList<DeviceItem> items = drives.Count > 0 ? [.. drives.Select(d => DeviceItems.Drive(locale, d))] : [Nothing(locale)];
-        _list.Gap = _config.Gap;
-        _list.Show(items, _config.HiddenParts, stock: _held is not null || _host.IsPreview);
+        IReadOnlyList<Item> items = drives.Count > 0 ? [.. drives.Select(d => DeviceItems.Drive(locale, d))] : [Nothing(locale)];
+        _list.PartTitle = ItemMenuLines.DevicePartName;
+        _list.Show(items, _config, DeviceItems.Parts, stock: _held is not null || _host.IsPreview, reading: true);
     }
 
     /// <summary>
     /// [S-16657] WR-10: nothing to show keeps the face, one item: the kind's glyph, "--", the empty bar and why ("Nothing
     /// plugged in", "No network drive", "No drive to show").
     /// </summary>
-    private DeviceItem Nothing(Locale locale)
+    private Item Nothing(Locale locale)
     {
         var why = _kind.Nothing(locale);
-        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(_kind.Glyph), null, why, null, ColourRole.Accent, why);
+        return new Item(string.Empty, string.Empty, new ItemLead(_kind.Glyph), why, Tooltip: why);
     }
 
-    private DriveEntry? DriveOf(DeviceItem item) => item.Icon.Drive;
+    private DriveEntry? DriveOf(Item item) => item.Lead?.Drive;
 
     /// <summary>[S-2032] A click opens the drive in File Explorer.</summary>
-    private void Open(DeviceItem item)
+    private void Open(Item item)
     {
         if (DriveOf(item) is { State: not DriveState.Missing } drive)
         {
@@ -131,7 +132,7 @@ internal sealed partial class DrivesView : Grid, IWidgetView, IWidgetSizeAware, 
     }
 
     /// <summary>[S-4661] The shell's own eject on a removable drive; a render never ejects.</summary>
-    private bool Eject(DeviceItem item)
+    private bool Eject(Item item)
     {
         if (_host.IsPreview || DriveOf(item) is not { } drive || !DriveRules.IsRemovable(drive))
         {

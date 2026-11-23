@@ -1,4 +1,6 @@
+using Themia.Core.Widgets;
 using System.Text.Json.Serialization;
+using Themia.Sdk.Items;
 using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
 
@@ -9,7 +11,7 @@ namespace Themia.Core.Model;
 /// the user's order, the block gap, the rows). Each kind is its own config type (a config's type is how it knows its id).
 /// Every property is stored; copy each in <see cref="Clone"/>.
 /// </summary>
-public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfig, IDeviceParts
+public abstract class DriveListConfig : WidgetConfig, IItemList, IItemChoice, IStyled
 {
     /// <inheritdoc />
     public List<string> Hidden { get; set; } = [];
@@ -21,10 +23,30 @@ public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfi
     public int Gap { get; set; }
 
     /// <inheritdoc />
-    public List<DevicePart> HiddenParts { get; set; } = [];
+    public List<ItemPart> HiddenParts { get; set; } = [];
 
-    /// <inheritdoc cref="IDeviceListConfig.Rows" />
-    public int Rows { get; set; } = DeviceLayout.DefaultRows;
+    /// <inheritdoc />
+    public List<ItemPart> PartOrder { get; set; } = [];
+
+    /// <summary>[S-16940] How its drives are arranged: the item base's styles, the device list first.</summary>
+    public ItemStyle Style { get; set; } = ItemStyle.List;
+
+    [JsonIgnore]
+    ItemStyle IItemList.Arrangement => Style;
+
+    IReadOnlyList<Themia.Core.Widgets.StyleOption> IStyled.Styles => ItemStyles.All;
+
+    int IStyled.StyleValue
+    {
+        get => (int)Style;
+        set => Style = (ItemStyle)value;
+    }
+
+    /// <inheritdoc />
+    public bool ColumnTitles { get; set; } = true;
+
+    /// <inheritdoc cref="IKitRows.Rows" />
+    public int Rows { get; set; } = ItemLayout.DefaultRows;
 
     /// <summary>An item has one face: no lines to choose.</summary>
     [JsonIgnore]
@@ -46,8 +68,9 @@ public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfi
         var notes = new List<string>();
         Hidden = Roots(Hidden, "hidden", notes);
         Order = Roots(Order, "order", notes);
-        Gap = DeviceOrder.Repaired(Gap, Kind.Value, notes);
-        HiddenParts = DeviceOrder.Repaired(HiddenParts, Kind.Value, notes);
+        Gap = ItemOrder.Repaired(Gap, Kind.Value, notes);
+        HiddenParts = ItemOrder.Repaired(HiddenParts, Kind.Value, notes);
+        PartOrder = ItemOrder.Repaired(PartOrder, Kind.Value, notes);
         var rows = KitSizing.ClampRows(Rows);
         if (rows != Rows)
         {
@@ -85,6 +108,9 @@ public abstract class DriveListConfig : WidgetConfig, IKitRows, IDeviceListConfi
         copy.Order = [.. Order];
         copy.Gap = Gap;
         copy.HiddenParts = [.. HiddenParts];
+        copy.PartOrder = [.. PartOrder];
+        copy.Style = Style;
+        copy.ColumnTitles = ColumnTitles;
         copy.Rows = Rows;
         return copy;
     }

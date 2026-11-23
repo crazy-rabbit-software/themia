@@ -6,13 +6,14 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
 using Themia.Sdk.WinUI.Kit;
 using Themia.Widget.Drive;
-using Themia.Sdk.WinUI.Devices;
+using Themia.Sdk.WinUI.Items;
 
 namespace Themia.App.Widgets;
 
@@ -31,7 +32,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         : _kind.Group is null ? OneDriveModule.Opens(_config.Drive, Path.GetPathRoot(Environment.SystemDirectory)) : null;
 
     /// <summary>[S-16637] The bar style's face: the device family's one face of one device.</summary>
-    private readonly DeviceFace _face;
+    private readonly ItemFace _face;
     private readonly StatusBlock _status = new();
 
     private IWidgetSurface? _surface;
@@ -48,7 +49,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         _widgetHost = host;
         _kind = kind;
         _config = new DriveConfig();
-        _face = new DeviceFace(host);
+        _face = new ItemFace(host);
         _status.Hide();
         Children.Add(_face);
         Children.Add(_status);
@@ -109,7 +110,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
 
     /// <summary>
     /// [S-4671] [S-4672] [S-16645] The drive as the device family's item ([S-16630], <see cref="DeviceItems.Drive"/>) on its
-    /// one face (<see cref="DeviceFace"/>) or the ring; a drive without figures keeps the face, "--", the empty bar and why;
+    /// one face (<see cref="ItemFace"/>) or the ring; a drive without figures keeps the face, "--", the empty bar and why;
     /// none of the kind there is the face with its kind's why ("Nothing plugged in").
     /// </summary>
     private void Lay()
@@ -132,7 +133,7 @@ internal sealed partial class DriveView : Grid, IWidgetView, IWidgetOpens, IWidg
         }
 
         _face.Visibility = Visibility.Visible;
-        _face.Show(item, _config.HiddenParts, stock: _previewDrive is not null);
+        _face.Show(item, new ItemDraw(_config.HiddenParts, ItemShape.Of(DeviceItems.Parts, _config.HiddenParts, reading: true), Stock: _previewDrive is not null));
     }
 
     public IReadOnlyList<WidgetAction> ContextActions

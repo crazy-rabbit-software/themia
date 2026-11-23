@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Widget.Drive;
 
@@ -22,7 +23,7 @@ public enum DriveStyle
 /// [S-4670] [S-16646] One drive's widget, whatever its kind (a Drive, a USB stick, a network drive): which drive and its
 /// look. Each kind is its own config type (a config's type is how it knows its id); everything else is this one's.
 /// </summary>
-public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice, Themia.Sdk.Devices.IDeviceParts
+public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice, Themia.Sdk.Items.IItemParts
 {
     private static readonly StyleOption[] DriveStyles =
     [
@@ -45,13 +46,17 @@ public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice, Them
     public string Drive { get; set; } = string.Empty;
 
     /// <summary>[S-16672] The parts its face leaves out.</summary>
-    public List<Themia.Sdk.Devices.DevicePart> HiddenParts { get; set; } = [];
+    public List<Themia.Sdk.Items.ItemPart> HiddenParts { get; set; } = [];
+
+    /// <summary>[S-16950] The parts' order (a face has no columns).</summary>
+    public List<Themia.Sdk.Items.ItemPart> PartOrder { get; set; } = [];
 
     /// <summary>Anything that is not a drive letter (a folder, a typo) is the kind's default again, loudly.</summary>
     public override IReadOnlyList<string> Repair()
     {
         var notes = new List<string>();
-        HiddenParts = Themia.Sdk.Devices.DeviceOrder.Repaired(HiddenParts, Kind.Value, notes);
+        HiddenParts = Themia.Sdk.Items.ItemOrder.Repaired(HiddenParts, Kind.Value, notes);
+        PartOrder = Themia.Sdk.Items.ItemOrder.Repaired(PartOrder, Kind.Value, notes);
         if (string.IsNullOrEmpty(Drive))
         {
             return notes;
@@ -75,6 +80,7 @@ public abstract class OneDriveConfig : WidgetConfig, IStyled, IDriveChoice, Them
         copy.Drive = Drive;
         copy.Style = Style;
         copy.HiddenParts = [.. HiddenParts];
+        copy.PartOrder = [.. PartOrder];
         return copy;
     }
 }

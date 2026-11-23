@@ -5,10 +5,11 @@ using Themia.Core.Links;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Sdk.Devices;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Devices;
+using Themia.Sdk.WinUI.Items;
 using Themia.Widget.Drives;
 
 [assembly: ThemiaWidgetFamily]
@@ -38,7 +39,7 @@ public abstract class DriveListModule : IWidgetModule
             Label = kind.Label,
             Description = kind.Description,
             Glyph = kind.Glyph,
-            Sizing = c => DeviceLayout.Sizing(((DriveListConfig)c).Rows, ((DriveListConfig)c).Gap),
+            Sizing = c => ItemLayout.Sizing((DriveListConfig)c, DeviceItems.Parts, reading: true),
             Traits = WidgetTraits.HasItems,
             Links = LinkUse.Of([LinkTopicId.HoveredDrive], [LinkTopicId.HoveredDrive]),
             Add = new(AddFolderId.Devices, 2, kind.Rank),
@@ -56,7 +57,7 @@ public abstract class DriveListModule : IWidgetModule
     public void MenuLines(WidgetMenuLines menu, WidgetConfig config)
     {
         var locale = Strings.Current;
-        DeviceMenuLines.List(menu, (DriveListConfig)config, [.. DrivesRules.OfKind(DriveList.Now(), Kind).Select(d => new DeviceChoice(d.Root, DriveRules.Title(locale, d), DriveRules.Glyph(d)))]);
+        ItemMenuLines.List(menu, (DriveListConfig)config, DeviceItems.Parts, [.. DrivesRules.OfKind(DriveList.Now(), Kind).Select(d => new ItemChoice(d.Root, DriveRules.Title(locale, d), DriveRules.Glyph(d)))], name: ItemMenuLines.DevicePartName);
     }
 
     public FrameworkElement CreateView(IWidgetHost host) => new DrivesView(host, Kind);

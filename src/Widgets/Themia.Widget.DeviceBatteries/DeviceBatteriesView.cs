@@ -6,15 +6,16 @@ using Themia.Core.Diagnostics;
 using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk.Devices;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Devices;
+using Themia.Sdk.WinUI.Items;
 using Themia.Core.Geometry;
 
 namespace Themia.Widget.DeviceBatteries;
 
 /// <summary>
-/// [S-10000] [S-16665] The peripherals' batteries as device items (<see cref="DeviceList"/>) over the host's one battery
+/// [S-10000] [S-16665] The peripherals' batteries as items (<see cref="ItemList"/>) over the host's one battery
 /// source (<see cref="IWidgetHost.DeviceBatteries"/>, [S-4470]), folded and ordered by <see cref="DeviceBatteriesRules"/>,
 /// each mapped by <see cref="DeviceBatteriesItems"/>. A click opens Windows' Bluetooth &amp; devices page.
 /// </summary>
@@ -24,7 +25,7 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetSu
     private const string Scope = "device-batteries";
 
     private readonly IWidgetHost _host;
-    private readonly DeviceList _list;
+    private readonly ItemList _list;
     private DeviceBatteriesConfig _config = new();
     private IDisposable? _watch;
     private bool _attached;
@@ -35,7 +36,7 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetSu
     public DeviceBatteriesView(IWidgetHost host)
     {
         _host = host;
-        _list = new DeviceList(host)
+        _list = new ItemList(host)
         {
             Opened = _ => OpenSettings(),
             CanOpen = () => _surface is not { EditMode: true } && !_host.IsPreview,
@@ -51,7 +52,7 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetSu
     public event Action? GroundsChanged;
 
     /// <summary>[S-16666] With the gap on, every device's box (the list stands the inset over the view's top).</summary>
-    public IReadOnlyList<DipRect>? Grounds => _list.Grounds?.Select(r => new DipRect(r.X, r.Y + _list.Margin.Top, r.Width, r.Height)).ToList();
+    public IReadOnlyList<DipRect>? Grounds => _list.ViewGrounds;
 
     /// <summary>[S-10005] Refresh: read Windows again now.</summary>
     public IReadOnlyList<WidgetAction> ContextActions => [new WidgetAction(Glyphs.Refresh, Str.Common_Refresh.Text(), Refresh)];
@@ -106,11 +107,11 @@ internal sealed partial class DeviceBatteriesView : Grid, IWidgetView, IWidgetSu
         var rows = snapshot.Status == DeviceBatteryStatus.Ok
             ? DeviceBatteriesRules.Arrange(snapshot.Readings, _config.ShowCharging, DeviceBatteriesConfig.MaxDevices)
             : [];
-        IReadOnlyList<DeviceItem> items = rows.Count > 0
+        IReadOnlyList<Item> items = rows.Count > 0
             ? [.. rows.Select(row => DeviceBatteriesItems.Item(row, _config.EffectiveThreshold, locale))]
             : [DeviceBatteriesItems.Empty(snapshot.Status, locale)];
-        _list.Gap = _config.Gap;
-        _list.Show(items, _config.HiddenParts, stock: true);
+        _list.PartTitle = ItemMenuLines.DevicePartName;
+        _list.Show(items, _config, DeviceItems.Parts, stock: true, reading: true);
     }
 
     /// <summary>[S-10005] Windows' Bluetooth &amp; devices page; a preview opens nothing.</summary>

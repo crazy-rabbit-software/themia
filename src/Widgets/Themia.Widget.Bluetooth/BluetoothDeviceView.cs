@@ -8,13 +8,14 @@ using Themia.Core.Widgets;
 using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
 using Themia.Sdk.WinUI;
-using Themia.Sdk.WinUI.Devices;
+using Themia.Sdk.Items;
+using Themia.Sdk.WinUI.Items;
 using Themia.Widget.Bluetooth;
 
 namespace Themia.App.Widgets;
 
 /// <summary>
-/// [S-16662] One paired Bluetooth device on the device family's face (<see cref="DeviceFace"/>, as the Drive widget's):
+/// [S-16662] One paired Bluetooth device on the device family's face (<see cref="ItemFace"/>, as the Drive widget's):
 /// its kind's glyph and its battery at 28 over the bar, its kind, connection and signal as the line; the device the config
 /// names, else the first connected. Read-only, as the list ([S-1254]). No device keeps the face: "--" and which empty pass
 /// it is, or "Not connected" for one paired no more (WR-10). A click opens Windows' Bluetooth &amp; devices page.
@@ -25,7 +26,7 @@ internal sealed partial class BluetoothDeviceView : Grid, IWidgetView, IWidgetOp
     public CardOpen? Opens => BluetoothModule.Opens;
 
     private readonly IWidgetHost _host;
-    private readonly DeviceFace _face;
+    private readonly ItemFace _face;
     private readonly OpensLight _opensLight;
     private readonly WidgetLinks _links = new();
     private LinkCard<DeviceLink>? _card;
@@ -41,7 +42,7 @@ internal sealed partial class BluetoothDeviceView : Grid, IWidgetView, IWidgetOp
     public BluetoothDeviceView(IWidgetHost host)
     {
         _host = host;
-        _face = new DeviceFace(host);
+        _face = new ItemFace(host);
         Children.Add(_face);
         _opensLight = new OpensLight(this, () => _surface?.EditMode != true);
     }
@@ -114,7 +115,7 @@ internal sealed partial class BluetoothDeviceView : Grid, IWidgetView, IWidgetOp
     {
         var snapshot = _held ?? (_watch is null ? BluetoothSnapshot.Of(BluetoothStatus.Loading) : _host.Bluetooth.Last);
         var locale = Strings.Current;
-        DeviceItem item;
+        Item item;
         if (snapshot.Status != BluetoothStatus.Ok)
         {
             item = BluetoothItems.Empty(snapshot.Status, locale);
@@ -126,12 +127,12 @@ internal sealed partial class BluetoothDeviceView : Grid, IWidgetView, IWidgetOp
         else
         {
             var why = _config.Device.Length > 0 ? Strings.Get(locale, Str.Details_Disk_NotConnected) : BluetoothRules.StatusMessage(BluetoothStatus.Ok, locale);
-            item = BluetoothItems.Empty(BluetoothStatus.Ok, locale) with { Line = why, Tooltip = why };
+            item = BluetoothItems.Empty(BluetoothStatus.Ok, locale) with { Subtitle = why, Tooltip = why };
         }
 
         ToolTipService.SetToolTip(this, item.Tooltip);
         Card.Key = item.Id.Length > 0 ? LinkKeys.DeviceOfEndpoint(item.Id) : null;
-        _face.Show(item, _config.HiddenParts, stock: true);
+        _face.Show(item, new ItemDraw(_config.HiddenParts, ItemShape.Of(DeviceItems.Parts, _config.HiddenParts, reading: true), Stock: true));
     }
 
     /// <summary>Hold <paramref name="snapshot"/> in place of the radio's.</summary>

@@ -2,6 +2,7 @@ using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
 using Themia.Sdk.Devices;
+using Themia.Sdk.Items;
 using Themia.Sdk.Kit;
 
 namespace Themia.Widget.Bluetooth;
@@ -17,8 +18,8 @@ public readonly record struct BluetoothShows(bool Battery, bool Connection, bool
 public static class BluetoothItems
 {
     /// <summary>[S-3252] [S-16672] Whether a battery is read: its percentage or its bar is shown.</summary>
-    public static bool ReadsBattery(IReadOnlyCollection<DevicePart> hidden)
-        => !(hidden ?? []).Contains(DevicePart.Reading) || !(hidden ?? []).Contains(DevicePart.Bar);
+    public static bool ReadsBattery(IReadOnlyCollection<ItemPart> hidden)
+        => !(hidden ?? []).Contains(ItemPart.End) || !(hidden ?? []).Contains(ItemPart.Bar);
 
     /// <summary>[S-16660] The glyph of the list and the device widget: the Bluetooth mark.</summary>
     public static string Glyph => Glyphs.Bluetooth;
@@ -28,20 +29,18 @@ public static class BluetoothItems
     /// shows it ("--" for a device that reports none, WR-10; none drawn with the battery off), the detail line its line,
     /// everything it knows in words as the tooltip (for a reader who cannot see the icon's colour).
     /// </summary>
-    public static DeviceItem Item(BluetoothDeviceEntry device, BluetoothShows config, Locale locale)
+    public static Item Item(BluetoothDeviceEntry device, BluetoothShows config, Locale locale)
     {
         var percent = device.BatteryPercent is >= 0 and <= 100 ? device.BatteryPercent : null;
-        DeviceReading? reading = config.Battery && percent is { } p ? DeviceReading.Percent(locale, p / 100.0) : null;
         var line = BluetoothRules.DetailLine(device, config.Connection, showBattery: false, config.Signal, locale);
-        return new DeviceItem(
+        return new Item(
             device.Id,
             device.Name.Length > 0 ? device.Name : BluetoothStr.WidgetsA_Bluetooth_UnknownDevice.Text(locale),
-            new DeviceIcon(DeviceItems.Glyph((DeviceKind)device.Kind), device.Connected ? ColourRole.TextPrimary : ColourRole.TextSecondary),
-            reading,
+            new ItemLead(DeviceItems.Glyph((DeviceKind)device.Kind), device.Connected ? ColourRole.TextPrimary : ColourRole.TextSecondary),
             line,
-            config.Battery && percent is { } fill ? fill / 100.0 : null,
-            BluetoothRules.IsLowBattery(percent) ? ColourRole.Critical : ColourRole.Accent,
-            $"{device.Name} · {BluetoothRules.DetailLine(device, true, true, true, locale)}");
+            config.Battery && percent is { } p ? ItemEnd.Percent(locale, p / 100.0) : null,
+            config.Battery && percent is { } fill ? new ItemBar(fill / 100.0, 0, BluetoothRules.IsLowBattery(percent) ? ColourRole.Critical : ColourRole.Accent) : null,
+            Tooltip: $"{device.Name} · {BluetoothRules.DetailLine(device, true, true, true, locale)}");
     }
 
     /// <summary>
@@ -61,11 +60,11 @@ public static class BluetoothItems
     /// [S-16660] [S-244] WR-10: a list with no device keeps the face, one item: the Bluetooth glyph, "--", the empty bar and
     /// which empty list it is (no radio, the radio off, no access, a failed read, nothing paired, reading).
     /// </summary>
-    public static DeviceItem Empty(BluetoothStatus status, Locale locale)
+    public static Item Empty(BluetoothStatus status, Locale locale)
     {
         var why = BluetoothRules.StatusMessage(status, locale);
         var problem = status is BluetoothStatus.Failed or BluetoothStatus.PermissionDenied;
-        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(Glyphs.Bluetooth, problem ? ColourRole.Caution : ColourRole.TextSecondary), null, why, null, ColourRole.Accent, why);
+        return new Item(string.Empty, string.Empty, new ItemLead(Glyphs.Bluetooth, problem ? ColourRole.Caution : ColourRole.TextSecondary), why, Tooltip: why);
     }
 
     /// <summary>[S-1259] A device's menu: Refresh, the radios read again now (read-only: nothing connects or unpairs).</summary>

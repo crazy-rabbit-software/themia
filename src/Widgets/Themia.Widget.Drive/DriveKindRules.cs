@@ -1,6 +1,7 @@
 using Themia.App.Shell;
 using Themia.Core.Localization;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk.Devices;
 using Themia.Sdk.Kit;
 
@@ -31,10 +32,10 @@ public static class DriveKindRules
     }
 
     /// <summary>[S-16646] WR-10: none of the kind there keeps the face: its glyph, "--", the empty bar and why ("Nothing plugged in").</summary>
-    public static DeviceItem Nothing(OneDriveKind kind, Locale locale)
+    public static Item Nothing(OneDriveKind kind, Locale locale)
     {
         ArgumentNullException.ThrowIfNull(kind);
         var why = kind.Nothing(locale);
-        return new DeviceItem(string.Empty, string.Empty, new DeviceIcon(kind.Glyph), null, why, null, ColourRole.Accent, why);
+        return new Item(string.Empty, string.Empty, new ItemLead(kind.Glyph), why, Tooltip: why);
     }
 }

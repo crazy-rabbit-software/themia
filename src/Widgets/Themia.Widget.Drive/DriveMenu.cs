@@ -3,6 +3,7 @@ using Themia.Core.Localization;
 using Themia.Core.Model;
 using Themia.Core.Settings;
 using Themia.Core.Widgets;
+using Themia.Sdk.Items;
 using Themia.Sdk;
 using Themia.Sdk.WinUI;
 using Themia.Widget.Drive;
@@ -26,7 +27,7 @@ internal static class DriveMenu
         if (kind.Group is not { } group)
         {
             menu.Lines.Add(DriveMenuLines.Drive(menu, config.Drive, value => config.Drive = value, drives));
-            menu.Lines.Add(Themia.Sdk.WinUI.Devices.DeviceMenuLines.Parts(menu, config));
+            menu.Lines.Add(Themia.Sdk.WinUI.Items.ItemMenuLines.Parts(menu, config, Themia.Sdk.Devices.DeviceItems.Parts, name: Themia.Sdk.WinUI.Items.ItemMenuLines.DevicePartName));
             return;
         }
 
@@ -42,6 +43,6 @@ internal static class DriveMenu
 
         var held = options.First(o => string.Equals(o.Value, current, StringComparison.OrdinalIgnoreCase)).Value;
         menu.Lines.Add(WidgetMenuLines.Shared(SharedSettings.Drive, menu.Choice(kind.Glyph, Str.Details_Disk_Drive.Text(), options, held, value => config.Drive = value)));
-        menu.Lines.Add(Themia.Sdk.WinUI.Devices.DeviceMenuLines.Parts(menu, config));
+        menu.Lines.Add(Themia.Sdk.WinUI.Items.ItemMenuLines.Parts(menu, config, Themia.Sdk.Devices.DeviceItems.Parts, name: Themia.Sdk.WinUI.Items.ItemMenuLines.DevicePartName));
     }
 }

@@ -61,8 +61,8 @@ the module host's `DriveHostTests`, its styles beside the meters' `IoStylesHostT
   in Explorer, Eject for a removable drive, and Refresh.
 - **[S-16645]** **On the device design** ([S-16630], owner, 2026-11-23: "create a base design that all of those widgets
   can use. it should look very similar to how todays drive widget looks like"): the drive is the device family's item
-  (`DeviceItems.Drive`) on its one face (`DeviceFace`, [S-16637]: the bar style; the ring keeps its own parts over the same
-  item): the same icon, reading, line, bar and states as every device widget; its sizing the face's (`DeviceLayout.Face`).
+  (`DeviceItems.Drive`) on its one face (`ItemFace`, [S-16637]: the bar style; the ring keeps its own parts over the same
+  item): the same icon, reading, line, bar and states as every device widget; its sizing the face's (`ItemLayout.Face`).
 - **[S-16646]** **USB stick and Network drive** (`usbStick`, `networkDrive`; owner, 2026-11-23: "there should be individual
   widgets for the drive, bluetooth device, usb stick, network drive"): this module is a family of three one-drive widgets,
   one view, one config shape (`OneDriveConfig`: the drive, the style) and one module over its kinds as data
