@@ -64,7 +64,7 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   a room of 120 over the column at the scale drawn. A new card 240 × 240. Tests `MusicPlanTests.S16505_`.
 - **[S-16506]** **Strip**: one line, no cover: the title and, after a dot, the artist and album (one Body line, the title
   semibold), the progress line (its bar 96) and the transport, 12 apart, each centred down the line; the line of text
-  takes the width left (without one, the bar). A new card 480 × 52. Tests `MusicPlanTests.S16506_`,
+  takes the width left (without one, the bar). A new card 506 × 52; its least 311 × 45. Tests `MusicPlanTests.S16506_`,
   `MusicMenuTests.S16506_`.
 - **[S-16507]** **A cover alone** (nothing else shown, in any style): the picture is the card, edge to edge (the owner's
   exemption for a picture filling the card), a new card a square of 160, down to the grid's least widget (32); what
@@ -80,7 +80,7 @@ rules is the module host's `MusicHostTests`, the owner's desktop folding back `R
   shows at rest, under the pointer and pressed while a click opens the player ([S-2030]); with nothing to open it is
   clear. A button or the seek bar under the pointer lights alone: the face's light goes back to rest there. The item
   background reaches the light, the item text nothing (`IDrawsItems.DrawsItemText` false). Renders' `--hover` light the
-  face, a button's own hover state or the bar's thumb. Tests `ItemKindsHostTests.S6570_S16509_`.
+  face or a button's own hover state (a preview's bar seeks nothing and takes no pointer: the face lights over it). Tests `ItemKindsHostTests.S6570_S16509_`.
 - **[S-16510]** **The times never move and are never cut** (WR-15, owner 2026-11-20: "the clock right now changes its
   layout depending on the time that it shows"; the audit of 2026-11-22: the length had dropped out of the least card and
   lost the tail of its "2" at rest, and moved under the pointer): the elapsed time and the length each stand in a box of

@@ -144,13 +144,6 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
             control.PointerExited += (_, _) => OnControl(false);
         }
 
-        // A render's --hover on the bar shows its thumb, as the pointer does.
-        // (A preview's bar seeks nothing of the machine's; under a render's pointer it shows its thumb as a live one would.)
-        PointerPreview.Register(_bar, _ =>
-        {
-            _bar.CanSeek = _feed.Now.HasTrack && _feed.Now.CanSeek;
-            _bar.Point(true);
-        });
         Children.Add(_item);
 
         _bar.Scrubbing += OnScrubbing;
@@ -623,7 +616,15 @@ internal sealed partial class MusicView : Grid, IWidgetView, IWidgetOpens, IWidg
                     view._cover.CornerRadius = corners;
                 }
 
-                var side = Math.Min(cover.Width, cover.Height);
+                // [S-16505] Full art's placeholder stands in the art's room over the scrim, never behind the texts.
+                var room = laid.Band && laid.Parts.TryGetValue(MusicPart.Scrim, out var under) ? Math.Max(0, under.Y) : cover.Height;
+                var padding = new Thickness(0, 0, 0, Math.Max(0, cover.Height - room));
+                if (view._cover.Padding != padding)
+                {
+                    view._cover.Padding = padding;
+                }
+
+                var side = Math.Min(cover.Width, room);
                 var glyph = side >= 2 * FamilyShape.IconHuge ? FamilyShape.IconHuge : side >= 2 * FamilyShape.IconLarge ? FamilyShape.IconLarge : FamilyShape.Icon;
                 if (!view._placeholder.FontSize.Equals(glyph))
                 {
