@@ -151,7 +151,7 @@ public sealed partial class Chart : Grid
 
         if (model.Type == ChartType.Bars && !model.Laid)
         {
-            Bars(samples, plot, w);
+            Bars(samples, plot, w, h);
             Second(model, plot);
         }
         else if (candles.Count > 0)
@@ -185,7 +185,7 @@ public sealed partial class Chart : Grid
         }
         else if (model.Ends is { } ends)
         {
-            Ends(ends, frame);
+            Ends(ends, frame, model.Type == ChartType.Bars && model.Tracks);
         }
 
         if (model.Caption.Length > 0)
@@ -376,8 +376,14 @@ public sealed partial class Chart : Grid
     /// [S-6750] [S-6753] A round column per sample over nothing, filled from the band's foot in its role; with no column to
     /// draw (nothing yet, or every value nothing: a dry day), the foot's hairline across the plot, so the chart still stands.
     /// </summary>
-    private void Bars(IReadOnlyList<ChartSample> samples, Plot plot, double w)
+    private void Bars(IReadOnlyList<ChartSample> samples, Plot plot, double w, double h)
     {
+        if (_model.Tracks)
+        {
+            Tracked(samples, plot, w, h);
+            return;
+        }
+
         if (!samples.Any(sample => _model.Fraction(sample.Value) > 0))
         {
             Add(new Rectangle { Width = w, Height = FamilyShape.Hairline, Fill = Family.Brush(ColourRole.Track) }, 0, plot.Foot - FamilyShape.Hairline);
@@ -398,6 +404,43 @@ public sealed partial class Chart : Grid
             var bar = new Border { Width = width, Height = height, CornerRadius = Family.Round(width, height) };
             Paint(bar, sample.Role);
             Add(bar, sample.X - (width / 2), plot.Foot - height);
+        }
+    }
+
+    /// <summary>
+    /// [S-16436] Each slot's column in its track: the track the band's top to the plot's foot in the Track role, the fill
+    /// rising from the foot by its share of that room in its role (a wet slot never under the track's width); a slot at
+    /// nothing its track alone. Both stand on the foot square, round at the top.
+    /// </summary>
+    private void Tracked(IReadOnlyList<ChartSample> samples, Plot plot, double w, double h)
+    {
+        if (samples.Count == 0)
+        {
+            return;
+        }
+
+        var width = ChartPlot.BarWidth(w / samples.Count);
+        var room = Math.Max(0, h - plot.Top);
+        foreach (var sample in samples)
+        {
+            var left = sample.X - (width / 2);
+            Add(new Border { Width = width, Height = room, CornerRadius = Top(width, room), Background = Family.Brush(ColourRole.Track) }, left, plot.Top);
+            var share = _model.Fraction(sample.Value);
+            if (!(share > 0))
+            {
+                continue;
+            }
+
+            var height = Math.Max(Math.Min(width, FamilyShape.Track), share * room);
+            var bar = new Border { Width = width, Height = height, CornerRadius = Top(width, height) };
+            Paint(bar, sample.Role);
+            Add(bar, left, h - height);
+        }
+
+        static CornerRadius Top(double width, double height)
+        {
+            var round = Family.Round(width, height).TopLeft;
+            return new CornerRadius(round, round, 0, 0);
         }
     }
 
@@ -584,22 +627,27 @@ public sealed partial class Chart : Grid
         }
     }
 
-    /// <summary>[S-6754] Simple: the window's two ends along the foot, at the text's left and right edges; the end left out where it would touch the start.</summary>
-    private void Ends(ChartEnds ends, ChartFrame frame)
+    /// <summary>
+    /// [S-6754] Simple: the window's two ends along the foot, at the text's left and right edges; the end left out where it
+    /// would touch the start. [S-16436] Over columns that stand on the foot, each on its scrim, the text where it would be.
+    /// </summary>
+    private void Ends(ChartEnds ends, ChartFrame frame, bool scrim)
     {
+        var lead = scrim ? FamilySpace.S1 : 0;
+        FrameworkElement Box(TextBlock text) => scrim ? Pill(text) : text;
         var start = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, ends.Start);
         start.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var end = Family.Text(FamilyType.Caption, ColourRole.TextTertiary, ends.End);
         end.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         if (ends.Start.Length > 0)
         {
-            Written(start, frame.Text.Left, frame.FootLine, TimeRank);
+            Written(Box(start), frame.Text.Left - lead, frame.FootLine, TimeRank);
         }
 
         var endLeft = frame.Text.Right - end.DesiredSize.Width;
-        if (ends.End.Length > 0 && (ends.Start.Length == 0 || endLeft >= frame.Text.Left + start.DesiredSize.Width + FamilySpace.S2))
+        if (ends.End.Length > 0 && (ends.Start.Length == 0 || endLeft >= frame.Text.Left + start.DesiredSize.Width + FamilySpace.S2 + (2 * lead)))
         {
-            Written(end, endLeft, frame.FootLine, TimeRank);
+            Written(Box(end), endLeft - lead, frame.FootLine, TimeRank);
         }
     }
 

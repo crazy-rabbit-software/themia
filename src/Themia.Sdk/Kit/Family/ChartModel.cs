@@ -79,6 +79,15 @@ public sealed record ChartModel
     /// <summary>A run of one sample is a dot (a gap on either side of it); off, it is not drawn.</summary>
     public bool LoneDots { get; init; }
 
+    /// <summary>
+    /// [S-16436] Columns that stand in their tracks (owner, 2026-11-19: "Plot edge to edge", the plot and its fill reach the
+    /// card's edges, the labels stand inside it, over the plot; "even if there is no rain in the next two hours ... it should
+    /// show the default values in the graph"): every slot's column has its track, the series' band from its top to the plot's
+    /// foot in the Track role, and its fill rises from the plot's foot; a slot at nothing is its track alone, never a bare
+    /// hairline. The ends at the foot are written over them on their scrim. Bars only; off, columns stand on the band's foot.
+    /// </summary>
+    public bool Tracks { get; init; }
+
     public IReadOnlyList<ChartShade> Shades { get; init; } = [];
 
     /// <summary>Hairlines down the plot in the Track role (the days' borders), DIPs from its left edge.</summary>
