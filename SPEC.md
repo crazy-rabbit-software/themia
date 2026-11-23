@@ -6622,13 +6622,14 @@ its own id, config and tag, [S-7400]..[S-8000], the kinds as data); Bluetooth is
   is press and release on the tile (sliding off cancels). It is not a `Button`: in edit mode the
   press is left to the card, which selects and moves the widget, so a click there never runs anything
   (`IWidgetSurface.EditMode`).
-- **[S-1912]** The face is the family's Tile block, ringed ([S-6715], [S-6736]): the icon centred in
-  its ring's room (the ring on the step its box holds, [S-11882], the icon the largest family glyph
-  size within three quarters of it), the name under it (cut with an ellipsis where it does not fit,
+- **[S-1912]** The face is the family's Tile block, the quick settings' own (owner, 2026-11-23: "the power buttons have a
+  weird background rounded border or similar. remove that too. just the icon and the text. the power buttons should have the
+  same base component as the toggle buttons", [S-17152]): the icon on the step its box holds ([S-11882]), no ring round it,
+  the name under it (cut with an ellipsis where it does not fit,
   whole in the tooltip), no state line, in the card's inset of 12. The armed sentence and a failure
   take the name's line (wrapping as the name does), the face centred on its ink in every state ([S-14201]).
 - **[S-1913]** Shut down, restart, sign out and hibernate arm on the first click: the icon, a draining
-  ring round it and the name's line turn critical, and the line becomes "Click again to shut down"
+  and the name's line turn critical (no ring, [S-17152]), and the line becomes "Click again to shut down"
   (one Body line, cut where it does not fit; the tooltip carries it whole); the tile itself takes no
   fill (`PowerActionRules.Tile`: the Tile's critical state, [S-6736]). The second click within 5 s
   runs it; a second click within 400 ms of arming is ignored (a double-click is one intent); the arm

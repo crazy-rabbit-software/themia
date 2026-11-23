@@ -45,7 +45,9 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
     private const string Scope = "power";
 
     private readonly PowerAction _action;
-    private readonly TileBlock _tile = new(TileLook.Tile, ringed: true) { Padding = Family.Inset };
+    // [S-17152] The toggles' tile (owner, 2026-11-23: "the power buttons should have the same base component as the toggle
+    // buttons"): the glyph and the name, no ring round the glyph.
+    private readonly TileBlock _tile = new(TileLook.Tile) { Padding = Family.Inset };
 
     /// <summary>
     /// [S-1913] Fires once, when the arm window runs out, to draw the widget disarmed. Cosmetic like
@@ -216,7 +218,6 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         }
 
         _button?.Disarm();
-        _tile.Ring.Stop();
     }
 
     // ---- layout ------------------------------------------------------------------------------
@@ -234,7 +235,7 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
             return;
         }
 
-        var natural = TileRules.Sizing(_tile.Look, stateLine: false).Natural;
+        var natural = TileRules.Sizing(_tile.Look, stateLine: _tile.Look == TileLook.Switch).Natural;
         var (width, height) = _area.IsMeasured ? (_area.Width, _area.Height) : (natural.Width, natural.Height);
 
         // [S-15764] The face stays in every state (WR-10): its glyph and name, and while it has something to say (armed,
@@ -244,12 +245,13 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
         _planned = Why(DateTimeOffset.UtcNow).Why;
         var why = _planned.Length > 0;
         var plan = TileBlock.Plan(PowerActionRules.Label(_action), why ? [_planned] : [], width - (2 * FamilySpace.Inset));
-        var ringed = _tile.Look == TileLook.Tile;
-        var face = TileRules.Face(width, height, stateLine: why, nameLines: plan.NameLines, nameWidth: plan.Width, stateLines: plan.StateLines, ringed: ringed);
+        var face = TileRules.Face(width, height, stateLine: why, nameLines: plan.NameLines, nameWidth: plan.Width, stateLines: plan.StateLines);
         // [S-12806] A box too small for the family's inset gives it up round the glyph.
         var row = _tile.Look == TileLook.Switch;
         _tile.Padding = new Thickness(row ? FamilySpace.Inset : face.Inset);
-        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: face.Texted, state: face.Texted && why, face.Name, face.State, row ? 0 : face.Mark, plan.Width, plan.StateLines);
+        // [S-17150] A switch row thinner than its two lines keeps its name, the why line hidden.
+        var stated = face.Texted && why && (!row || TileRules.SwitchShowsState(height));
+        _tile.Use(face.Glyph, width - (2 * FamilySpace.Inset), label: row || face.Texted, state: stated, face.Name, face.State, row ? 0 : face.Mark, plan.Width, plan.StateLines);
         Paint();
     }
 
@@ -278,25 +280,6 @@ public sealed partial class PowerButtonView : Grid, IWidgetView, IWidgetSurfaceA
 
         _tile.Show(Glyph(_action), name, why, PowerActionRules.Tile(button.Available, armed, failure is not null));
         _tile.Face(!button.Available ? ItemState.Rest : _pressed ? ItemState.Pressed : _hover ? ItemState.Hover : ItemState.Rest);
-
-        // [S-1913] The ring starts draining when the widget arms and drains on its own (the
-        // compositor's): a repaint while armed (a hover) leaves it be.
-        if (!armed)
-        {
-            _tile.Ring.Stop();
-
-            // [S-15764] A tile's ring stands round its glyph at rest too, its track alone (the Round look's circle is its
-            // ring): arming draws the arc in a ring already laid out, so nothing moves (WR-12).
-            if (_tile.Look == TileLook.Tile)
-            {
-                _tile.Ring.Show(0);
-                _tile.Ring.Visibility = Visibility.Visible;
-            }
-        }
-        else if (!_tile.Ring.Draining)
-        {
-            _tile.Ring.Drain(button.ArmRemaining(now), button.ArmLeft(now));
-        }
 
         ToolTipService.SetToolTip(this, tooltip);
         AutomationProperties.SetHelpText(this, tooltip);

@@ -348,20 +348,15 @@ public class PowerActionTests
     }
 
     [Fact]
-    public void S1912_the_glyph_stands_inside_its_ring_at_every_size_so_arming_moves_nothing()
+    public void S17152_a_power_button_lands_as_a_quick_toggle_does_on_the_same_tile()
     {
-        // The name's line is planned at every size and the sentence takes it; the glyph is the
-        // ringed one whether the ring shows or not.
-        foreach (var side in new[] { 52.0, 100, 160, 480 })
-        {
-            var face = Themia.Sdk.Kit.TileRules.Face(side, side, stateLine: false);
-            var h = side - (2 * Themia.Sdk.Kit.FamilySpace.Inset);
-            var glyph = face.Glyph.FontSize;
-            var ring = Themia.Sdk.Kit.TileRules.RingAround(glyph);
-            var below = face.Texted ? Themia.Sdk.Kit.FamilySpace.S2 + (2 * face.Name.LineHeight) : 0;
-            Assert.True(glyph <= ring * Themia.Sdk.Kit.TileRules.RingShare + 1e-9, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            Assert.True(glyph + below <= h, side.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        }
+        // Owner, 2026-11-23: "the power buttons have a weird background rounded border or similar. remove that too. just the
+        // icon and the text. the power buttons should have the same base component as the toggle buttons"; and "from the
+        // toggles and the buttons remove the on/off text in general".
+        Assert.True(ModuleCatalog.TryGet(new WidgetId("quickToggle"), out var toggle));
+        Assert.True(ModuleCatalog.TryGet(new WidgetId("shutdown"), out var shutdown));
+        Assert.Equal(toggle.Natural, shutdown.Natural);
+        Assert.Equal(new SizeDip(100, 100), toggle.Natural);
     }
 
     // ---- call plan -------------------------------------------------------------------------

@@ -87,7 +87,8 @@ public abstract class PowerButtonModule : IWidgetModule
             Label = kind.Label,
             Description = kind.Description,
             Glyph = kind.Glyph,
-            Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, stateLine: false),
+            // [S-17151] A power button's Switch row keeps the room for its why line (armed, failed); its tile none at rest.
+            Sizing = c => TileRules.Sizing(((PowerButtonConfig)c).Look, stateLine: ((PowerButtonConfig)c).Look == TileLook.Switch),
             Traits = WidgetTraits.HasItems | WidgetTraits.OneReadout,
             Add = new(AddFolderId.PowerButtons, kind.Group, kind.Rank),
         };
